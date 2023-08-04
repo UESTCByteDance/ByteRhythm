@@ -1,7 +1,6 @@
 package models
 
 import (
-	"github.com/beego/beego/v2/client/orm"
 	"time"
 )
 
@@ -24,9 +23,4 @@ type User struct {
 	WorkCount     int       `orm:"column(work_count);default(0)" json:"work_count"`
 	CreatedAt     time.Time `orm:"auto_now_add;type(datetime)" json:"-"`
 	UpdatedAt     time.Time `orm:"auto_now;type(datetime)" json:"-"`
-}
-
-func init() {
-	// 需要在init中注册定义的model
-	orm.RegisterModel(new(User), new(Comment), new(Favorite), new(Follow), new(Video))
 }
