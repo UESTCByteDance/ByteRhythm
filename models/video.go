@@ -11,12 +11,12 @@ import (
 )
 
 type Video struct {
-	Id         int       `orm:"column(id);pk;auto"`
-	AuthorId   *User     `orm:"column(author_id);rel(fk)" description:"作者id"`
-	PlayUrl    string    `orm:"column(play_url);size(255)" description:"视频播放地址"`
-	CoverUrl   string    `orm:"column(cover_url);size(255)" description:"视频封面地址"`
-	Title      string    `orm:"column(title);size(255)" description:"视频标题"`
-	CreateTime time.Time `orm:"column(create_time);auto_now_add;type(datetime)" description:"创建时间"`
+	Id         int       `orm:"column(id);pk;auto" json:"id"`
+	AuthorId   *User     `orm:"column(author_id);rel(fk)" description:"作者id" json:"author_id"`
+	PlayUrl    string    `orm:"column(play_url);size(255)" description:"视频播放地址" json:"play_url"`
+	CoverUrl   string    `orm:"column(cover_url);size(255)" description:"视频封面地址" json:"cover_url"`
+	Title      string    `orm:"column(title);size(255)" description:"视频标题" json:"title"`
+	CreateTime time.Time `orm:"column(create_time);auto_now_add;type(datetime)" description:"创建时间" json:"create_time"`
 }
 
 func (t *Video) TableName() string {
@@ -25,21 +25,6 @@ func (t *Video) TableName() string {
 
 func init() {
 	orm.RegisterModel(new(Video))
-}
-
-func VideoData(videos []Video) (data []interface{}) {
-
-	for _, video := range videos {
-		data = append(data, map[string]interface{}{
-			"id":          video.Id,
-			"author_id":   video.AuthorId,
-			"play_url":    video.PlayUrl,
-			"cover_url":   video.CoverUrl,
-			"title":       video.Title,
-			"create_time": video.CreateTime.Format("2006-1-2 15:04"),
-		})
-	}
-	return
 }
 
 // AddVideo insert a new Video into database and returns

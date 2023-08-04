@@ -11,12 +11,11 @@ import (
 )
 
 type Message struct {
-	Id         int       `orm:"column(id);pk;auto" description:"消息id"`
-	FromUserId *User     `orm:"column(from_user_id);rel(fk)" description:"消息发送者id"`
-	ToUserId   *User     `orm:"column(to_user_id);rel(fk)" description:"消息接收者id"`
-	Content    string    `orm:"column(content);size(255)" description:"消息内容"`
-	CreateTime time.Time `orm:"column(create_time);auto_now_add;type(datetime)" description:"创建时间"`
-	UpdateTime time.Time `orm:"column(update_time);auto_now;type(datetime)" description:"更新时间"`
+	Id         int       `orm:"column(id);pk;auto" description:"消息id" json:"id"`
+	FromUserId *User     `orm:"column(from_user_id);rel(fk)" description:"消息发送者id" json:"from_user_id"`
+	ToUserId   *User     `orm:"column(to_user_id);rel(fk)" description:"消息接收者id" json:"to_user_id"`
+	Content    string    `orm:"column(content);size(1024)" description:"消息内容" json:"content"`
+	CreateTime time.Time `orm:"column(create_time);auto_now_add;type(datetime)" description:"创建时间" json:"create_time"`
 }
 
 func (t *Message) TableName() string {
@@ -25,21 +24,6 @@ func (t *Message) TableName() string {
 
 func init() {
 	orm.RegisterModel(new(Message))
-}
-
-func MessageData(messages []Message) (data []interface{}) {
-
-	for _, message := range messages {
-		data = append(data, map[string]interface{}{
-			"id":           message.Id,
-			"from_user_id": message.FromUserId,
-			"to_user_id":   message.ToUserId,
-			"content":      message.Content,
-			"create_time":  message.CreateTime.Format("2006-1-2 15:04"),
-			"update_time":  message.UpdateTime.Format("2006-1-2 15:04"),
-		})
-	}
-	return
 }
 
 // AddMessage insert a new Message into database and returns

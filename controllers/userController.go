@@ -4,7 +4,6 @@ import (
 	"ByteRhythm/models"
 	"encoding/json"
 	"errors"
-	"github.com/beego/beego/v2/client/orm"
 	beego "github.com/beego/beego/v2/server/web"
 	"strconv"
 	"strings"
@@ -171,113 +170,13 @@ func (c *UserController) Delete() {
 }
 
 func (c *UserController) GetUser() {
-	/// 创建 ORM 对象
-	o := orm.NewOrm()
-	// 从请求参数中获取用户 ID
-	userID, _ := c.GetInt64("user_id", 0)
-
-	var user models.User
-
-	if err := o.QueryTable(new(models.User)).Filter("id", userID).One(&user); err == nil {
-		c.Data["json"] = map[string]interface{}{
-			"code": 200,
-			"data": &user,
-		}
-		err := c.ServeJSON()
-		if err != nil {
-			return
-		}
-	} else {
-		c.Data["json"] = map[string]interface{}{
-			"code": 400,
-			"msg":  "获取用户信息失败",
-		}
-		err := c.ServeJSON()
-		if err != nil {
-			return
-		}
-	}
 
 }
 
 func (c *UserController) LoginUser() {
-	// 从请求参数中获取用户名和密码
-	username := c.GetString("username")
-	password := c.GetString("password")
 
-	// 创建 ORM 对象
-	o := orm.NewOrm()
-
-	// 根据用户名查询用户信息
-	var user models.User
-	if err := o.QueryTable(new(models.User)).Filter("username", username).One(&user); err != nil {
-		c.Data["json"] = map[string]interface{}{
-			"code": 400,
-			"msg":  "用户名或密码错误",
-		}
-		err := c.ServeJSON()
-		if err != nil {
-			return
-		}
-		return
-	}
-
-	// 比较密码是否正确
-	if user.Password != password {
-		c.Data["json"] = map[string]interface{}{
-			"code": 400,
-			"msg":  "用户名或密码错误",
-		}
-		err := c.ServeJSON()
-		if err != nil {
-			return
-		}
-		return
-	}
-
-	c.Data["json"] = map[string]interface{}{
-		"code": 200,
-		"msg":  "登录成功",
-	}
-	err := c.ServeJSON()
-	if err != nil {
-		return
-	}
 }
 
 func (c *UserController) RegisterUser() {
-	// 从请求参数中获取用户名和密码
-	username := c.GetString("username")
-	password := c.GetString("password")
 
-	// 创建用户信息对象
-	user := &models.User{
-		Username: username,
-		Password: password,
-	}
-
-	// 创建 ORM 对象
-	o := orm.NewOrm()
-
-	// 插入新用户信息
-	if _, err := o.Insert(user); err != nil {
-		c.Data["json"] = map[string]interface{}{
-			"code": 400,
-			"msg":  "注册失败",
-		}
-		err := c.ServeJSON()
-		if err != nil {
-			return
-		}
-		return
-	}
-
-	c.Data["json"] = map[string]interface{}{
-		"code": 200,
-		"msg":  "注册成功",
-	}
-	err := c.ServeJSON()
-	if err != nil {
-		return
-	}
 }

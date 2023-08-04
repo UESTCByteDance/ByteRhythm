@@ -1,17 +1,17 @@
 /*
  Navicat Premium Data Transfer
 
- Source Server         : localhost_3306
+ Source Server         : localhost
  Source Server Type    : MySQL
- Source Server Version : 50737
+ Source Server Version : 80013
  Source Host           : localhost:3306
  Source Schema         : beego
 
  Target Server Type    : MySQL
- Target Server Version : 50737
+ Target Server Version : 80013
  File Encoding         : 65001
 
- Date: 03/08/2023 14:08:27
+ Date: 05/08/2023 00:02:35
 */
 
 SET NAMES utf8mb4;
@@ -28,8 +28,9 @@ CREATE TABLE `comment`  (
   `content` varchar(512) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '评论内容',
   `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   PRIMARY KEY (`id`) USING BTREE,
-  INDEX `idx_comment_user_id`(`user_id`) USING BTREE,
-  INDEX `idx_comment_video_id`(`video_id`) USING BTREE,
+  INDEX `idx_comment_user_id`(`user_id` ASC) USING BTREE,
+  INDEX `idx_comment_video_id`(`video_id` ASC) USING BTREE,
+  INDEX `idx_comment_createtime`(`create_time` ASC) USING BTREE,
   CONSTRAINT `ref_comment_user_id` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `ref_comment_video_id` FOREIGN KEY (`video_id`) REFERENCES `video` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = DYNAMIC;
@@ -48,8 +49,8 @@ CREATE TABLE `favorite`  (
   `video_id` int(11) NOT NULL COMMENT '点赞视频id',
   `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   PRIMARY KEY (`id`) USING BTREE,
-  INDEX `idx_favorite_user_id`(`user_id`) USING BTREE,
-  INDEX `idx_favorite_video_id`(`video_id`) USING BTREE,
+  INDEX `idx_favorite_user_id`(`user_id` ASC) USING BTREE,
+  INDEX `idx_favorite_video_id`(`video_id` ASC) USING BTREE,
   CONSTRAINT `ref_favorite_user_id` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `ref_favorite_video_id` FOREIGN KEY (`video_id`) REFERENCES `video` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = DYNAMIC;
@@ -68,8 +69,8 @@ CREATE TABLE `follow`  (
   `followed_user_id` int(11) NOT NULL COMMENT '粉丝用户id',
   `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   PRIMARY KEY (`id`) USING BTREE,
-  INDEX `idx_follow_user_id`(`user_id`) USING BTREE,
-  INDEX `idx_followed_user_id`(`followed_user_id`) USING BTREE,
+  INDEX `idx_follow_user_id`(`user_id` ASC) USING BTREE,
+  INDEX `idx_followed_user_id`(`followed_user_id` ASC) USING BTREE,
   CONSTRAINT `ref_follow_user_id` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `ref_followed_user_id` FOREIGN KEY (`followed_user_id`) REFERENCES `user` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = DYNAMIC;
@@ -86,12 +87,12 @@ CREATE TABLE `message`  (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '消息id',
   `from_user_id` int(11) NOT NULL COMMENT '消息发送者id',
   `to_user_id` int(11) NOT NULL COMMENT '消息接收者id',
-  `content` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' COMMENT '消息内容',
+  `content` varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' COMMENT '消息内容',
   `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE,
-  INDEX `idx_from_user_id`(`from_user_id`) USING BTREE,
-  INDEX `idx_to_user_id`(`to_user_id`) USING BTREE,
+  INDEX `idx_from_user_id`(`from_user_id` ASC) USING BTREE,
+  INDEX `idx_to_user_id`(`to_user_id` ASC) USING BTREE,
+  INDEX `idx_mess_create_time`(`create_time` ASC) USING BTREE,
   CONSTRAINT `ref_from_user_id` FOREIGN KEY (`from_user_id`) REFERENCES `user` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `ref_to_user_id` FOREIGN KEY (`to_user_id`) REFERENCES `user` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = DYNAMIC;
@@ -113,13 +114,14 @@ CREATE TABLE `user`  (
   `signature` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '个人简介',
   `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   PRIMARY KEY (`id`) USING BTREE,
-  UNIQUE INDEX `unique_username`(`username`) USING BTREE COMMENT '用户名唯一'
-) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = DYNAMIC;
+  UNIQUE INDEX `unique_username`(`username` ASC) USING BTREE COMMENT '用户名唯一'
+) ENGINE = InnoDB AUTO_INCREMENT = 5 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of user
 -- ----------------------------
 INSERT INTO `user` VALUES (1, 'youyou', '123456', '', '', '', '2023-08-03 05:37:50');
+INSERT INTO `user` VALUES (4, 'youyou1', '123456', '', '', '', '2023-08-04 12:12:29');
 
 -- ----------------------------
 -- Table structure for video
@@ -133,7 +135,8 @@ CREATE TABLE `video`  (
   `title` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' COMMENT '视频标题',
   `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   PRIMARY KEY (`id`) USING BTREE,
-  INDEX `idx_author_id`(`author_id`) USING BTREE,
+  INDEX `idx_author_id`(`author_id` ASC) USING BTREE,
+  INDEX `idx_create_time`(`create_time` ASC) USING BTREE,
   CONSTRAINT `ref_author_id` FOREIGN KEY (`author_id`) REFERENCES `user` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = DYNAMIC;
 

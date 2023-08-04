@@ -11,10 +11,10 @@ import (
 )
 
 type Favorite struct {
-	Id         int       `orm:"column(id);pk;auto" description:"喜欢id"`
-	UserId     *User     `orm:"column(user_id);rel(fk)" description:"点赞用户id"`
-	VideoId    *Video    `orm:"column(video_id);rel(fk)" description:"点赞视频id"`
-	CreateTime time.Time `orm:"column(create_time);auto_now_add;type(datetime)" description:"创建时间"`
+	Id         int       `orm:"column(id);pk;auto" description:"喜欢id" json:"id"`
+	UserId     *User     `orm:"column(user_id);rel(fk)" description:"点赞用户id" json:"user_id"`
+	VideoId    *Video    `orm:"column(video_id);rel(fk)" description:"点赞视频id" json:"video_id"`
+	CreateTime time.Time `orm:"column(create_time);auto_now_add;type(datetime)" description:"创建时间" json:"create_time"`
 }
 
 func (t *Favorite) TableName() string {
@@ -23,19 +23,6 @@ func (t *Favorite) TableName() string {
 
 func init() {
 	orm.RegisterModel(new(Favorite))
-}
-
-func FavoriteData(favorites []Favorite) (data []interface{}) {
-
-	for _, favorite := range favorites {
-		data = append(data, map[string]interface{}{
-			"id":          favorite.Id,
-			"user_id":     favorite.UserId,
-			"video_id":    favorite.VideoId,
-			"create_time": favorite.CreateTime.Format("2006-1-2 15:04"),
-		})
-	}
-	return
 }
 
 // AddFavorite insert a new Favorite into database and returns

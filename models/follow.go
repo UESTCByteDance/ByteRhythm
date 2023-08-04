@@ -11,10 +11,10 @@ import (
 )
 
 type Follow struct {
-	Id             int       `orm:"column(id);pk;auto" description:"关注id"`
-	UserId         *User     `orm:"column(user_id);rel(fk)" description:"关注用户id"`
-	FollowedUserId *User     `orm:"column(followed_user_id);rel(fk)" description:"粉丝用户id"`
-	CreateTime     time.Time `orm:"column(create_time);auto_now_add;type(datetime)" description:"创建时间"`
+	Id             int       `orm:"column(id);pk;auto" description:"关注id" json:"id"`
+	UserId         *User     `orm:"column(user_id);rel(fk)" description:"关注用户id" json:"user_id"`
+	FollowedUserId *User     `orm:"column(followed_user_id);rel(fk)" description:"粉丝用户id" json:"followed_user_id"`
+	CreateTime     time.Time `orm:"column(create_time);auto_now_add;type(datetime)" description:"创建时间" json:"create_time"`
 }
 
 func (t *Follow) TableName() string {
@@ -23,19 +23,6 @@ func (t *Follow) TableName() string {
 
 func init() {
 	orm.RegisterModel(new(Follow))
-}
-
-func FollowData(follows []Follow) (data []interface{}) {
-
-	for _, follow := range follows {
-		data = append(data, map[string]interface{}{
-			"id":               follow.Id,
-			"user_id":          follow.UserId,
-			"followed_user_id": follow.FollowedUserId,
-			"create_time":      follow.CreateTime.Format("2006-1-2 15:04"),
-		})
-	}
-	return
 }
 
 // AddFollow insert a new Follow into database and returns

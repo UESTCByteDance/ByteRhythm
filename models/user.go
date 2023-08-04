@@ -11,13 +11,13 @@ import (
 )
 
 type User struct {
-	Id              int       `orm:"column(id);pk;auto" description:"用户id"`
-	Username        string    `orm:"column(username);unique;size(255)" description:"用户名"`
-	Password        string    `orm:"column(password);size(255)" description:"密码"`
-	Avatar          string    `orm:"column(avatar);size(255);null" description:"用户头像"`
-	BackgroundImage string    `orm:"column(background_image);size(255);null" description:"用户个人页顶部大图"`
-	Signature       string    `orm:"column(signature);size(255);null" description:"个人简介"`
-	CreateTime      time.Time `orm:"column(create_time);auto_now_add;type(datetime)" description:"创建时间"`
+	Id              int       `orm:"column(id);pk;auto" description:"用户id" json:"id"`
+	Username        string    `orm:"column(username);unique;size(255)" description:"用户名" json:"username"`
+	Password        string    `orm:"column(password);size(255)" description:"密码" json:"password"`
+	Avatar          string    `orm:"column(avatar);size(255);null" description:"用户头像" json:"avatar"`
+	BackgroundImage string    `orm:"column(background_image);size(255);null" description:"用户个人页顶部大图" json:"background_image"`
+	Signature       string    `orm:"column(signature);size(255);null" description:"个人简介" json:"signature"`
+	CreateTime      time.Time `orm:"column(create_time);auto_now_add;type(datetime)" description:"创建时间" json:"create_time"`
 }
 
 func (t *User) TableName() string {
@@ -26,22 +26,6 @@ func (t *User) TableName() string {
 
 func init() {
 	orm.RegisterModel(new(User))
-}
-
-func UserData(users []User) (data []interface{}) {
-
-	for _, user := range users {
-		data = append(data, map[string]interface{}{
-			"id":               user.Id,
-			"username":         user.Username,
-			"password":         user.Password,
-			"avatar":           user.Avatar,
-			"background_image": user.BackgroundImage,
-			"signature":        user.Signature,
-			"create_time":      user.CreateTime.Format("2006-1-2 15:04"),
-		})
-	}
-	return
 }
 
 // AddUser insert a new User into database and returns
