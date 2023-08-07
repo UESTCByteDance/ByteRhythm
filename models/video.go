@@ -3,14 +3,10 @@ package models
 import "time"
 
 type Video struct {
-	ID            int       `orm:"column(id);auto;pk" json:"id"`
-	User          int       `orm:"column(user_id)" json:"user_id"`
-	Title         string    `orm:"column(title);size(255)" json:"title"`
-	Introduction  string    `orm:"column(introduction);size(1000)" json:"introduction"`
-	PlayURL       string    `orm:"column(play_url);size(255)" json:"play_url"`
-	CoverURL      string    `orm:"column(cover_url);size(255)" json:"cover_url"`
-	FavoriteCount int       `orm:"column(favorite_count);default(0)" json:"favorite_count"`
-	CommentCount  int       `orm:"column(comment_count);default(0)" json:"comment_count"`
-	CreatedAt     time.Time `orm:"auto_now_add;type(datetime)" json:"-"`
-	UpdatedAt     time.Time `orm:"auto_now;type(datetime)" json:"-"`
+	Id         int       `orm:"column(id);pk;auto" json:"id"`
+	AuthorId   *User     `orm:"column(author_id);rel(fk)" description:"作者id" json:"author_id"`
+	PlayUrl    string    `orm:"column(play_url);size(255)" description:"视频播放地址" json:"play_url"`
+	CoverUrl   string    `orm:"column(cover_url);size(255)" description:"视频封面地址" json:"cover_url"`
+	Title      string    `orm:"column(title);size(255)" description:"视频标题" json:"title"`
+	CreateTime time.Time `orm:"column(create_time);auto_now_add;type(datetime)" description:"创建时间" json:"create_time"`
 }
