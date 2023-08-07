@@ -4,14 +4,12 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="09abd11a-e23e-4c78-ac6a-c36015e7b999" name="更改" comment="构建表模型">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/models/comment.go" beforeDir="false" afterPath="$PROJECT_DIR$/models/comment.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/models/favorite.go" beforeDir="false" afterPath="$PROJECT_DIR$/models/favorite.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/models/follow.go" beforeDir="false" afterPath="$PROJECT_DIR$/models/follow.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/models/user.go" beforeDir="false" afterPath="$PROJECT_DIR$/models/user.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/models/video.go" beforeDir="false" afterPath="$PROJECT_DIR$/models/video.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/routers/router.go" beforeDir="false" afterPath="$PROJECT_DIR$/routers/router.go" afterDir="false" />
+    <list default="true" id="09abd11a-e23e-4c78-ac6a-c36015e7b999" name="更改" comment="初始化">
+      <change beforePath="$PROJECT_DIR$/.idea/ByteRhythm.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/deployment.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ByteRhythm.exe" beforeDir="false" afterPath="$PROJECT_DIR$/ByteRhythm.exe" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -113,7 +111,8 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="构建表模型" />
-    <option name="LAST_COMMIT_MESSAGE" value="构建表模型" />
+    <MESSAGE value="初始化" />
+    <option name="LAST_COMMIT_MESSAGE" value="初始化" />
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>
