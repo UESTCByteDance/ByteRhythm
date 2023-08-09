@@ -7,5 +7,6 @@ import (
 )
 
 func main() {
+	//web.InsertFilter("*", web.BeforeRouter, utils.FilterToken)
 	web.Run()
 }
