@@ -1,50 +1,34 @@
-// @APIVersion 1.0.0
-// @Title beego Test API
-// @Description beego has a very cool tools to autogenerate documents for your API
-// @Contact astaxie@gmail.com
-// @TermsOfServiceUrl http://beego.me/
-// @License Apache 2.0
-// @LicenseUrl http://www.apache.org/licenses/LICENSE-2.0.html
 package routers
 
 import (
 	"ByteRhythm/controllers"
-
-	beego "github.com/beego/beego/v2/server/web"
+	"github.com/beego/beego/v2/server/web"
 )
 
 func init() {
-	ns := beego.NewNamespace("/douyin",
-		beego.NSNamespace("/user",
-			beego.NSRouter("/", &controllers.UserController{}, "get:GetUser"),
-			beego.NSRouter("/login", &controllers.UserController{}, "post:LoginUser"),
-			beego.NSRouter("/register", &controllers.UserController{}, "post:RegisterUser"),
+	ns := web.NewNamespace("/douyin",
+		web.NSNamespace("/user",
+			web.NSRouter("/", &controllers.UserController{}, "get:Info"),
+			web.NSRouter("/login/", &controllers.UserController{}, "post:Login"),
+			web.NSRouter("/register/", &controllers.UserController{}, "post:Register"),
 		),
-		beego.NSNamespace("/feed",
-			beego.NSRouter("/", &controllers.VideoController{}, "get:GetFeed"),
+		web.NSNamespace("/feed",
+			web.NSRouter("/", &controllers.VideoController{}, "get:Feed"),
 		),
-		beego.NSNamespace("/publish",
-			beego.NSRouter("/list", &controllers.VideoController{}, "get:ListPublish"),
-			beego.NSRouter("/action", &controllers.VideoController{}, "post:ActionPublish"),
+		web.NSNamespace("/publish",
+			web.NSRouter("/list/", &controllers.VideoController{}, "get:List"),
+			web.NSRouter("/action/", &controllers.VideoController{}, "post:Publish"),
 		),
-		beego.NSNamespace("/favorite",
-			beego.NSRouter("/list", &controllers.FavoriteController{}, "get:ListFavorite"),
-			beego.NSRouter("/action", &controllers.FavoriteController{}, "post:ActionFavorite"),
+		web.NSNamespace("/relation",
+			web.NSRouter("/action", &controllers.FollowController{}, "post:ActionRelation"),
+			web.NSRouter("/follow/list", &controllers.FollowController{}, "get:ListFollowRelation"),
+			web.NSRouter("/follower/list", &controllers.FollowController{}, "get:ListFollowerRelation"),
+			web.NSRouter("/friend/list", &controllers.FollowController{}, "get:ListFriendRelation"),
 		),
-		beego.NSNamespace("/comment",
-			beego.NSRouter("/list", &controllers.CommentController{}, "get:ListComment"),
-			beego.NSRouter("/action", &controllers.CommentController{}, "post:ActionComment"),
-		),
-		beego.NSNamespace("/relation",
-			beego.NSRouter("/action", &controllers.FollowController{}, "post:ActionRelation"),
-			beego.NSRouter("/follow/list", &controllers.FollowController{}, "get:ListFollowRelation"),
-			beego.NSRouter("/follower/list", &controllers.FollowController{}, "get:ListFollowerRelation"),
-			beego.NSRouter("/friend/list", &controllers.FollowController{}, "get:ListFriendRelation"),
-		),
-		beego.NSNamespace("/message",
-			beego.NSRouter("/chat", &controllers.MessageController{}, "get:ChatMessage"),
-			beego.NSRouter("/action", &controllers.MessageController{}, "post:ActionMessage"),
+		web.NSNamespace("/message",
+			web.NSRouter("/chat", &controllers.MessageController{}, "get:ChatMessage"),
+			web.NSRouter("/action", &controllers.MessageController{}, "post:ActionMessage"),
 		),
 	)
-	beego.AddNamespace(ns)
+	web.AddNamespace(ns)
 }
