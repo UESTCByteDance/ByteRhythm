@@ -3,6 +3,7 @@ package controllers
 import (
 	"ByteRhythm/models"
 	"ByteRhythm/object"
+	"ByteRhythm/utils"
 	"context"
 	"fmt"
 	"github.com/beego/beego/v2/client/orm"
@@ -12,7 +13,6 @@ import (
 	"io"
 	"mime/multipart"
 	"strings"
-	"time"
 )
 
 type baseController struct {
@@ -45,7 +45,7 @@ func (c *baseController) Upload(file multipart.File, header *multipart.FileHeade
 	accessKey, _ := web.AppConfig.String("AccessKey")
 	bucket, _ := web.AppConfig.String("Bucket")
 	domain, _ := web.AppConfig.String("Domain")
-	key := fmt.Sprintf("%d.%s", time.Now().UnixNano(), suffix)
+	key := fmt.Sprintf("%s.%s", utils.GenerateUUID(), suffix)
 	putPolicy := storage.PutPolicy{
 		Scope: fmt.Sprintf("%s:%s", bucket, key),
 	}
@@ -53,7 +53,6 @@ func (c *baseController) Upload(file multipart.File, header *multipart.FileHeade
 	upToken := putPolicy.UploadToken(mac)
 
 	cfg := storage.Config{}
-	cfg.Region = &storage.ZoneHuanan
 	uploader := storage.NewFormUploader(&cfg)
 	ret := storage.PutRet{}
 	putExtra := storage.PutExtra{

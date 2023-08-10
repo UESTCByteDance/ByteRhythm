@@ -106,6 +106,7 @@ func (c *VideoController) Publish() {
 			"status_code": 1,
 			"status_msg":  "发布失败",
 		}
+		//utils.VideoGetNetImgCount(1, url)
 		c.ServeJSON()
 		return
 	} else {

@@ -7,6 +7,7 @@ require github.com/beego/beego/v2 v2.0.1
 require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/go-sql-driver/mysql v1.7.1
+	github.com/google/uuid v1.1.1
 	github.com/qiniu/go-sdk/v7 v7.17.0
 	github.com/smartystreets/goconvey v1.6.4
 )
