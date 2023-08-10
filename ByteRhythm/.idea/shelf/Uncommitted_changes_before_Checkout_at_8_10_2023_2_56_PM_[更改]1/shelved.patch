@@ -1,0 +1,412 @@
+Index: controllers/favoriteController.go
+===================================================================
+diff --git a/controllers/favoriteController.go b/controllers/favoriteController.go
+deleted file mode 100644
+--- a/controllers/favoriteController.go	
++++ /dev/null	
+@@ -1,179 +0,0 @@
+-package controllers
+-
+-import (
+-	"ByteRhythm/models"
+-	"encoding/json"
+-	"errors"
+-	"strconv"
+-	"strings"
+-
+-	beego "github.com/beego/beego/v2/server/web"
+-)
+-
+-// FavoriteController operations for Favorite
+-type FavoriteController struct {
+-	beego.Controller
+-}
+-
+-// URLMapping ...
+-func (c *FavoriteController) URLMapping() {
+-	c.Mapping("Post", c.Post)
+-	c.Mapping("GetOne", c.GetOne)
+-	c.Mapping("GetAll", c.GetAll)
+-	c.Mapping("Put", c.Put)
+-	c.Mapping("Delete", c.Delete)
+-}
+-
+-// Post ...
+-// @Title Post
+-// @Description create Favorite
+-// @Param	body		body 	models.Favorite	true		"body for Favorite content"
+-// @Success 201 {int} models.Favorite
+-// @Failure 403 body is empty
+-// @router / [post]
+-func (c *FavoriteController) Post() {
+-	var v models.Favorite
+-	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &v); err == nil {
+-		if _, err := models.AddFavorite(&v); err == nil {
+-			c.Ctx.Output.SetStatus(201)
+-			c.Data["json"] = v
+-		} else {
+-			c.Data["json"] = err.Error()
+-		}
+-	} else {
+-		c.Data["json"] = err.Error()
+-	}
+-	c.ServeJSON()
+-}
+-
+-// GetOne ...
+-// @Title Get One
+-// @Description get Favorite by id
+-// @Param	id		path 	string	true		"The key for staticblock"
+-// @Success 200 {object} models.Favorite
+-// @Failure 403 :id is empty
+-// @router /:id [get]
+-func (c *FavoriteController) GetOne() {
+-	idStr := c.Ctx.Input.Param(":id")
+-	id, _ := strconv.Atoi(idStr)
+-	v, err := models.GetFavoriteById(id)
+-	if err != nil {
+-		c.Data["json"] = err.Error()
+-	} else {
+-		c.Data["json"] = v
+-	}
+-	c.ServeJSON()
+-}
+-
+-// GetAll ...
+-// @Title Get All
+-// @Description get Favorite
+-// @Param	query	query	string	false	"Filter. e.g. col1:v1,col2:v2 ..."
+-// @Param	fields	query	string	false	"Fields returned. e.g. col1,col2 ..."
+-// @Param	sortby	query	string	false	"Sorted-by fields. e.g. col1,col2 ..."
+-// @Param	order	query	string	false	"Order corresponding to each sortby field, if single value, apply to all sortby fields. e.g. desc,asc ..."
+-// @Param	limit	query	string	false	"Limit the size of result set. Must be an integer"
+-// @Param	offset	query	string	false	"Start position of result set. Must be an integer"
+-// @Success 200 {object} models.Favorite
+-// @Failure 403
+-// @router / [get]
+-func (c *FavoriteController) GetAll() {
+-	var fields []string
+-	var sortby []string
+-	var order []string
+-	var query = make(map[string]string)
+-	var limit int64 = 10
+-	var offset int64
+-
+-	// fields: col1,col2,entity.col3
+-	if v := c.GetString("fields"); v != "" {
+-		fields = strings.Split(v, ",")
+-	}
+-	// limit: 10 (default is 10)
+-	if v, err := c.GetInt64("limit"); err == nil {
+-		limit = v
+-	}
+-	// offset: 0 (default is 0)
+-	if v, err := c.GetInt64("offset"); err == nil {
+-		offset = v
+-	}
+-	// sortby: col1,col2
+-	if v := c.GetString("sortby"); v != "" {
+-		sortby = strings.Split(v, ",")
+-	}
+-	// order: desc,asc
+-	if v := c.GetString("order"); v != "" {
+-		order = strings.Split(v, ",")
+-	}
+-	// query: k:v,k:v
+-	if v := c.GetString("query"); v != "" {
+-		for _, cond := range strings.Split(v, ",") {
+-			kv := strings.SplitN(cond, ":", 2)
+-			if len(kv) != 2 {
+-				c.Data["json"] = errors.New("Error: invalid query key/value pair")
+-				c.ServeJSON()
+-				return
+-			}
+-			k, v := kv[0], kv[1]
+-			query[k] = v
+-		}
+-	}
+-
+-	l, err := models.GetAllFavorite(query, fields, sortby, order, offset, limit)
+-	if err != nil {
+-		c.Data["json"] = err.Error()
+-	} else {
+-		c.Data["json"] = l
+-	}
+-	c.ServeJSON()
+-}
+-
+-// Put ...
+-// @Title Put
+-// @Description update the Favorite
+-// @Param	id		path 	string	true		"The id you want to update"
+-// @Param	body		body 	models.Favorite	true		"body for Favorite content"
+-// @Success 200 {object} models.Favorite
+-// @Failure 403 :id is not int
+-// @router /:id [put]
+-func (c *FavoriteController) Put() {
+-	idStr := c.Ctx.Input.Param(":id")
+-	id, _ := strconv.Atoi(idStr)
+-	v := models.Favorite{Id: id}
+-	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &v); err == nil {
+-		if err := models.UpdateFavoriteById(&v); err == nil {
+-			c.Data["json"] = "OK"
+-		} else {
+-			c.Data["json"] = err.Error()
+-		}
+-	} else {
+-		c.Data["json"] = err.Error()
+-	}
+-	c.ServeJSON()
+-}
+-
+-// Delete ...
+-// @Title Delete
+-// @Description delete the Favorite
+-// @Param	id		path 	string	true		"The id you want to delete"
+-// @Success 200 {string} delete success!
+-// @Failure 403 id is empty
+-// @router /:id [delete]
+-func (c *FavoriteController) Delete() {
+-	idStr := c.Ctx.Input.Param(":id")
+-	id, _ := strconv.Atoi(idStr)
+-	if err := models.DeleteFavorite(id); err == nil {
+-		c.Data["json"] = "OK"
+-	} else {
+-		c.Data["json"] = err.Error()
+-	}
+-	c.ServeJSON()
+-}
+-
+-func (c *FavoriteController) ListFavorite() {
+-
+-}
+-
+-func (c *FavoriteController) ActionFavorite() {
+-
+-}
+Index: controllers/commentController.go
+===================================================================
+diff --git a/controllers/commentController.go b/controllers/commentController.go
+deleted file mode 100644
+--- a/controllers/commentController.go	
++++ /dev/null	
+@@ -1,179 +0,0 @@
+-package controllers
+-
+-import (
+-	"ByteRhythm/models"
+-	"encoding/json"
+-	"errors"
+-	"strconv"
+-	"strings"
+-
+-	beego "github.com/beego/beego/v2/server/web"
+-)
+-
+-// CommentController operations for Comment
+-type CommentController struct {
+-	beego.Controller
+-}
+-
+-// URLMapping ...
+-func (c *CommentController) URLMapping() {
+-	c.Mapping("Post", c.Post)
+-	c.Mapping("GetOne", c.GetOne)
+-	c.Mapping("GetAll", c.GetAll)
+-	c.Mapping("Put", c.Put)
+-	c.Mapping("Delete", c.Delete)
+-}
+-
+-// Post ...
+-// @Title Post
+-// @Description create Comment
+-// @Param	body		body 	models.Comment	true		"body for Comment content"
+-// @Success 201 {int} models.Comment
+-// @Failure 403 body is empty
+-// @router / [post]
+-func (c *CommentController) Post() {
+-	var v models.Comment
+-	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &v); err == nil {
+-		if _, err := models.AddComment(&v); err == nil {
+-			c.Ctx.Output.SetStatus(201)
+-			c.Data["json"] = v
+-		} else {
+-			c.Data["json"] = err.Error()
+-		}
+-	} else {
+-		c.Data["json"] = err.Error()
+-	}
+-	c.ServeJSON()
+-}
+-
+-// GetOne ...
+-// @Title Get One
+-// @Description get Comment by id
+-// @Param	id		path 	string	true		"The key for staticblock"
+-// @Success 200 {object} models.Comment
+-// @Failure 403 :id is empty
+-// @router /:id [get]
+-func (c *CommentController) GetOne() {
+-	idStr := c.Ctx.Input.Param(":id")
+-	id, _ := strconv.Atoi(idStr)
+-	v, err := models.GetCommentById(id)
+-	if err != nil {
+-		c.Data["json"] = err.Error()
+-	} else {
+-		c.Data["json"] = v
+-	}
+-	c.ServeJSON()
+-}
+-
+-// GetAll ...
+-// @Title Get All
+-// @Description get Comment
+-// @Param	query	query	string	false	"Filter. e.g. col1:v1,col2:v2 ..."
+-// @Param	fields	query	string	false	"Fields returned. e.g. col1,col2 ..."
+-// @Param	sortby	query	string	false	"Sorted-by fields. e.g. col1,col2 ..."
+-// @Param	order	query	string	false	"Order corresponding to each sortby field, if single value, apply to all sortby fields. e.g. desc,asc ..."
+-// @Param	limit	query	string	false	"Limit the size of result set. Must be an integer"
+-// @Param	offset	query	string	false	"Start position of result set. Must be an integer"
+-// @Success 200 {object} models.Comment
+-// @Failure 403
+-// @router / [get]
+-func (c *CommentController) GetAll() {
+-	var fields []string
+-	var sortby []string
+-	var order []string
+-	var query = make(map[string]string)
+-	var limit int64 = 10
+-	var offset int64
+-
+-	// fields: col1,col2,entity.col3
+-	if v := c.GetString("fields"); v != "" {
+-		fields = strings.Split(v, ",")
+-	}
+-	// limit: 10 (default is 10)
+-	if v, err := c.GetInt64("limit"); err == nil {
+-		limit = v
+-	}
+-	// offset: 0 (default is 0)
+-	if v, err := c.GetInt64("offset"); err == nil {
+-		offset = v
+-	}
+-	// sortby: col1,col2
+-	if v := c.GetString("sortby"); v != "" {
+-		sortby = strings.Split(v, ",")
+-	}
+-	// order: desc,asc
+-	if v := c.GetString("order"); v != "" {
+-		order = strings.Split(v, ",")
+-	}
+-	// query: k:v,k:v
+-	if v := c.GetString("query"); v != "" {
+-		for _, cond := range strings.Split(v, ",") {
+-			kv := strings.SplitN(cond, ":", 2)
+-			if len(kv) != 2 {
+-				c.Data["json"] = errors.New("Error: invalid query key/value pair")
+-				c.ServeJSON()
+-				return
+-			}
+-			k, v := kv[0], kv[1]
+-			query[k] = v
+-		}
+-	}
+-
+-	l, err := models.GetAllComment(query, fields, sortby, order, offset, limit)
+-	if err != nil {
+-		c.Data["json"] = err.Error()
+-	} else {
+-		c.Data["json"] = l
+-	}
+-	c.ServeJSON()
+-}
+-
+-// Put ...
+-// @Title Put
+-// @Description update the Comment
+-// @Param	id		path 	string	true		"The id you want to update"
+-// @Param	body		body 	models.Comment	true		"body for Comment content"
+-// @Success 200 {object} models.Comment
+-// @Failure 403 :id is not int
+-// @router /:id [put]
+-func (c *CommentController) Put() {
+-	idStr := c.Ctx.Input.Param(":id")
+-	id, _ := strconv.Atoi(idStr)
+-	v := models.Comment{Id: id}
+-	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &v); err == nil {
+-		if err := models.UpdateCommentById(&v); err == nil {
+-			c.Data["json"] = "OK"
+-		} else {
+-			c.Data["json"] = err.Error()
+-		}
+-	} else {
+-		c.Data["json"] = err.Error()
+-	}
+-	c.ServeJSON()
+-}
+-
+-// Delete ...
+-// @Title Delete
+-// @Description delete the Comment
+-// @Param	id		path 	string	true		"The id you want to delete"
+-// @Success 200 {string} delete success!
+-// @Failure 403 id is empty
+-// @router /:id [delete]
+-func (c *CommentController) Delete() {
+-	idStr := c.Ctx.Input.Param(":id")
+-	id, _ := strconv.Atoi(idStr)
+-	if err := models.DeleteComment(id); err == nil {
+-		c.Data["json"] = "OK"
+-	} else {
+-		c.Data["json"] = err.Error()
+-	}
+-	c.ServeJSON()
+-}
+-
+-func (c *CommentController) ListComment() {
+-
+-}
+-
+-func (c *CommentController) ActionComment() {
+-
+-}
+Index: .idea/workspace.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<project version=\"4\">\n  <component name=\"AutoImportSettings\">\n    <option name=\"autoReloadType\" value=\"ALL\" />\n  </component>\n  <component name=\"ChangeListManager\">\n    <list default=\"true\" id=\"09abd11a-e23e-4c78-ac6a-c36015e7b999\" name=\"更改\" comment=\"初始化\">\n      <change beforePath=\"$PROJECT_DIR$/.idea/workspace.xml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.idea/workspace.xml\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/ByteRhythm.exe\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/ByteRhythm.exe\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/conf/app.conf\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/conf/app.conf\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/controllers/user.go\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/controllers/user.go\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/controllers/video.go\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/controllers/video.go\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/go.mod\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/go.mod\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/go.sum\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/go.sum\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/main.go\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/main.go\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/models/user.go\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/models/user.go\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/routers/router.go\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/routers/router.go\" afterDir=\"false\" />\n      <change beforePath=\"$PROJECT_DIR$/tests/default_test.go\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/tests/default_test.go\" afterDir=\"false\" />\n    </list>\n    <option name=\"SHOW_DIALOG\" value=\"false\" />\n    <option name=\"HIGHLIGHT_CONFLICTS\" value=\"true\" />\n    <option name=\"HIGHLIGHT_NON_ACTIVE_CHANGELIST\" value=\"false\" />\n    <option name=\"LAST_RESOLUTION\" value=\"IGNORE\" />\n  </component>\n  <component name=\"FileTemplateManagerImpl\">\n    <option name=\"RECENT_TEMPLATES\">\n      <list>\n        <option value=\"Go File\" />\n      </list>\n    </option>\n  </component>\n  <component name=\"GOROOT\" url=\"file://$PROJECT_DIR$/../../Users/19393/sdk/go1.20.4\" />\n  <component name=\"Git.Settings\">\n    <favorite-branches>\n      <branch-storage>\n        <map>\n          <entry type=\"REMOTE\">\n            <value>\n              <list>\n                <branch-info repo=\"$PROJECT_DIR$\" source=\"origin/wxy\" />\n              </list>\n            </value>\n          </entry>\n        </map>\n      </branch-storage>\n    </favorite-branches>\n    <option name=\"RECENT_BRANCH_BY_REPOSITORY\">\n      <map>\n        <entry key=\"$PROJECT_DIR$\" value=\"main\" />\n      </map>\n    </option>\n    <option name=\"RECENT_GIT_ROOT_PATH\" value=\"$PROJECT_DIR$\" />\n  </component>\n  <component name=\"MarkdownSettingsMigration\">\n    <option name=\"stateVersion\" value=\"1\" />\n  </component>\n  <component name=\"ProjectColorInfo\">{\n  &quot;associatedIndex&quot;: 8\n}</component>\n  <component name=\"ProjectId\" id=\"2TTRTpji9Qa2hYdCA9KFbfPotkk\" />\n  <component name=\"ProjectViewState\">\n    <option name=\"hideEmptyMiddlePackages\" value=\"true\" />\n    <option name=\"showLibraryContents\" value=\"true\" />\n  </component>\n  <component name=\"PropertiesComponent\"><![CDATA[{\n  \"keyToString\": {\n    \"DefaultGoTemplateProperty\": \"Go File\",\n    \"RunOnceActivity.OpenProjectViewOnStart\": \"true\",\n    \"RunOnceActivity.ShowReadmeOnStart\": \"true\",\n    \"RunOnceActivity.go.formatter.settings.were.checked\": \"true\",\n    \"RunOnceActivity.go.migrated.go.modules.settings\": \"true\",\n    \"RunOnceActivity.go.modules.go.list.on.any.changes.was.set\": \"true\",\n    \"WebServerToolWindowFactoryState\": \"true\",\n    \"git-widget-placeholder\": \"wxy\",\n    \"go.import.settings.migrated\": \"true\",\n    \"go.sdk.automatically.set\": \"true\",\n    \"last_opened_file_path\": \"C:/Users/19393\",\n    \"node.js.detected.package.eslint\": \"true\",\n    \"node.js.selected.package.eslint\": \"(autodetect)\"\n  }\n}]]></component>\n  <component name=\"RecentsManager\">\n    <key name=\"CopyFile.RECENT_KEYS\">\n      <recent name=\"F:\\GolandProjects\\ByteRhythm\\static\\video\" />\n      <recent name=\"F:\\GolandProjects\\ByteRhythm\\static\\background\" />\n      <recent name=\"F:\\GolandProjects\\ByteRhythm\\static\\avatar\" />\n    </key>\n    <key name=\"MoveFile.RECENT_KEYS\">\n      <recent name=\"F:\\GolandProjects\\ByteRhythm\\models\" />\n    </key>\n  </component>\n  <component name=\"SpellCheckerSettings\" RuntimeDictionaries=\"0\" Folders=\"0\" CustomDictionaries=\"0\" DefaultDictionary=\"应用程序级\" UseSingleDictionary=\"true\" transferred=\"true\" />\n  <component name=\"TypeScriptGeneratedFilesManager\">\n    <option name=\"version\" value=\"3\" />\n  </component>\n  <component name=\"Vcs.Log.Tabs.Properties\">\n    <option name=\"TAB_STATES\">\n      <map>\n        <entry key=\"MAIN\">\n          <value>\n            <State>\n              <option name=\"FILTERS\">\n                <map>\n                  <entry key=\"branch\">\n                    <value>\n                      <list>\n                        <option value=\"origin/wxy\" />\n                      </list>\n                    </value>\n                  </entry>\n                </map>\n              </option>\n            </State>\n          </value>\n        </entry>\n      </map>\n    </option>\n  </component>\n  <component name=\"VcsManagerConfiguration\">\n    <MESSAGE value=\"构建表模型\" />\n    <MESSAGE value=\"初始化\" />\n    <option name=\"LAST_COMMIT_MESSAGE\" value=\"初始化\" />\n  </component>\n  <component name=\"VgoProject\">\n    <settings-migrated>true</settings-migrated>\n  </component>\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/workspace.xml b/.idea/workspace.xml
+--- a/.idea/workspace.xml	
++++ b/.idea/workspace.xml	
+@@ -4,19 +4,7 @@
+     <option name="autoReloadType" value="ALL" />
+   </component>
+   <component name="ChangeListManager">
+-    <list default="true" id="09abd11a-e23e-4c78-ac6a-c36015e7b999" name="更改" comment="初始化">
+-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/ByteRhythm.exe" beforeDir="false" afterPath="$PROJECT_DIR$/ByteRhythm.exe" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/conf/app.conf" beforeDir="false" afterPath="$PROJECT_DIR$/conf/app.conf" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/controllers/user.go" beforeDir="false" afterPath="$PROJECT_DIR$/controllers/user.go" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/controllers/video.go" beforeDir="false" afterPath="$PROJECT_DIR$/controllers/video.go" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/go.sum" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/main.go" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/models/user.go" beforeDir="false" afterPath="$PROJECT_DIR$/models/user.go" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/routers/router.go" beforeDir="false" afterPath="$PROJECT_DIR$/routers/router.go" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/tests/default_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/tests/default_test.go" afterDir="false" />
+-    </list>
++    <list default="true" id="09abd11a-e23e-4c78-ac6a-c36015e7b999" name="更改" comment="初始化" />
+     <option name="SHOW_DIALOG" value="false" />
+     <option name="HIGHLIGHT_CONFLICTS" value="true" />
+     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+@@ -71,7 +59,7 @@
+     "RunOnceActivity.go.migrated.go.modules.settings": "true",
+     "RunOnceActivity.go.modules.go.list.on.any.changes.was.set": "true",
+     "WebServerToolWindowFactoryState": "true",
+-    "git-widget-placeholder": "wxy",
++    "git-widget-placeholder": "hsb",
+     "go.import.settings.migrated": "true",
+     "go.sdk.automatically.set": "true",
+     "last_opened_file_path": "C:/Users/19393",
