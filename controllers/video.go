@@ -101,16 +101,20 @@ func (c *VideoController) Publish() {
 
 	username, _ := utils.GetUsernameFromToken(token)
 	c.o.QueryTable(new(models.User)).Filter("username", username).One(&user)
-	if url := c.Upload(c.GetFile("data")); url == "" {
+	if url := c.UploadMP4(c.GetFile("data")); url == "" {
 		c.Data["json"] = map[string]interface{}{
 			"status_code": 1,
 			"status_msg":  "发布失败",
 		}
-		//utils.VideoGetNetImgCount(1, url)
 		c.ServeJSON()
 		return
 	} else {
 		//需要修改cover_url，此处写死了
+		//保存到本地的图片名也用uuid，防止高并发重名，注意修改代码让终端不要输出一大坨东西
+		//imgPath := VideoGetNetImgCount(1, url)
+		//coverUrl:=c.UploadJPG(imgPath,url)
+		//os.Remove(imgPath)
+		//替换掉下面写死的coverUrl
 		video := models.Video{
 			AuthorId: &user,
 			PlayUrl:  url,

@@ -12,7 +12,7 @@ import (
 
 const (
 	KEY                  string = "JWT-ARY-STARK"
-	DefaultExpireSeconds int    = 1200 // default 20 minutes
+	DefaultExpireSeconds int    = 1800 // default 30 minutes
 )
 
 // MyCustomClaims JWT -- json web token

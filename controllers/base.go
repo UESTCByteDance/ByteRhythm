@@ -24,7 +24,7 @@ func (c *baseController) Prepare() {
 	c.o = orm.NewOrm()
 }
 
-func (c *baseController) Upload(file multipart.File, header *multipart.FileHeader, err error) string {
+func (c *baseController) UploadMP4(file multipart.File, header *multipart.FileHeader, err error) string {
 	var reader io.Reader = file
 	var size = header.Size
 
@@ -66,6 +66,41 @@ func (c *baseController) Upload(file multipart.File, header *multipart.FileHeade
 		return ""
 	}
 
+	return fmt.Sprintf("%s/%s", domain, ret.Key)
+}
+
+func (c *baseController) UploadJPG(imgPath string, videoUrl string) string {
+
+	secretKey, _ := web.AppConfig.String("SecretKey")
+	accessKey, _ := web.AppConfig.String("AccessKey")
+	bucket, _ := web.AppConfig.String("Bucket")
+	domain, _ := web.AppConfig.String("Domain")
+
+	videoName := strings.Split(strings.Replace(videoUrl, domain+"/", "", -1), ".")[0]
+	key := fmt.Sprintf("%s.%s", videoName+"_cover", "jpg")
+
+	putPolicy := storage.PutPolicy{
+		Scope: bucket,
+	}
+	mac := qbox.NewMac(accessKey, secretKey)
+	upToken := putPolicy.UploadToken(mac)
+	cfg := storage.Config{}
+
+	// 构建表单上传的对象
+	formUploader := storage.NewFormUploader(&cfg)
+	ret := storage.PutRet{}
+
+	// 可选配置
+	putExtra := storage.PutExtra{
+		Params: map[string]string{
+			"x:name": "github logo",
+		},
+	}
+	err := formUploader.PutFile(context.Background(), &ret, upToken, key, imgPath, &putExtra)
+	if err != nil {
+		fmt.Println(err)
+		return ""
+	}
 	return fmt.Sprintf("%s/%s", domain, ret.Key)
 }
 
