@@ -3,9 +3,9 @@
   <component name="WebServers">
     <option name="servers">
       <webServer id="824f26ad-8f7b-4ea4-bbed-bb416a57cb0f" name="虚拟机">
-        <fileTransfer accessType="SFTP" host="192.168.17.128" port="22" sshConfigId="5e4c60ae-3759-4dcd-b6c9-ede03677a738" sshConfig="wxy@192.168.17.128:22 password">
+        <fileTransfer accessType="SFTP" host="192.168.17.130" port="22" sshConfigId="41d863c6-dcd9-403e-92a4-44474f5bf5e1" sshConfig="wxy@192.168.17.130:22 password">
           <advancedOptions>
-            <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" />
+            <advancedOptions dataProtectionLevel="Private" keepAliveTimeout="0" passiveMode="true" shareSSLContext="true" />
           </advancedOptions>
         </fileTransfer>
       </webServer>

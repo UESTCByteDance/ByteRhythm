@@ -10,8 +10,8 @@ import (
 func init() {
 	username, _ := web.AppConfig.String("username")
 	password, _ := web.AppConfig.String("password")
-	host, _ := web.AppConfig.String("host")
-	port, _ := web.AppConfig.String("port")
+	host, _ := web.AppConfig.String("dbHost")
+	port, _ := web.AppConfig.String("dbPort")
 	database, _ := web.AppConfig.String("database")
 
 	datasource := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&loc=Local", username, password, host, port, database)

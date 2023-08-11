@@ -5,6 +5,7 @@ import (
 	"ByteRhythm/object"
 	"ByteRhythm/utils"
 	"fmt"
+	"os"
 	"time"
 )
 
@@ -109,17 +110,14 @@ func (c *VideoController) Publish() {
 		c.ServeJSON()
 		return
 	} else {
-		//需要修改cover_url，此处写死了
-		//保存到本地的图片名也用uuid，防止高并发重名，注意修改代码让终端不要输出一大坨东西
-		//imgPath := VideoGetNetImgCount(1, url)
-		//coverUrl:=c.UploadJPG(imgPath,url)
-		//os.Remove(imgPath)
-		//替换掉下面写死的coverUrl
+		imgPath := utils.VideoGetNetImgCount(1, url)
+		coverUrl := c.UploadJPG(imgPath, url)
+		os.Remove(imgPath)
 		video := models.Video{
 			AuthorId: &user,
 			PlayUrl:  url,
 			Title:    title,
-			CoverUrl: "http://rz2n87yck.hn-bkt.clouddn.com/cover.jpg",
+			CoverUrl: coverUrl,
 		}
 		if _, err := c.o.Insert(&video); err != nil {
 			c.Data["json"] = map[string]interface{}{
