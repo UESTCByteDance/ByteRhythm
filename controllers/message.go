@@ -47,7 +47,7 @@ func GetALLMessage(c *MessageController, fromUseId int, toUseId int) (messageLis
 	var maps []orm.Params
 
 	//  查询互发的聊天记录
-	_, err = c.O.Raw(`select * from message where (from_user_id = ? and to_user_id = ?) or (from_user_id = ? and to_user_id = ?) `).SetArgs(fromUseId, toUseId, toUseId, fromUseId).Values(&maps)
+	_, err = c.o.Raw(`select * from message where (from_user_id = ? and to_user_id = ?) or (from_user_id = ? and to_user_id = ?) `).SetArgs(fromUseId, toUseId, toUseId, fromUseId).Values(&maps)
 	if err != nil {
 		return nil, err
 	}
@@ -99,12 +99,12 @@ func (c *MessageController) ActionMessage() {
 		content := c.GetString("content")
 
 		user := &models.User{Id: from_user_id}
-		if err = c.O.Read(user); err != nil {
+		if err = c.o.Read(user); err != nil {
 			c.handleError(err)
 			return
 		}
 		toUser := &models.User{Id: toUserId}
-		if err = c.O.Read(toUser); err != nil {
+		if err = c.o.Read(toUser); err != nil {
 			c.handleError(err)
 			return
 		}
@@ -115,7 +115,7 @@ func (c *MessageController) ActionMessage() {
 			Content:    content,
 		}
 		fmt.Println(message)
-		_, err = c.O.Insert(&message)
+		_, err = c.o.Insert(&message)
 		if err != nil {
 			c.handleError(err)
 			return

@@ -3,6 +3,7 @@ package controllers
 import (
 	"ByteRhythm/models"
 	"ByteRhythm/object"
+	"ByteRhythm/utils"
 	"context"
 	"fmt"
 	"github.com/beego/beego/v2/client/orm"
@@ -12,19 +13,18 @@ import (
 	"io"
 	"mime/multipart"
 	"strings"
-	"time"
 )
 
 type baseController struct {
 	web.Controller
-	O orm.Ormer
+	o orm.Ormer
 }
 
 func (c *baseController) Prepare() {
-	c.O = orm.NewOrm()
+	c.o = orm.NewOrm()
 }
 
-func (c *baseController) Upload(file multipart.File, header *multipart.FileHeader, err error) string {
+func (c *baseController) UploadMP4(file multipart.File, header *multipart.FileHeader, err error) string {
 	var reader io.Reader = file
 	var size = header.Size
 
@@ -45,7 +45,7 @@ func (c *baseController) Upload(file multipart.File, header *multipart.FileHeade
 	accessKey, _ := web.AppConfig.String("AccessKey")
 	bucket, _ := web.AppConfig.String("Bucket")
 	domain, _ := web.AppConfig.String("Domain")
-	key := fmt.Sprintf("%d.%s", time.Now().UnixNano(), suffix)
+	key := fmt.Sprintf("%s.%s", utils.GenerateUUID(), suffix)
 	putPolicy := storage.PutPolicy{
 		Scope: fmt.Sprintf("%s:%s", bucket, key),
 	}
@@ -53,7 +53,6 @@ func (c *baseController) Upload(file multipart.File, header *multipart.FileHeade
 	upToken := putPolicy.UploadToken(mac)
 
 	cfg := storage.Config{}
-	cfg.Region = &storage.ZoneHuanan
 	uploader := storage.NewFormUploader(&cfg)
 	ret := storage.PutRet{}
 	putExtra := storage.PutExtra{
@@ -70,6 +69,41 @@ func (c *baseController) Upload(file multipart.File, header *multipart.FileHeade
 	return fmt.Sprintf("%s/%s", domain, ret.Key)
 }
 
+func (c *baseController) UploadJPG(imgPath string, videoUrl string) string {
+
+	secretKey, _ := web.AppConfig.String("SecretKey")
+	accessKey, _ := web.AppConfig.String("AccessKey")
+	bucket, _ := web.AppConfig.String("Bucket")
+	domain, _ := web.AppConfig.String("Domain")
+
+	videoName := strings.Split(strings.Replace(videoUrl, domain+"/", "", -1), ".")[0]
+	key := fmt.Sprintf("%s.%s", videoName+"_cover", "jpg")
+
+	putPolicy := storage.PutPolicy{
+		Scope: bucket,
+	}
+	mac := qbox.NewMac(accessKey, secretKey)
+	upToken := putPolicy.UploadToken(mac)
+	cfg := storage.Config{}
+
+	// 构建表单上传的对象
+	formUploader := storage.NewFormUploader(&cfg)
+	ret := storage.PutRet{}
+
+	// 可选配置
+	putExtra := storage.PutExtra{
+		Params: map[string]string{
+			"x:name": "github logo",
+		},
+	}
+	err := formUploader.PutFile(context.Background(), &ret, upToken, key, imgPath, &putExtra)
+	if err != nil {
+		fmt.Println(err)
+		return ""
+	}
+	return fmt.Sprintf("%s/%s", domain, ret.Key)
+}
+
 func (c *baseController) GetUserInfo(uid int) object.UserInfo {
 	var (
 		user           models.User
@@ -78,23 +112,23 @@ func (c *baseController) GetUserInfo(uid int) object.UserInfo {
 		totalFavorited int
 	)
 	//获取用户信息
-	c.O.QueryTable(new(models.User)).Filter("id", uid).One(&user)
-	followerCount, _ := c.O.QueryTable(new(models.Follow)).Filter("user_id", uid).Count()
+	c.o.QueryTable(new(models.User)).Filter("id", uid).One(&user)
+	followerCount, _ := c.o.QueryTable(new(models.Follow)).Filter("user_id", uid).Count()
 	if followerCount > 0 {
 		isFollow = true
 	} else {
 		isFollow = false
 	}
 
-	followCount, _ := c.O.QueryTable(new(models.Follow)).Filter("followed_user_id", uid).Count()
+	followCount, _ := c.o.QueryTable(new(models.Follow)).Filter("followed_user_id", uid).Count()
 
-	favoriteCount, _ := c.O.QueryTable(new(models.Favorite)).Filter("user_id", uid).Count()
+	favoriteCount, _ := c.o.QueryTable(new(models.Favorite)).Filter("user_id", uid).Count()
 
-	workCount, _ := c.O.QueryTable(new(models.Video)).Filter("author_id", uid).All(&videos)
+	workCount, _ := c.o.QueryTable(new(models.Video)).Filter("author_id", uid).All(&videos)
 
 	//获取视频获赞数量
 	for _, video := range videos {
-		count, _ := c.O.QueryTable(new(models.Favorite)).Filter("video_id", video.Id).Count()
+		count, _ := c.o.QueryTable(new(models.Favorite)).Filter("video_id", video.Id).Count()
 		totalFavorited += int(count)
 	}
 

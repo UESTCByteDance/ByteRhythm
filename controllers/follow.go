@@ -117,7 +117,7 @@ func (c *FollowController) ListFollowerRelation() {
 
 	// 查询当前用户的粉丝关系
 	var follows []models.Follow
-	_, err = c.O.QueryTable("follow").Filter("user_id", userId).All(&follows)
+	_, err = c.o.QueryTable("follow").Filter("user_id", userId).All(&follows)
 	if err != nil {
 		c.handleError(err)
 		return
@@ -169,7 +169,7 @@ func (c *FollowController) ListFriendRelation() {
 	var follows []models.Follow
 
 	// 查询当前用户的粉丝关系
-	_, err = c.O.QueryTable(new(models.Follow)).Filter("user_id", userId).All(&follows)
+	_, err = c.o.QueryTable(new(models.Follow)).Filter("user_id", userId).All(&follows)
 	if err != nil {
 		c.handleError(err)
 		return
@@ -178,7 +178,7 @@ func (c *FollowController) ListFriendRelation() {
 	// 获取所有粉丝的被关注用户ID
 	var userInfos []object.UserInfo
 	for _, follow := range follows {
-		count, _ := c.O.QueryTable(new(models.Follow)).Filter("user_id", follow.FollowedUserId.Id).Filter("followed_user_id", userId).Count()
+		count, _ := c.o.QueryTable(new(models.Follow)).Filter("user_id", follow.FollowedUserId.Id).Filter("followed_user_id", userId).Count()
 		if count == 1 {
 			userInfo := c.GetUserInfo(follow.FollowedUserId.Id)
 			userInfos = append(userInfos, userInfo)
@@ -215,7 +215,7 @@ func (c *FollowController) handleError(err error) {
 
 // AddFollow 关注
 func AddFollow(c *FollowController, fromUseId int, toUseId int) (id int, err error) {
-	user := c.O.QueryTable(new(models.User)).Filter("id", toUseId)
+	user := c.o.QueryTable(new(models.User)).Filter("id", toUseId)
 	// 被关注的用户未查询到
 	if !user.Exist() {
 		return -1, errors.New("关注的用户不存在！")
@@ -224,7 +224,7 @@ func AddFollow(c *FollowController, fromUseId int, toUseId int) (id int, err err
 
 	// 如果该关注不存在则关注
 	fmt.Println(follow.UserId)
-	if created, id, err := c.O.ReadOrCreate(&follow, "UserId", "FollowedUserId"); err == nil {
+	if created, id, err := c.o.ReadOrCreate(&follow, "UserId", "FollowedUserId"); err == nil {
 		if created {
 			return int(id), nil
 		} else {
@@ -238,7 +238,7 @@ func AddFollow(c *FollowController, fromUseId int, toUseId int) (id int, err err
 
 // CancelFollow 取消关注
 func CancelFollow(c *FollowController, fromUseId int, toUseId int) (err error) {
-	user := c.O.QueryTable(new(models.User)).Filter("id", toUseId)
+	user := c.o.QueryTable(new(models.User)).Filter("id", toUseId)
 	// 被关注的用户未查询到
 	if !user.Exist() {
 		return errors.New("关注的用户不存在！")
@@ -247,13 +247,13 @@ func CancelFollow(c *FollowController, fromUseId int, toUseId int) (err error) {
 	follow := models.Follow{UserId: &models.User{Id: toUseId}, FollowedUserId: &models.User{Id: fromUseId}}
 
 	// 还未关注该用户
-	err = c.O.Read(&follow, "UserId", "FollowedUserId")
+	err = c.o.Read(&follow, "UserId", "FollowedUserId")
 	if err != nil {
 		return errors.New("您还未关注该用户！")
 	}
 
 	// 删除改关注
-	_, err = c.O.Delete(&follow, "UserId", "FollowedUserId")
+	_, err = c.o.Delete(&follow, "UserId", "FollowedUserId")
 	if err != nil {
 		return nil
 	}
@@ -267,7 +267,7 @@ func GetAllFollowByUserId(c *FollowController, userId int) (followList []object.
 	// 查询出被关注者的id集合
 	var list []orm.ParamsList
 
-	c.O.Raw(`select user_id from follow where followed_user_id = ?`).SetArgs(userId).ValuesList(&list)
+	c.o.Raw(`select user_id from follow where followed_user_id = ?`).SetArgs(userId).ValuesList(&list)
 	// 查出每个被关注者的相关信息
 	for i := range list {
 		id := list[i][0]

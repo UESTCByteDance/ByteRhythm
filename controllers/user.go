@@ -21,7 +21,7 @@ func (c *UserController) Register() {
 		return
 	}
 	//数据库校验用户名是否唯一
-	if exist := c.O.QueryTable(new(models.User)).Filter("username", username).Exist(); exist {
+	if exist := c.o.QueryTable(new(models.User)).Filter("username", username).Exist(); exist {
 		c.MsgFail("用户名已存在")
 		return
 	}
@@ -35,7 +35,7 @@ func (c *UserController) Register() {
 		BackgroundImage: background,
 	}
 
-	if id, err := c.O.Insert(&user); err != nil {
+	if id, err := c.o.Insert(&user); err != nil {
 		c.MsgFail("注册失败")
 		return
 	} else {
@@ -71,7 +71,7 @@ func (c *UserController) Login() {
 		c.MsgFail("用户名或密码不能超过32位")
 		return
 	}
-	query := c.O.QueryTable(new(models.User)).Filter("username", username)
+	query := c.o.QueryTable(new(models.User)).Filter("username", username)
 	if exist := query.Exist(); !exist {
 		c.MsgFail("用户未注册")
 		return

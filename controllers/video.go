@@ -4,7 +4,7 @@ import (
 	"ByteRhythm/models"
 	"ByteRhythm/object"
 	"ByteRhythm/utils"
-	"fmt"
+	"os"
 	"time"
 )
 
@@ -23,24 +23,15 @@ func (c *VideoController) Feed() {
 		latestTimeStamp = int(time.Now().Unix())
 	}
 	latestTime := time.Unix(int64(latestTimeStamp), 0)
-	fmt.Println(latestTime)
+	//不需要验证token，不登录也能看视频流
 	token := c.GetString("token")
 	if token != "" {
-		if err := utils.ValidateToken(token); err != nil {
-			c.Data["json"] = map[string]interface{}{
-				"status_code": 1,
-				"status_msg":  "token验证失败",
-				"video_list":  nil,
-				"next_time":   nil,
-			}
-			c.ServeJSON()
-			return
-		} else {
-			c.O.QueryTable(new(models.Video)).Filter("create_time__lte", latestTime).OrderBy("-create_time").Limit(30, 0).All(&videos)
-		}
+		c.o.QueryTable(new(models.Video)).Filter("create_time__lte", latestTime).OrderBy("-create_time").Limit(30, 0).All(&videos)
+	} else {
+		//经过测试，如果不登录，提交的latestTimeStamp为55574-03-08 08:53:51 +0800 CST，这个数据毫无意义还会干扰查询
+		c.o.QueryTable(new(models.Video)).OrderBy("-create_time").Limit(30, 0).All(&videos)
 	}
-	//经过测试，如果不登录，提交的latestTimeStamp为55574-03-08 08:53:51 +0800 CST，这个数据毫无意义还会干扰查询
-	c.O.QueryTable(new(models.Video)).OrderBy("-create_time").Limit(30, 0).All(&videos)
+
 	if len(videos) == 0 {
 		c.Data["json"] = map[string]interface{}{
 			"status_code": 1,
@@ -54,8 +45,8 @@ func (c *VideoController) Feed() {
 
 	for _, video := range videos {
 		var isFavorite bool
-		commentCount, _ := c.O.QueryTable(new(models.Comment)).Filter("video_id", video.Id).Count()
-		favoriteCount, _ := c.O.QueryTable(new(models.Favorite)).Filter("video_id", video.Id).Count()
+		commentCount, _ := c.o.QueryTable(new(models.Comment)).Filter("video_id", video.Id).Count()
+		favoriteCount, _ := c.o.QueryTable(new(models.Favorite)).Filter("video_id", video.Id).Count()
 		if favoriteCount == 0 {
 			isFavorite = false
 		} else {
@@ -90,38 +81,38 @@ func (c *VideoController) Publish() {
 	token := c.GetString("token")
 	title := c.GetString("title")
 	if err := utils.ValidateToken(token); err != nil {
-		c.Data["json"] = map[string]interface{}{
-			"status_code": 1,
-			"status_msg":  "token验证失败",
-		}
-		c.ServeJSON()
+		c.PublishFail("token验证失败")
 		return
 	}
 	var user models.User
 
 	username, _ := utils.GetUsernameFromToken(token)
-	c.O.QueryTable(new(models.User)).Filter("username", username).One(&user)
-	if url := c.Upload(c.GetFile("data")); url == "" {
-		c.Data["json"] = map[string]interface{}{
-			"status_code": 1,
-			"status_msg":  "发布失败",
-		}
-		c.ServeJSON()
+	c.o.QueryTable(new(models.User)).Filter("username", username).One(&user)
+	if url := c.UploadMP4(c.GetFile("data")); url == "" {
+		c.PublishFail("发布失败")
 		return
 	} else {
-		//需要修改cover_url，此处写死了
+		imgPath := utils.VideoGetNetImgCount(1, url)
+		if imgPath == "" {
+			c.PublishFail("发布失败")
+			return
+
+		}
+		coverUrl := c.UploadJPG(imgPath, url)
+		if coverUrl == "" {
+			c.PublishFail("发布失败")
+			return
+		}
+		os.Remove(imgPath)
+
 		video := models.Video{
 			AuthorId: &user,
 			PlayUrl:  url,
 			Title:    title,
-			CoverUrl: "http://rz2n87yck.hn-bkt.clouddn.com/cover.jpg",
+			CoverUrl: coverUrl,
 		}
-		if _, err := c.O.Insert(&video); err != nil {
-			c.Data["json"] = map[string]interface{}{
-				"status_code": 1,
-				"status_msg":  "发布失败",
-			}
-			c.ServeJSON()
+		if _, err := c.o.Insert(&video); err != nil {
+			c.PublishFail("发布失败")
 			return
 		} else {
 			c.Data["json"] = map[string]interface{}{
@@ -134,6 +125,14 @@ func (c *VideoController) Publish() {
 
 	}
 
+}
+
+func (c *VideoController) PublishFail(msg string) {
+	c.Data["json"] = map[string]interface{}{
+		"status_code": 1,
+		"status_msg":  msg,
+	}
+	c.ServeJSON()
 }
 
 // List 获取发布视频列表
@@ -154,11 +153,11 @@ func (c *VideoController) List() {
 		videoList []*object.VideoInfo
 		userInfo  = c.GetUserInfo(uid)
 	)
-	c.O.QueryTable(new(models.Video)).Filter("author_id", uid).All(&videos)
+	c.o.QueryTable(new(models.Video)).Filter("author_id", uid).All(&videos)
 	for _, video := range videos {
 		var isFavorite bool
-		commentCount, _ := c.O.QueryTable(new(models.Comment)).Filter("video_id", video.Id).Count()
-		favoriteCount, _ := c.O.QueryTable(new(models.Favorite)).Filter("video_id", video.Id).Count()
+		commentCount, _ := c.o.QueryTable(new(models.Comment)).Filter("video_id", video.Id).Count()
+		favoriteCount, _ := c.o.QueryTable(new(models.Favorite)).Filter("video_id", video.Id).Count()
 		if favoriteCount == 0 {
 			isFavorite = false
 		} else {

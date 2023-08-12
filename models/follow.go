@@ -1,8 +1,6 @@
 package models
 
-import (
-	"time"
-)
+import "time"
 
 type Follow struct {
 	Id             int       `orm:"column(id);pk;auto" description:"关注id" json:"id"`

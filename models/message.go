@@ -1,8 +1,6 @@
 package models
 
-import (
-	"time"
-)
+import "time"
 
 type Message struct {
 	Id         int       `orm:"column(id);pk;auto" description:"消息id" json:"id"`
