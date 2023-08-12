@@ -3,6 +3,8 @@ A repository for minimalist tiktok code
 
 注意：本项目的运行环境为`Ubuntu20.04`，原因是`ffmpeg`对`windows`不够友好,且不支持`Ubuntu20.04`更高的版本，`centos`暂时不清楚是否支持。
 
+如果Ubuntu上没有Golang开发环境，可参考这篇文章进行配置：<https://blog.csdn.net/m0_63230155/article/details/132246694?spm=1001.2014.3001.5502>
+
 # 使用说明
 1.克隆到本地
 ```bash
