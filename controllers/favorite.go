@@ -63,9 +63,8 @@ func (c *FavoriteController) FavoriteAction() {
 	if actionType == 1 {
 		// 创建点赞记录
 		favorite := models.Favorite{
-			Id:      0,
-			UserId:  nil,
-			VideoId: nil,
+			UserId:  &user,
+			VideoId: &video,
 		}
 		c.o.Insert(&favorite)
 		c.Data["json"] = map[string]interface{}{
@@ -125,7 +124,7 @@ func (c *FavoriteController) FavoriteList() {
 	c.o.QueryTable(new(models.Favorite)).Filter("user_id", user.Id).All(&favs)
 	for _, fav := range favs {
 		var video models.Video
-		c.o.QueryTable(new(models.Video)).Filter("video_id", fav.VideoId.Id).One(&video)
+		c.o.QueryTable(new(models.Video)).Filter("id", fav.VideoId.Id).One(&video)
 		var isFavorite bool
 		commentCount, _ := c.o.QueryTable(new(models.Comment)).Filter("video_id", video.Id).Count()
 		favoriteCount, _ := c.o.QueryTable(new(models.Favorite)).Filter("video_id", video.Id).Count()

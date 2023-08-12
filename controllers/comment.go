@@ -46,7 +46,7 @@ func (c *CommentController) CommentAction() {
 	// 发布评论
 	if actionType == 1 {
 		var video models.Video
-		c.o.QueryTable(new(models.Video)).Filter("video_id", videoId).One(&video)
+		c.o.QueryTable(new(models.Video)).Filter("id", videoId).One(&video)
 		comment := models.Comment{
 			UserId:  user,
 			VideoId: &video,
@@ -109,7 +109,7 @@ func (c *CommentController) CommentList() {
 	// 查询所有评论
 	var comments []models.Comment
 	var commentInfos []object.CommentInfo
-	c.o.QueryTable(new(models.Comment)).Filter("video_id", videoId).All(&comments)
+	c.o.QueryTable(new(models.Comment)).Filter("video_id", videoId).OrderBy("-create_time").All(&comments)
 	for _, comm := range comments {
 		userInfo := c.GetUserInfo(user.Id)
 		commentInfo := object.CommentInfo{
