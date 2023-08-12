@@ -149,3 +149,23 @@ func GetUsernameFromToken(tokenString string) (string, error) {
 
 	return claims.User.Username, nil
 }
+
+func GetUserFromToken(tokenString string) (*models.User, error) {
+	token, err := jwt.ParseWithClaims(
+		tokenString,
+		&MyCustomClaims{},
+		func(token *jwt.Token) (interface{}, error) {
+			return []byte(KEY), nil
+		})
+
+	if err != nil {
+		return nil, err
+	}
+
+	claims, ok := token.Claims.(*MyCustomClaims)
+	if !ok || !token.Valid {
+		return nil, fmt.Errorf("invalid token")
+	}
+
+	return &claims.User, nil
+}
