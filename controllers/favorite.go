@@ -63,7 +63,7 @@ func (c *FavoriteController) FavoriteAction() {
 	if actionType == 1 {
 		// 不能重复点赞
 		exist := c.o.QueryTable(new(models.Favorite)).Filter("user_id", user.Id).Filter("video_id", videoId).Exist()
-		if !exist {
+		if exist {
 			c.Data["json"] = map[string]interface{}{
 				"status_code": 1,
 				"status_msg":  "不能重复点赞",
