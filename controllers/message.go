@@ -102,7 +102,7 @@ func (c *MessageController) ActionMessage() {
 		c.ServeJSON()
 		return
 	}
-	fmt.Println("1111")
+
 	actionType := c.GetString("action_type")
 	fmt.Println(actionType)
 	if actionType == "1" {
