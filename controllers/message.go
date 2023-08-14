@@ -19,9 +19,25 @@ type MessageController struct {
 func (c *MessageController) ChatMessage() {
 	token := c.GetString("token")
 	toUserId, _ := c.GetInt("to_user_id")
-	// todo 用token中解析得到id
+	// 鉴权
+	if err := utils.ValidateToken(token); err != nil {
+		c.Data["json"] = map[string]interface{}{
+			"status_code": 1,
+			"status_msg":  "token鉴权失败",
+		}
+		c.ServeJSON()
+		return
+	}
 	fromUserId, _ := utils.GetUserIdFromToken(token)
 
+	if fromUserId == toUserId {
+		c.Data["json"] = map[string]interface{}{
+			"status_code": 1,
+			"status_msg":  "不能查看与自己的聊天记录",
+		}
+		c.ServeJSON()
+		return
+	}
 	messageList, err := GetALLMessage(c, fromUserId, toUserId)
 	if err != nil {
 		c.Data["json"] = map[string]interface{}{

@@ -16,13 +16,32 @@ type FollowController struct {
 	baseController
 }
 
+// 关注或者取消关注
 func (c *FollowController) ActionRelation() {
 	token := c.GetString("token")
 	toUserId, _ := c.GetInt("to_user_id")
 	actionType, _ := c.GetInt("action_type")
-	// todo 用token中解析得到id
+
+	// 鉴权
+	if err := utils.ValidateToken(token); err != nil {
+		c.Data["json"] = map[string]interface{}{
+			"status_code": 1,
+			"status_msg":  "token鉴权失败",
+		}
+		c.ServeJSON()
+		return
+	}
+
 	fromUserId, _ := utils.GetUserIdFromToken(token)
 
+	if fromUserId == toUserId {
+		c.Data["json"] = map[string]interface{}{
+			"status_code": 1,
+			"status_msg":  "不能对自己进行该操作",
+		}
+		c.ServeJSON()
+		return
+	}
 	if actionType == 1 {
 		// 关注
 		_, err := AddFollow(c, fromUserId, toUserId)
@@ -72,8 +91,18 @@ func (c *FollowController) ActionRelation() {
 
 }
 
+// 获取关注列表
 func (c *FollowController) ListFollowRelation() {
-	//token := c.GetString("token")
+	token := c.GetString("token")
+	// 鉴权
+	if err := utils.ValidateToken(token); err != nil {
+		c.Data["json"] = map[string]interface{}{
+			"status_code": 1,
+			"status_msg":  "token鉴权失败",
+		}
+		c.ServeJSON()
+		return
+	}
 	userId, _ := c.GetInt("user_id")
 	followList, err := GetAllFollowByUserId(c, userId)
 	if err != nil {
