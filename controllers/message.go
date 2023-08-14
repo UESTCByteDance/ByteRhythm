@@ -4,7 +4,6 @@ import (
 	"ByteRhythm/models"
 	"ByteRhythm/object"
 	"ByteRhythm/utils"
-	"fmt"
 	"github.com/beego/beego/v2/client/orm"
 	"github.com/pkg/errors"
 	"strconv"
@@ -47,7 +46,6 @@ func (c *MessageController) ChatMessage() {
 		c.ServeJSON()
 		return
 	}
-	fmt.Println(messageList)
 	c.Data["json"] = map[string]interface{}{
 		"status_code":  "0",
 		"status_msg":   "获取聊天记录成功！",
@@ -102,9 +100,7 @@ func (c *MessageController) ActionMessage() {
 		c.ServeJSON()
 		return
 	}
-
 	actionType := c.GetString("action_type")
-	fmt.Println(actionType)
 	if actionType == "1" {
 		toUserId, err := strconv.Atoi(c.GetString("to_user_id"))
 		if err != nil {
@@ -130,7 +126,6 @@ func (c *MessageController) ActionMessage() {
 			ToUserId:   toUser,
 			Content:    content,
 		}
-		fmt.Println(message)
 		_, err = c.o.Insert(&message)
 		if err != nil {
 			c.handleError(err)
