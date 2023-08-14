@@ -83,31 +83,6 @@ func (c *CommentController) CommentAction() {
 }
 
 // CommentList 视频评论列表
-//
-//	{
-//	   "status_code": 0,
-//	   "status_msg": "string",
-//	   "comment_list": [
-//	       {
-//	           "id": 0,
-//	           "user": {
-//	               "id": 0,
-//	               "name": "string",
-//	               "follow_count": 0,
-//	               "follower_count": 0,
-//	               "is_follow": true,
-//	               "avatar": "string",
-//	               "background_image": "string",
-//	               "signature": "string",
-//	               "total_favorited": "string",
-//	               "work_count": 0,
-//	               "favorite_count": 0
-//	           },
-//	           "content": "string",
-//	           "create_date": "string"
-//	       }
-//	   ]
-//	}
 func (c *CommentController) CommentList() {
 	// 获取必要参数
 	tokenString := c.GetString("token")                 // 用户鉴权token
@@ -122,16 +97,16 @@ func (c *CommentController) CommentList() {
 		return
 	}
 	// 解析token
-	user, _ := utils.GetUserFromToken(tokenString)
-	//if err != nil {
-	//	c.Data["json"] = map[string]interface{}{
-	//		"status_code": 1,
-	//		"status_msg":  "获取用户信息失败",
-	//		"video_list":  nil,
-	//	}
-	//	c.ServeJSON()
-	//	return
-	//}
+	user, err := utils.GetUserFromToken(tokenString)
+	if err != nil {
+		c.Data["json"] = map[string]interface{}{
+			"status_code": 1,
+			"status_msg":  "获取用户信息失败",
+			"video_list":  nil,
+		}
+		c.ServeJSON()
+		return
+	}
 	// 查询所有评论
 	var comments []models.Comment
 	var commentInfos []object.CommentInfo
@@ -140,7 +115,7 @@ func (c *CommentController) CommentList() {
 		userInfo := c.GetUserInfo(user.Id)
 		commentInfo := object.CommentInfo{
 			Content:    comm.Content,
-			CreateDate: comm.CreateTime.String(),
+			CreateDate: comm.CreateTime.Format("2006-01-02 15:04"),
 			ID:         int64(comm.Id),
 			User:       userInfo,
 		}
