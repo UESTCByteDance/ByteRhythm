@@ -51,19 +51,19 @@ func (c *FavoriteController) FavoriteAction() {
 	}
 	query.One(&user)
 	c.o.QueryTable(new(models.Video)).Filter("id", videoId).One(&video)
-	if video.AuthorId.Id == user.Id {
-		c.Data["json"] = map[string]interface{}{
-			"status_code": 1,
-			"status_msg":  "不能给自己点赞",
-		}
-		c.ServeJSON()
-		return
-	}
+	//if video.AuthorId.Id == user.Id {
+	//	c.Data["json"] = map[string]interface{}{
+	//		"status_code": 1,
+	//		"status_msg":  "不能给自己点赞",
+	//	}
+	//	c.ServeJSON()
+	//	return
+	//}
 	// 点赞 or 取消点赞
 	if actionType == 1 {
 		// 不能重复点赞
-		exist := c.o.QueryTable(new(models.Favorite)).Filter("user_id", user.Id).Filter("video_id", videoId).Exist()
-		if exist {
+		count, _ := c.o.QueryTable(new(models.Favorite)).Filter("user_id", user.Id).Filter("video_id", videoId).Count()
+		if count > 0 {
 			c.Data["json"] = map[string]interface{}{
 				"status_code": 1,
 				"status_msg":  "不能重复点赞",
