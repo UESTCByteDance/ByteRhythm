@@ -84,7 +84,7 @@ func (c *FavoriteController) FavoriteAction() {
 		c.ServeJSON()
 	} else if actionType == 2 {
 		// 删除点赞记录
-		c.o.Delete(&models.Favorite{UserId: &user, VideoId: &video})
+		c.o.Delete(&models.Favorite{UserId: &models.User{Id: user.Id}, VideoId: &models.Video{Id: videoId}}, "UserId", "VideoId")
 		c.Data["json"] = map[string]interface{}{
 			"status_code": 0,
 			"status_msg":  "取消点赞成功",

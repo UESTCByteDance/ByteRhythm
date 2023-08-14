@@ -70,9 +70,10 @@ func (c *CommentController) CommentAction() {
 		return
 	}
 	// 删除评论
-	var comment models.Comment
-	c.o.QueryTable(new(models.Comment)).Filter("comment_id", commentId).One(&comment)
-	c.o.Delete(comment)
+	//var comment models.Comment
+	//c.o.QueryTable(new(models.Comment)).Filter("id", commentId).One(&comment)
+	//c.o.Delete(comment)
+	c.o.Delete(&models.Comment{Id: commentId}, "Id")
 	c.Data["json"] = map[string]interface{}{
 		"status_code": 0,
 		"status_msg":  "删除评论成功",
@@ -81,7 +82,32 @@ func (c *CommentController) CommentAction() {
 	c.ServeJSON()
 }
 
-// 视频评论列表
+// CommentList 视频评论列表
+//
+//	{
+//	   "status_code": 0,
+//	   "status_msg": "string",
+//	   "comment_list": [
+//	       {
+//	           "id": 0,
+//	           "user": {
+//	               "id": 0,
+//	               "name": "string",
+//	               "follow_count": 0,
+//	               "follower_count": 0,
+//	               "is_follow": true,
+//	               "avatar": "string",
+//	               "background_image": "string",
+//	               "signature": "string",
+//	               "total_favorited": "string",
+//	               "work_count": 0,
+//	               "favorite_count": 0
+//	           },
+//	           "content": "string",
+//	           "create_date": "string"
+//	       }
+//	   ]
+//	}
 func (c *CommentController) CommentList() {
 	// 获取必要参数
 	tokenString := c.GetString("token")                 // 用户鉴权token
@@ -96,16 +122,16 @@ func (c *CommentController) CommentList() {
 		return
 	}
 	// 解析token
-	user, err := utils.GetUserFromToken(tokenString)
-	if err != nil {
-		c.Data["json"] = map[string]interface{}{
-			"status_code": 1,
-			"status_msg":  "获取用户信息失败",
-			"video_list":  nil,
-		}
-		c.ServeJSON()
-		return
-	}
+	user, _ := utils.GetUserFromToken(tokenString)
+	//if err != nil {
+	//	c.Data["json"] = map[string]interface{}{
+	//		"status_code": 1,
+	//		"status_msg":  "获取用户信息失败",
+	//		"video_list":  nil,
+	//	}
+	//	c.ServeJSON()
+	//	return
+	//}
 	// 查询所有评论
 	var comments []models.Comment
 	var commentInfos []object.CommentInfo
@@ -121,9 +147,9 @@ func (c *CommentController) CommentList() {
 		commentInfos = append(commentInfos, commentInfo)
 	}
 	c.Data["json"] = map[string]interface{}{
-		"status_code": "0",
-		"status_msg":  "获取评论列表成功",
-		"video_list":  commentInfos,
+		"status_code":  "0",
+		"status_msg":   "获取评论列表成功",
+		"comment_list": commentInfos,
 	}
 	c.ServeJSON()
 }
