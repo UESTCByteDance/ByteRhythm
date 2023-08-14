@@ -18,20 +18,23 @@ func (c *VideoController) Feed() {
 		videoList []*object.VideoInfo
 		videos    []*models.Video
 	)
-	latestTimeStamp, _ := c.GetInt("latest_time")
-	if latestTimeStamp == 0 {
-		latestTimeStamp = int(time.Now().Unix())
-	}
+	//经过测试，提交的latestTimeStamp为55574-03-08 08:53:51 +0800 CST，这个数据毫无意义还会干扰查询
+	//latestTimeStamp, _ := c.GetInt("latest_time")
+	//if latestTimeStamp == 0 {
+	//	latestTimeStamp = int(time.Now().Unix())
+	//}
+	latestTimeStamp := int(time.Now().Unix())
 	latestTime := time.Unix(int64(latestTimeStamp), 0)
 	//不需要验证token，不登录也能看视频流
-	token := c.GetString("token")
-	if token != "" {
-		c.o.QueryTable(new(models.Video)).Filter("create_time__lte", latestTime).OrderBy("-create_time").Limit(30, 0).All(&videos)
-	} else {
-		//经过测试，如果不登录，提交的latestTimeStamp为55574-03-08 08:53:51 +0800 CST，这个数据毫无意义还会干扰查询
-		c.o.QueryTable(new(models.Video)).OrderBy("-create_time").Limit(30, 0).All(&videos)
-	}
+	//token := c.GetString("token")
+	//if token != "" {
+	//	c.o.QueryTable(new(models.Video)).Filter("create_time__lte", latestTime).OrderBy("-create_time").Limit(30, 0).All(&videos)
+	//} else {
+	//
+	//	c.o.QueryTable(new(models.Video)).OrderBy("-create_time").Limit(30, 0).All(&videos)
+	//}
 
+	c.o.QueryTable(new(models.Video)).Filter("create_time__lte", latestTime).OrderBy("-create_time").Limit(30, 0).All(&videos)
 	if len(videos) == 0 {
 		c.Data["json"] = map[string]interface{}{
 			"status_code": 1,
