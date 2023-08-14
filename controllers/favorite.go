@@ -61,6 +61,16 @@ func (c *FavoriteController) FavoriteAction() {
 	}
 	// 点赞 or 取消点赞
 	if actionType == 1 {
+		// 不能重复点赞
+		exist := c.o.QueryTable(new(models.Favorite)).Filter("user_id", user.Id).Filter("video_id", videoId).Exist()
+		if !exist {
+			c.Data["json"] = map[string]interface{}{
+				"status_code": 1,
+				"status_msg":  "不能重复点赞",
+			}
+			c.ServeJSON()
+			return
+		}
 		// 创建点赞记录
 		favorite := models.Favorite{
 			UserId:  &user,
