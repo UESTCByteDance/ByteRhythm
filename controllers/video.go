@@ -44,10 +44,15 @@ func (c *VideoController) Feed() {
 		var isFavorite bool
 		commentCount, _ := c.o.QueryTable(new(models.Comment)).Filter("video_id", video.Id).Count()
 		favoriteCount, _ := c.o.QueryTable(new(models.Favorite)).Filter("video_id", video.Id).Count()
-		if favoriteCount == 0 {
-			isFavorite = false
+		//判断当前用户是否点赞该视频
+		if baseId, err := utils.GetUserIdFromToken(token); err == nil {
+			if exist := c.o.QueryTable(new(models.Favorite)).Filter("user_id", baseId).Filter("video_id", video.Id).Exist(); exist {
+				isFavorite = true
+			} else {
+				isFavorite = false
+			}
 		} else {
-			isFavorite = true
+			isFavorite = false
 		}
 		userInfo := c.GetUserInfo(video.AuthorId.Id, token)
 		videoList = append(videoList, &object.VideoInfo{
@@ -140,10 +145,15 @@ func (c *VideoController) List() {
 		var isFavorite bool
 		commentCount, _ := c.o.QueryTable(new(models.Comment)).Filter("video_id", video.Id).Count()
 		favoriteCount, _ := c.o.QueryTable(new(models.Favorite)).Filter("video_id", video.Id).Count()
-		if favoriteCount == 0 {
-			isFavorite = false
+		//判断当前用户是否点赞该视频
+		if baseId, err := utils.GetUserIdFromToken(token); err == nil {
+			if exist := c.o.QueryTable(new(models.Favorite)).Filter("user_id", baseId).Filter("video_id", video.Id).Exist(); exist {
+				isFavorite = true
+			} else {
+				isFavorite = false
+			}
 		} else {
-			isFavorite = true
+			isFavorite = false
 		}
 
 		videoList = append(videoList, &object.VideoInfo{
