@@ -104,7 +104,7 @@ func (c *baseController) UploadJPG(imgPath string, videoUrl string) string {
 	return fmt.Sprintf("%s/%s", domain, ret.Key)
 }
 
-func (c *baseController) GetUserInfo(uid int) object.UserInfo {
+func (c *baseController) GetUserInfo(uid int, token string) object.UserInfo {
 	var (
 		user           models.User
 		videos         []*models.Video
@@ -114,17 +114,23 @@ func (c *baseController) GetUserInfo(uid int) object.UserInfo {
 	//获取用户信息
 	c.o.QueryTable(new(models.User)).Filter("id", uid).One(&user)
 	followerCount, _ := c.o.QueryTable(new(models.Follow)).Filter("user_id", uid).Count()
-	if followerCount > 0 {
-		isFollow = true
-	} else {
-		isFollow = false
-	}
 
 	followCount, _ := c.o.QueryTable(new(models.Follow)).Filter("followed_user_id", uid).Count()
 
 	favoriteCount, _ := c.o.QueryTable(new(models.Favorite)).Filter("user_id", uid).Count()
 
 	workCount, _ := c.o.QueryTable(new(models.Video)).Filter("author_id", uid).All(&videos)
+
+	//判断当前用户是否关注该用户
+	if baseId, err := utils.GetUserIdFromToken(token); err == nil {
+		if exist := c.o.QueryTable(new(models.Follow)).Filter("user_id", user.Id).Filter("followed_user_id", baseId).Exist(); exist {
+			isFollow = true
+		} else {
+			isFollow = false
+		}
+	} else {
+		isFollow = false
+	}
 
 	//获取视频获赞数量
 	for _, video := range videos {

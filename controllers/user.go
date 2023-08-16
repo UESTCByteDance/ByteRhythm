@@ -105,7 +105,7 @@ func (c *UserController) Info() {
 		c.ServeJSON()
 		return
 	}
-	userInfo := c.GetUserInfo(uid)
+	userInfo := c.GetUserInfo(uid, token)
 	c.Data["json"] = map[string]interface{}{
 		"status_code": 0,
 		"status_msg":  "获取用户信息成功",

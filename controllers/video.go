@@ -26,13 +26,7 @@ func (c *VideoController) Feed() {
 	latestTimeStamp := int(time.Now().Unix())
 	latestTime := time.Unix(int64(latestTimeStamp), 0)
 	//不需要验证token，不登录也能看视频流
-	//token := c.GetString("token")
-	//if token != "" {
-	//	c.o.QueryTable(new(models.Video)).Filter("create_time__lte", latestTime).OrderBy("-create_time").Limit(30, 0).All(&videos)
-	//} else {
-	//
-	//	c.o.QueryTable(new(models.Video)).OrderBy("-create_time").Limit(30, 0).All(&videos)
-	//}
+	token := c.GetString("token")
 
 	c.o.QueryTable(new(models.Video)).Filter("create_time__lte", latestTime).OrderBy("-create_time").Limit(30, 0).All(&videos)
 	if len(videos) == 0 {
@@ -55,7 +49,7 @@ func (c *VideoController) Feed() {
 		} else {
 			isFavorite = true
 		}
-		userInfo := c.GetUserInfo(video.AuthorId.Id)
+		userInfo := c.GetUserInfo(video.AuthorId.Id, token)
 		videoList = append(videoList, &object.VideoInfo{
 			ID:            video.Id,
 			Title:         video.Title,
@@ -87,10 +81,8 @@ func (c *VideoController) Publish() {
 		c.PublishFail("token验证失败")
 		return
 	}
-	var user models.User
 
-	username, _ := utils.GetUsernameFromToken(token)
-	c.o.QueryTable(new(models.User)).Filter("username", username).One(&user)
+	user, _ := utils.GetUserFromToken(token)
 	if url := c.UploadMP4(c.GetFile("data")); url == "" {
 		c.PublishFail("发布失败")
 		return
@@ -109,7 +101,7 @@ func (c *VideoController) Publish() {
 		os.Remove(imgPath)
 
 		video := models.Video{
-			AuthorId: &user,
+			AuthorId: user,
 			PlayUrl:  url,
 			Title:    title,
 			CoverUrl: coverUrl,
@@ -154,7 +146,7 @@ func (c *VideoController) List() {
 	var (
 		videos    []*models.Video
 		videoList []*object.VideoInfo
-		userInfo  = c.GetUserInfo(uid)
+		userInfo  = c.GetUserInfo(uid, token)
 	)
 	c.o.QueryTable(new(models.Video)).Filter("author_id", uid).All(&videos)
 	for _, video := range videos {

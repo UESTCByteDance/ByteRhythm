@@ -112,7 +112,7 @@ func (c *CommentController) CommentList() {
 	var commentInfos []object.CommentInfo
 	c.o.QueryTable(new(models.Comment)).Filter("video_id", videoId).OrderBy("-create_time").All(&comments)
 	for _, comm := range comments {
-		userInfo := c.GetUserInfo(user.Id)
+		userInfo := c.GetUserInfo(user.Id, tokenString)
 		commentInfo := object.CommentInfo{
 			Content:    comm.Content,
 			CreateDate: comm.CreateTime.Format("2006-01-02 15:04"),

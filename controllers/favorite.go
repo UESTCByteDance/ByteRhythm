@@ -130,7 +130,7 @@ func (c *FavoriteController) FavoriteList() {
 		favs   []models.Favorite
 		videos []object.VideoInfo
 	)
-	userInfo := c.GetUserInfo(userId)
+	userInfo := c.GetUserInfo(userId, tokenString)
 	c.o.QueryTable(new(models.Favorite)).Filter("user_id", user.Id).All(&favs)
 	for _, fav := range favs {
 		var video models.Video
