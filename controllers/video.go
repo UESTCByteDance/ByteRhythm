@@ -77,10 +77,6 @@ func (c *VideoController) Feed() {
 func (c *VideoController) Publish() {
 	token := c.GetString("token")
 	title := c.GetString("title")
-	if err := utils.ValidateToken(token); err != nil {
-		c.PublishFail("token验证失败")
-		return
-	}
 
 	user, _ := utils.GetUserFromToken(token)
 	if url := c.UploadMP4(c.GetFile("data")); url == "" {
@@ -134,15 +130,6 @@ func (c *VideoController) PublishFail(msg string) {
 func (c *VideoController) List() {
 	uid, _ := c.GetInt("user_id")
 	token := c.GetString("token")
-	if err := utils.ValidateToken(token); err != nil {
-		c.Data["json"] = map[string]interface{}{
-			"status_code": 1,
-			"status_msg":  "token验证失败",
-			"video_list":  nil,
-		}
-		c.ServeJSON()
-		return
-	}
 	var (
 		videos    []*models.Video
 		videoList []*object.VideoInfo

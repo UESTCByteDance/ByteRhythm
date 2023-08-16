@@ -20,17 +20,6 @@ func (c *CommentController) CommentAction() {
 	commentContext := c.GetString("comment_text")             // 评论内容
 	commentId, _ := strconv.Atoi(c.GetString("comment_id"))   // 评论id
 
-	// 鉴权
-	if err := utils.ValidateToken(tokenString); err != nil {
-		c.Data["json"] = map[string]interface{}{
-			"status_code": 1,
-			"status_msg":  "token鉴权失败",
-			"comment":     nil,
-		}
-		c.ServeJSON()
-		return
-	}
-
 	// 解析token
 	user, err := utils.GetUserFromToken(tokenString)
 	if err != nil {

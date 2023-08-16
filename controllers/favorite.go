@@ -17,15 +17,7 @@ func (c *FavoriteController) FavoriteAction() {
 	tokenString := c.GetString("token")                       // 用户鉴权
 	videoId, _ := strconv.Atoi(c.GetString("video_id"))       // 视频id
 	actionType, _ := strconv.Atoi(c.GetString("action_type")) // 1-点赞，2-取消点赞
-	// 鉴权
-	if err := utils.ValidateToken(tokenString); err != nil {
-		c.Data["json"] = map[string]interface{}{
-			"status_code": 1,
-			"status_msg":  "token鉴权失败",
-		}
-		c.ServeJSON()
-		return
-	}
+
 	// 不能给自己点赞
 	username, err := utils.GetUsernameFromToken(tokenString)
 	if err != nil {
@@ -104,16 +96,7 @@ func (c *FavoriteController) FavoriteList() {
 	// 获取必要参数
 	userId, _ := strconv.Atoi(c.GetString("user_id")) // 用户id
 	tokenString := c.GetString("token")               // 用户鉴权token
-	// 鉴权
-	if err := utils.ValidateToken(tokenString); err != nil {
-		c.Data["json"] = map[string]interface{}{
-			"status_code": 1,
-			"status_msg":  "token鉴权失败",
-			"video_list":  nil,
-		}
-		c.ServeJSON()
-		return
-	}
+
 	// 解析token
 	user, err := utils.GetUserFromToken(tokenString)
 	if err != nil {

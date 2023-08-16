@@ -96,15 +96,7 @@ func (c *UserController) Login() {
 func (c *UserController) Info() {
 	uid, _ := c.GetInt("user_id")
 	token := c.GetString("token")
-	if err := utils.ValidateToken(token); err != nil {
-		c.Data["json"] = map[string]interface{}{
-			"status_code": 1,
-			"status_msg":  "token验证失败",
-			"user":        nil,
-		}
-		c.ServeJSON()
-		return
-	}
+
 	userInfo := c.GetUserInfo(uid, token)
 	c.Data["json"] = map[string]interface{}{
 		"status_code": 0,

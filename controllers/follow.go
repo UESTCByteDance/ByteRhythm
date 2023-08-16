@@ -22,16 +22,6 @@ func (c *FollowController) ActionRelation() {
 	toUserId, _ := c.GetInt("to_user_id")
 	actionType, _ := c.GetInt("action_type")
 
-	// 鉴权
-	if err := utils.ValidateToken(token); err != nil {
-		c.Data["json"] = map[string]interface{}{
-			"status_code": 1,
-			"status_msg":  "token鉴权失败",
-		}
-		c.ServeJSON()
-		return
-	}
-
 	fromUserId, _ := utils.GetUserIdFromToken(token)
 
 	if fromUserId == toUserId {
@@ -94,15 +84,7 @@ func (c *FollowController) ActionRelation() {
 // 获取关注列表
 func (c *FollowController) ListFollowRelation() {
 	token := c.GetString("token")
-	// 鉴权
-	if err := utils.ValidateToken(token); err != nil {
-		c.Data["json"] = map[string]interface{}{
-			"status_code": 1,
-			"status_msg":  "token鉴权失败",
-		}
-		c.ServeJSON()
-		return
-	}
+
 	userId, _ := c.GetInt("user_id")
 	followList, err := GetAllFollowByUserId(c, userId, token)
 	if err != nil {
@@ -134,15 +116,6 @@ func (c *FollowController) ListFollowerRelation() {
 		return
 	}
 	token := c.GetString("token")
-	if err := utils.ValidateToken(token); err != nil {
-		c.Data["json"] = map[string]interface{}{
-			"status_code": 1,
-			"status_msg":  "token验证失败",
-			"video_list":  nil,
-		}
-		c.ServeJSON()
-		return
-	}
 
 	// 查询当前用户的粉丝关系
 	var follows []models.Follow
@@ -184,15 +157,6 @@ func (c *FollowController) ListFriendRelation() {
 	}
 
 	token := c.GetString("token")
-	if err := utils.ValidateToken(token); err != nil {
-		c.Data["json"] = map[string]interface{}{
-			"status_code": 1,
-			"status_msg":  "token验证失败",
-			"video_list":  nil,
-		}
-		c.ServeJSON()
-		return
-	}
 
 	// 定义一个切片来存储多个粉丝关系查询结果
 	var follows []models.Follow

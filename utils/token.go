@@ -6,7 +6,6 @@ import (
 	"github.com/beego/beego/v2/core/logs"
 	"github.com/beego/beego/v2/server/web/context"
 	"github.com/dgrijalva/jwt-go"
-	"strings"
 	"time"
 )
 
@@ -105,26 +104,13 @@ func GenerateToken(user models.User, expiredSeconds int) (tokenString string) {
 }
 
 var FilterToken = func(ctx *context.Context) {
-	logs.Info("current router path is ", ctx.Request.RequestURI)
-
-	if ctx.Request.RequestURI != "/douyin/user/login/" && ctx.Input.Header("Authorization") == "" {
-		logs.Error("without token, unauthorized !!")
-		ctx.ResponseWriter.WriteHeader(401)
-		ctx.ResponseWriter.Write([]byte("no permission"))
-		return
-	}
-
-	if ctx.Request.RequestURI != "/douyin/user/login/" && ctx.Input.Header("Authorization") != "" {
-		token := ctx.Input.Header("Authorization")
-		token = strings.Split(token, " ")[0] // Split by space to get the actual token
-
-		//logs.Info("current token: ", token)
-
-		// Validate token
+	//获取token字段的值，token在url中传递
+	if token := ctx.Input.Query("token"); token != "" {
 		if err := ValidateToken(token); err != nil {
-			logs.Error("invalid or expired token: ", err)
-			ctx.ResponseWriter.WriteHeader(401)
-			ctx.ResponseWriter.Write([]byte("invalid or expired token"))
+			ctx.Output.JSON(map[string]interface{}{
+				"status_code": 1,
+				"status_msg":  "token验证失败",
+			}, false, false)
 			return
 		}
 	}

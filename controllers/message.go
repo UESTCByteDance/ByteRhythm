@@ -18,15 +18,7 @@ type MessageController struct {
 func (c *MessageController) ChatMessage() {
 	token := c.GetString("token")
 	toUserId, _ := c.GetInt("to_user_id")
-	// 鉴权
-	if err := utils.ValidateToken(token); err != nil {
-		c.Data["json"] = map[string]interface{}{
-			"status_code": 1,
-			"status_msg":  "token鉴权失败",
-		}
-		c.ServeJSON()
-		return
-	}
+
 	fromUserId, _ := utils.GetUserIdFromToken(token)
 
 	if fromUserId == toUserId {
@@ -91,15 +83,6 @@ func (c *MessageController) ActionMessage() {
 		return
 	}
 
-	if err := utils.ValidateToken(token); err != nil {
-		c.Data["json"] = map[string]interface{}{
-			"status_code": 1,
-			"status_msg":  "token验证失败",
-			"video_list":  nil,
-		}
-		c.ServeJSON()
-		return
-	}
 	actionType := c.GetString("action_type")
 	if actionType == "1" {
 		toUserId, err := strconv.Atoi(c.GetString("to_user_id"))
