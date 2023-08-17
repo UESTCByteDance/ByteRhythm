@@ -20,10 +20,9 @@ func init() {
 		fmt.Printf("%v\n", err)
 	}
 
-	orm.RegisterModel(new(User), new(Comment), new(Favorite), new(Follow), new(Video))
+	orm.RegisterModel(new(User), new(Comment), new(Favorite), new(Follow), new(Video), new(Message))
 	err = orm.RunSyncdb("default", false, true)
 	if err != nil {
 		fmt.Printf("%v\n", err)
 	}
-
 }

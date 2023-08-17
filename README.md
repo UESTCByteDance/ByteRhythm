@@ -42,7 +42,30 @@ export CGO_LDFLAGS="-L$FFMPEG_ROOT/lib/ -lavcodec -lavformat -lavutil -lswscale 
 export CGO_CFLAGS="-I$FFMPEG_ROOT/include"
 export LD_LIBRARY_PATH=$HOME/ffmpeg/lib
 ```
-5.运行项目
+5.配置redis
+
+```bash
+1. 更新软件包索引列表。打开终端并使用如下命令：
+sudo apt update
+2. 安装 Redis 依赖项。使用如下命令：
+sudo apt install build-essential tcl
+3. 下载最新版本的 Redis。可以从 Redis 的官方网站获取最新版本的 Redis：
+wget http://download.redis.io/redis-stable.tar.gz
+4. 解压 Redis 压缩包。使用如下命令：
+tar xzf redis-stable.tar.gz
+5. 进入 Redis 目录。使用如下命令：
+cd redis-stable
+6. 编译 Redis。使用如下命令：
+make
+7. 安装 Redis。使用如下命令：
+sudo make install
+8. 启动 Redis 服务。使用如下命令：
+redis-server
+现在 Redis 服务已经成功安装并运行在本地机器上。
+```
+
+6.运行项目
+
 ```bash
 go build
 ./ByteRhythm

@@ -16,13 +16,22 @@ type FollowController struct {
 	baseController
 }
 
+// 关注或者取消关注
 func (c *FollowController) ActionRelation() {
 	token := c.GetString("token")
 	toUserId, _ := c.GetInt("to_user_id")
 	actionType, _ := c.GetInt("action_type")
-	// todo 用token中解析得到id
+
 	fromUserId, _ := utils.GetUserIdFromToken(token)
 
+	if fromUserId == toUserId {
+		c.Data["json"] = map[string]interface{}{
+			"status_code": 1,
+			"status_msg":  "不能对自己进行该操作",
+		}
+		c.ServeJSON()
+		return
+	}
 	if actionType == 1 {
 		// 关注
 		_, err := AddFollow(c, fromUserId, toUserId)
@@ -72,10 +81,12 @@ func (c *FollowController) ActionRelation() {
 
 }
 
+// 获取关注列表
 func (c *FollowController) ListFollowRelation() {
-	//token := c.GetString("token")
+	token := c.GetString("token")
+
 	userId, _ := c.GetInt("user_id")
-	followList, err := GetAllFollowByUserId(c, userId)
+	followList, err := GetAllFollowByUserId(c, userId, token)
 	if err != nil {
 
 		c.Data["json"] = map[string]interface{}{
@@ -105,15 +116,6 @@ func (c *FollowController) ListFollowerRelation() {
 		return
 	}
 	token := c.GetString("token")
-	if err := utils.ValidateToken(token); err != nil {
-		c.Data["json"] = map[string]interface{}{
-			"status_code": 1,
-			"status_msg":  "token验证失败",
-			"video_list":  nil,
-		}
-		c.ServeJSON()
-		return
-	}
 
 	// 查询当前用户的粉丝关系
 	var follows []models.Follow
@@ -126,7 +128,7 @@ func (c *FollowController) ListFollowerRelation() {
 	// 获取所有粉丝的被关注用户ID
 	var userInfos []object.UserInfo
 	for _, follow := range follows {
-		userInfo := c.GetUserInfo(follow.FollowedUserId.Id)
+		userInfo := c.GetUserInfo(follow.FollowedUserId.Id, token)
 		userInfos = append(userInfos, userInfo)
 	}
 
@@ -155,15 +157,6 @@ func (c *FollowController) ListFriendRelation() {
 	}
 
 	token := c.GetString("token")
-	if err := utils.ValidateToken(token); err != nil {
-		c.Data["json"] = map[string]interface{}{
-			"status_code": 1,
-			"status_msg":  "token验证失败",
-			"video_list":  nil,
-		}
-		c.ServeJSON()
-		return
-	}
 
 	// 定义一个切片来存储多个粉丝关系查询结果
 	var follows []models.Follow
@@ -180,7 +173,7 @@ func (c *FollowController) ListFriendRelation() {
 	for _, follow := range follows {
 		count, _ := c.o.QueryTable(new(models.Follow)).Filter("user_id", follow.FollowedUserId.Id).Filter("followed_user_id", userId).Count()
 		if count == 1 {
-			userInfo := c.GetUserInfo(follow.FollowedUserId.Id)
+			userInfo := c.GetUserInfo(follow.FollowedUserId.Id, token)
 			userInfos = append(userInfos, userInfo)
 		} else {
 			continue
@@ -263,7 +256,7 @@ func CancelFollow(c *FollowController, fromUseId int, toUseId int) (err error) {
 }
 
 // GetAllFollowByUserId  获取关注列表
-func GetAllFollowByUserId(c *FollowController, userId int) (followList []object.UserInfo, err error) {
+func GetAllFollowByUserId(c *FollowController, userId int, token string) (followList []object.UserInfo, err error) {
 	// 查询出被关注者的id集合
 	var list []orm.ParamsList
 
@@ -273,7 +266,7 @@ func GetAllFollowByUserId(c *FollowController, userId int) (followList []object.
 		id := list[i][0]
 		id_int, _ := strconv.Atoi(id.(string))
 
-		user := c.GetUserInfo(id_int)
+		user := c.GetUserInfo(id_int, token)
 		if err == nil {
 			followList = append(followList, user)
 

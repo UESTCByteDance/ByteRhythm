@@ -18,20 +18,17 @@ func (c *VideoController) Feed() {
 		videoList []*object.VideoInfo
 		videos    []*models.Video
 	)
-	latestTimeStamp, _ := c.GetInt("latest_time")
-	if latestTimeStamp == 0 {
-		latestTimeStamp = int(time.Now().Unix())
-	}
+	//经过测试，提交的latestTimeStamp为55574-03-08 08:53:51 +0800 CST，这个数据毫无意义还会干扰查询
+	//latestTimeStamp, _ := c.GetInt("latest_time")
+	//if latestTimeStamp == 0 {
+	//	latestTimeStamp = int(time.Now().Unix())
+	//}
+	latestTimeStamp := int(time.Now().Unix())
 	latestTime := time.Unix(int64(latestTimeStamp), 0)
 	//不需要验证token，不登录也能看视频流
 	token := c.GetString("token")
-	if token != "" {
-		c.o.QueryTable(new(models.Video)).Filter("create_time__lte", latestTime).OrderBy("-create_time").Limit(30, 0).All(&videos)
-	} else {
-		//经过测试，如果不登录，提交的latestTimeStamp为55574-03-08 08:53:51 +0800 CST，这个数据毫无意义还会干扰查询
-		c.o.QueryTable(new(models.Video)).OrderBy("-create_time").Limit(30, 0).All(&videos)
-	}
 
+	c.o.QueryTable(new(models.Video)).Filter("create_time__lte", latestTime).OrderBy("-create_time").Limit(30, 0).All(&videos)
 	if len(videos) == 0 {
 		c.Data["json"] = map[string]interface{}{
 			"status_code": 1,
@@ -47,12 +44,17 @@ func (c *VideoController) Feed() {
 		var isFavorite bool
 		commentCount, _ := c.o.QueryTable(new(models.Comment)).Filter("video_id", video.Id).Count()
 		favoriteCount, _ := c.o.QueryTable(new(models.Favorite)).Filter("video_id", video.Id).Count()
-		if favoriteCount == 0 {
-			isFavorite = false
+		//判断当前用户是否点赞该视频
+		if baseId, err := utils.GetUserIdFromToken(token); err == nil {
+			if exist := c.o.QueryTable(new(models.Favorite)).Filter("user_id", baseId).Filter("video_id", video.Id).Exist(); exist {
+				isFavorite = true
+			} else {
+				isFavorite = false
+			}
 		} else {
-			isFavorite = true
+			isFavorite = false
 		}
-		userInfo := c.GetUserInfo(video.AuthorId.Id)
+		userInfo := c.GetUserInfo(video.AuthorId.Id, token)
 		videoList = append(videoList, &object.VideoInfo{
 			ID:            video.Id,
 			Title:         video.Title,
@@ -80,14 +82,8 @@ func (c *VideoController) Feed() {
 func (c *VideoController) Publish() {
 	token := c.GetString("token")
 	title := c.GetString("title")
-	if err := utils.ValidateToken(token); err != nil {
-		c.PublishFail("token验证失败")
-		return
-	}
-	var user models.User
 
-	username, _ := utils.GetUsernameFromToken(token)
-	c.o.QueryTable(new(models.User)).Filter("username", username).One(&user)
+	user, _ := utils.GetUserFromToken(token)
 	if url := c.UploadMP4(c.GetFile("data")); url == "" {
 		c.PublishFail("发布失败")
 		return
@@ -106,7 +102,7 @@ func (c *VideoController) Publish() {
 		os.Remove(imgPath)
 
 		video := models.Video{
-			AuthorId: &user,
+			AuthorId: user,
 			PlayUrl:  url,
 			Title:    title,
 			CoverUrl: coverUrl,
@@ -139,29 +135,25 @@ func (c *VideoController) PublishFail(msg string) {
 func (c *VideoController) List() {
 	uid, _ := c.GetInt("user_id")
 	token := c.GetString("token")
-	if err := utils.ValidateToken(token); err != nil {
-		c.Data["json"] = map[string]interface{}{
-			"status_code": 1,
-			"status_msg":  "token验证失败",
-			"video_list":  nil,
-		}
-		c.ServeJSON()
-		return
-	}
 	var (
 		videos    []*models.Video
 		videoList []*object.VideoInfo
-		userInfo  = c.GetUserInfo(uid)
+		userInfo  = c.GetUserInfo(uid, token)
 	)
 	c.o.QueryTable(new(models.Video)).Filter("author_id", uid).All(&videos)
 	for _, video := range videos {
 		var isFavorite bool
 		commentCount, _ := c.o.QueryTable(new(models.Comment)).Filter("video_id", video.Id).Count()
 		favoriteCount, _ := c.o.QueryTable(new(models.Favorite)).Filter("video_id", video.Id).Count()
-		if favoriteCount == 0 {
-			isFavorite = false
+		//判断当前用户是否点赞该视频
+		if baseId, err := utils.GetUserIdFromToken(token); err == nil {
+			if exist := c.o.QueryTable(new(models.Favorite)).Filter("user_id", baseId).Filter("video_id", video.Id).Exist(); exist {
+				isFavorite = true
+			} else {
+				isFavorite = false
+			}
 		} else {
-			isFavorite = true
+			isFavorite = false
 		}
 
 		videoList = append(videoList, &object.VideoInfo{
