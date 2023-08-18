@@ -1,0 +1,13 @@
+package model
+
+import "time"
+
+type User struct {
+	Id              int       `gorm:"column(id);primaryKey;autoIncrement" json:"id"`
+	Username        string    `gorm:"column(username);unique"  json:"username"`
+	Password        string    `gorm:"column(password)"  json:"password"`
+	Avatar          string    `gorm:"column(avatar)" json:"avatar"`
+	BackgroundImage string    `gorm:"column(background_image)"  json:"background_image"`
+	Signature       string    `gorm:"column(signature)"  json:"signature"`
+	CreatedAt       time.Time `json:"created_at"`
+}
