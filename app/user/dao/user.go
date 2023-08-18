@@ -2,7 +2,6 @@ package dao
 
 import (
 	"ByteRhythm/model"
-	model2 "ByteRhythm/model"
 	"ByteRhythm/util"
 	"context"
 
@@ -20,24 +19,24 @@ func NewUserDao(ctx context.Context) *UserDao {
 	return &UserDao{NewDBClient(ctx)}
 }
 
-func (u *UserDao) FindUserByUserName(username string) (user *model2.User, err error) {
+func (u *UserDao) FindUserByUserName(username string) (user *model.User, err error) {
 	//查看该用户是否存在
-	err = u.Model(&model2.User{}).Where("username = ?", username).Limit(1).Find(&user).Error
+	err = u.Model(&model.User{}).Where("username = ?", username).Limit(1).Find(&user).Error
 	if err != nil {
 		return
 	}
 	return
 }
-func (u *UserDao) CreateUser(user *model2.User) (id int64, err error) {
-	err = u.Model(&model2.User{}).Create(&user).Error
+func (u *UserDao) CreateUser(user *model.User) (id int64, err error) {
+	err = u.Model(&model.User{}).Create(&user).Error
 	if err != nil {
 		return
 	}
 	return int64(user.Id), nil
 }
 
-func (u *UserDao) FindUserById(id int64) (user *model2.User, err error) {
-	err = u.Model(&model2.User{}).Where("id = ?", id).Limit(1).Find(&user).Error
+func (u *UserDao) FindUserById(id int64) (user *model.User, err error) {
+	err = u.Model(&model.User{}).Where("id = ?", id).Limit(1).Find(&user).Error
 	if err != nil {
 		return
 	}

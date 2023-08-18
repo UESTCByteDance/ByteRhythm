@@ -16,6 +16,18 @@ func NewRouter() *gin.Engine {
 			v2.POST("/login/", http.LoginHandler)
 			v2.GET("/", http.UserInfoHandler)
 		}
+
+		v2 = v1.Group("/feed")
+		{
+			v2.GET("/", http.FeedHandler)
+		}
+
+		v2 = v1.Group("/publish")
+		{
+			v2.POST("/action/", http.PublishHandler)
+			v2.GET("/list/", http.PublishListHandler)
+		}
+
 	}
 	return r
 

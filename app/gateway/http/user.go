@@ -2,7 +2,7 @@ package http
 
 import (
 	"ByteRhythm/app/gateway/rpc"
-	"ByteRhythm/idl/pb"
+	"ByteRhythm/idl/user/userPb"
 	"net/http"
 	"strconv"
 
@@ -10,61 +10,61 @@ import (
 )
 
 func RegisterHandler(ctx *gin.Context) {
-	var req pb.UserRequest
+	var req userPb.UserRequest
 	req.Username = ctx.Query("username")
 	req.Password = ctx.Query("password")
-	Res, err := rpc.Register(ctx, &req)
+	res, err := rpc.Register(ctx, &req)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
+		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"status_code": 1,
 			"status_msg":  err.Error(),
 		})
 		return
 	}
 	ctx.JSON(http.StatusOK, gin.H{
-		"status_code": Res.StatusCode,
-		"status_msg":  Res.StatusMsg,
-		"user_id":     Res.UserId,
-		"token":       Res.Token,
+		"status_code": res.StatusCode,
+		"status_msg":  res.StatusMsg,
+		"user_id":     res.UserId,
+		"token":       res.Token,
 	})
 }
 
 func LoginHandler(ctx *gin.Context) {
-	var req pb.UserRequest
+	var req userPb.UserRequest
 	req.Username = ctx.Query("username")
 	req.Password = ctx.Query("password")
-	Res, err := rpc.Login(ctx, &req)
+	res, err := rpc.Login(ctx, &req)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
+		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"status_code": 1,
 			"status_msg":  err.Error(),
 		})
 		return
 	}
 	ctx.JSON(http.StatusOK, gin.H{
-		"status_code": Res.StatusCode,
-		"status_msg":  Res.StatusMsg,
-		"user_id":     Res.UserId,
-		"token":       Res.Token,
+		"status_code": res.StatusCode,
+		"status_msg":  res.StatusMsg,
+		"user_id":     res.UserId,
+		"token":       res.Token,
 	})
 }
 
 func UserInfoHandler(ctx *gin.Context) {
-	var req pb.UserInfoRequest
+	var req userPb.UserInfoRequest
 	uid, _ := strconv.Atoi(ctx.Query("user_id"))
 	req.UserId = int64(uid)
 	req.Token = ctx.GetString("token")
-	Res, err := rpc.UserInfo(ctx, &req)
+	res, err := rpc.UserInfo(ctx, &req)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
+		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"status_code": 1,
 			"status_msg":  err.Error(),
 		})
 		return
 	}
 	ctx.JSON(http.StatusOK, gin.H{
-		"status_code": Res.StatusCode,
-		"status_msg":  Res.StatusMsg,
-		"user":        Res.User,
+		"status_code": res.StatusCode,
+		"status_msg":  res.StatusMsg,
+		"user":        res.User,
 	})
 }

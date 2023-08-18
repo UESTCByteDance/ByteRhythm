@@ -1,6 +1,6 @@
 syntax = "proto3";
-package services;
-option go_package = "./pb";
+package userService;
+option go_package = "./userPb";
 
 message User {
   // @inject_tag: json:"id" form:"id"

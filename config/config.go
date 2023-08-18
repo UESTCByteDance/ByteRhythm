@@ -7,20 +7,21 @@ import (
 )
 
 var (
-	DBHost             string
-	DBPort             string
-	DBUser             string
-	DBPassWord         string
-	DBName             string
-	Charset            string
-	Avatar             string
-	Background         string
-	Signature          string
-	EtcdHost           string
-	EtcdPort           string
-	HttpHost           string
-	HttpPort           string
-	UserServiceAddress string
+	DBHost              string
+	DBPort              string
+	DBUser              string
+	DBPassWord          string
+	DBName              string
+	Charset             string
+	Avatar              string
+	Background          string
+	Signature           string
+	EtcdHost            string
+	EtcdPort            string
+	HttpHost            string
+	HttpPort            string
+	UserServiceAddress  string
+	VideoServiceAddress string
 )
 
 func Init() {
@@ -61,4 +62,5 @@ func LoadGin(file *ini.File) {
 }
 func LoadService(file *ini.File) {
 	UserServiceAddress = file.Section("service").Key("UserServiceAddress").String()
+	VideoServiceAddress = file.Section("service").Key("VideoServiceAddress").String()
 }

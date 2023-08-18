@@ -1,12 +1,11 @@
 package main
 
 import (
-	"ByteRhythm/app/user/dao"
-	"ByteRhythm/app/user/service"
+	"ByteRhythm/app/video/dao"
+	"ByteRhythm/app/video/service"
 	"ByteRhythm/config"
-	"ByteRhythm/idl/user/userPb"
+	"ByteRhythm/idl/video/videoPb"
 	"fmt"
-
 	"go-micro.dev/v4"
 	"go-micro.dev/v4/registry"
 )
@@ -14,7 +13,6 @@ import (
 func main() {
 	config.Init()
 	dao.InitMySQL()
-
 	// etcd注册件
 	etcdReg := registry.NewRegistry(
 		registry.Addrs(fmt.Sprintf("%s:%s", config.EtcdHost, config.EtcdPort)),
@@ -22,15 +20,15 @@ func main() {
 
 	// 得到一个微服务实例
 	microService := micro.NewService(
-		micro.Name("UserService"), // 微服务名字
-		micro.Address(config.UserServiceAddress),
+		micro.Name("VideoService"), // 微服务名字
+		micro.Address(config.VideoServiceAddress),
 		micro.Registry(etcdReg), // etcd注册件
 	)
 
 	// 结构命令行参数，初始化
 	microService.Init()
 	// 服务注册
-	_ = userPb.RegisterUserServiceHandler(microService.Server(), service.GetUserSrv())
+	_ = videoPb.RegisterVideoServiceHandler(microService.Server(), service.GetVideoSrv())
 	// 启动微服务
 	_ = microService.Run()
 }

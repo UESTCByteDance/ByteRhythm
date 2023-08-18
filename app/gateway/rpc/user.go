@@ -1,11 +1,11 @@
 package rpc
 
 import (
-	"ByteRhythm/idl/pb"
+	"ByteRhythm/idl/user/userPb"
 	"context"
 )
 
-func Login(ctx context.Context, req *pb.UserRequest) (res *pb.UserResponse, err error) {
+func Login(ctx context.Context, req *userPb.UserRequest) (res *userPb.UserResponse, err error) {
 	res, err = UserService.Login(ctx, req)
 	if err != nil {
 		res.StatusCode = 1
@@ -15,7 +15,7 @@ func Login(ctx context.Context, req *pb.UserRequest) (res *pb.UserResponse, err 
 	return
 }
 
-func Register(ctx context.Context, req *pb.UserRequest) (res *pb.UserResponse, err error) {
+func Register(ctx context.Context, req *userPb.UserRequest) (res *userPb.UserResponse, err error) {
 	res, err = UserService.Register(ctx, req)
 	if err != nil {
 		res.StatusCode = 1
@@ -25,7 +25,7 @@ func Register(ctx context.Context, req *pb.UserRequest) (res *pb.UserResponse, e
 	return
 }
 
-func UserInfo(ctx context.Context, req *pb.UserInfoRequest) (res *pb.UserInfoResponse, err error) {
+func UserInfo(ctx context.Context, req *userPb.UserInfoRequest) (res *userPb.UserInfoResponse, err error) {
 	res, err = UserService.UserInfo(ctx, req)
 	if err != nil {
 		res.StatusCode = 1

@@ -3,7 +3,7 @@ package service
 import (
 	"ByteRhythm/app/user/dao"
 	"ByteRhythm/config"
-	"ByteRhythm/idl/pb"
+	"ByteRhythm/idl/user/userPb"
 	"ByteRhythm/model"
 	"ByteRhythm/util"
 	"context"
@@ -25,7 +25,7 @@ func GetUserSrv() *UserSrv {
 	return UserSrvIns
 }
 
-func (u *UserSrv) Login(ctx context.Context, req *pb.UserRequest, res *pb.UserResponse) (err error) {
+func (u *UserSrv) Login(ctx context.Context, req *userPb.UserRequest, res *userPb.UserResponse) (err error) {
 	user, err := dao.NewUserDao(ctx).FindUserByUserName(req.Username)
 	if user.Id == 0 || util.Md5(req.Password) != user.Password {
 		res.StatusCode = 1
@@ -41,7 +41,7 @@ func (u *UserSrv) Login(ctx context.Context, req *pb.UserRequest, res *pb.UserRe
 	return nil
 }
 
-func (u *UserSrv) Register(ctx context.Context, req *pb.UserRequest, res *pb.UserResponse) (err error) {
+func (u *UserSrv) Register(ctx context.Context, req *userPb.UserRequest, res *userPb.UserResponse) (err error) {
 	username := req.Username
 	password := req.Password
 	if len(username) > 32 || len(password) > 32 {
@@ -80,7 +80,7 @@ func (u *UserSrv) Register(ctx context.Context, req *pb.UserRequest, res *pb.Use
 	}
 }
 
-func (u *UserSrv) UserInfo(ctx context.Context, req *pb.UserInfoRequest, res *pb.UserInfoResponse) error {
+func (u *UserSrv) UserInfo(ctx context.Context, req *userPb.UserInfoRequest, res *userPb.UserInfoResponse) error {
 	token := req.Token
 	uid := req.UserId
 	if token != "" {
@@ -109,7 +109,7 @@ func (u *UserSrv) UserInfo(ctx context.Context, req *pb.UserInfoRequest, res *pb
 	FavoriteCount, _ := dao.NewUserDao(ctx).GetFavoriteCount(uid)
 	TotalFavorited, _ := dao.NewUserDao(ctx).GetTotalFavorited(uid)
 	IsFollow, _ := dao.NewUserDao(ctx).GetIsFollowed(uid, token)
-	res.User = &pb.User{
+	res.User = &userPb.User{
 		Id:              int64(user.Id),
 		Name:            user.Username,
 		Avatar:          user.Avatar,
