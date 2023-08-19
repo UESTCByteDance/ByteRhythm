@@ -65,7 +65,7 @@ message FeedResponse {
 
 
 message PublishRequest{
-  // @inject_tag: json:"user_id" form:"user_id"
+  // @inject_tag: json:"token" form:"token"
   string token = 1; // 用户鉴权token
   // @inject_tag: json:"data" form:"data"
   bytes data = 2; // 视频数据

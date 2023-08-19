@@ -1,9 +1,13 @@
 package service
 
 import (
+	"ByteRhythm/app/video/dao"
 	"ByteRhythm/idl/video/videoPb"
+	"ByteRhythm/model"
+	"ByteRhythm/util"
 	"context"
 	"sync"
+	"time"
 )
 
 type VideoSrv struct {
@@ -20,16 +24,125 @@ func GetVideoSrv() *VideoSrv {
 }
 
 func (v *VideoSrv) Feed(ctx context.Context, req *videoPb.FeedRequest, res *videoPb.FeedResponse) error {
-	//TODO implement me
-	panic("implement me")
+
+	latestTimeStamp := time.Now().Unix()
+	latestTime := time.Unix(latestTimeStamp, 0)
+	token := req.Token
+
+	videos, err := dao.NewVideoDao(ctx).GetVideoListByLatestTime(latestTime)
+	if err != nil {
+		return err
+	}
+	for _, video := range videos {
+		AuthorID := video.AuthorID
+		Author, _ := dao.NewVideoDao(ctx).FindUser(video)
+		vid := int(video.ID)
+		FavoriteCount, _ := dao.NewVideoDao(ctx).GetFavoriteCount(vid)
+		CommentCount, _ := dao.NewVideoDao(ctx).GetCommentCount(vid)
+		IsFavorite, _ := dao.NewVideoDao(ctx).GetIsFavorite(vid, req.Token)
+		FollowCount, _ := dao.NewVideoDao(ctx).GetFollowCount(AuthorID)
+		FollowerCount, _ := dao.NewVideoDao(ctx).GetFollowerCount(AuthorID)
+		WorkCount, _ := dao.NewVideoDao(ctx).GetWorkCount(AuthorID)
+		UserFavoriteCount, _ := dao.NewVideoDao(ctx).GetUserFavoriteCount(AuthorID)
+		TotalFavorited, _ := dao.NewVideoDao(ctx).GetTotalFavorited(AuthorID)
+		IsFollow, _ := dao.NewVideoDao(ctx).GetIsFollowed(AuthorID, token)
+		res.VideoList = append(res.VideoList, &videoPb.Video{
+			Id:            int64(vid),
+			PlayUrl:       video.PlayUrl,
+			CoverUrl:      video.CoverUrl,
+			Title:         video.Title,
+			FavoriteCount: FavoriteCount,
+			CommentCount:  CommentCount,
+			IsFavorite:    IsFavorite,
+			Author: &videoPb.User{
+				Id:              int64(AuthorID),
+				Name:            Author.Username,
+				Avatar:          Author.Avatar,
+				BackgroundImage: Author.BackgroundImage,
+				Signature:       Author.Signature,
+				FollowCount:     FollowCount,
+				FollowerCount:   FollowerCount,
+				WorkCount:       WorkCount,
+				FavoriteCount:   UserFavoriteCount,
+				TotalFavorited:  TotalFavorited,
+				IsFollow:        IsFollow,
+			},
+		})
+	}
+
+	return nil
 }
 
 func (v *VideoSrv) Publish(ctx context.Context, req *videoPb.PublishRequest, res *videoPb.PublishResponse) error {
-	//TODO implement me
-	panic("implement me")
+	token := req.Token
+	data := req.Data
+	title := req.Title
+	uid, _ := util.GetUserIdFromToken(token)
+	VideoUrl, err := util.UploadVideo(data)
+	if err != nil {
+		res.StatusCode = 1
+		res.StatusMsg = "视频上传失败"
+		return err
+	}
+	video := model.Video{
+		AuthorID: uid,
+		PlayUrl:  VideoUrl,
+		CoverUrl: "http://rz2n87yck.hn-bkt.clouddn.com/cover_21c95d84-9960-4dd1-a59e-54b7f6ea804d.jpg",
+		Title:    title,
+	}
+	if err := dao.NewVideoDao(ctx).CreateVideo(&video); err != nil {
+		res.StatusCode = 1
+		res.StatusMsg = "发布失败"
+		return err
+	}
+	res.StatusCode = 0
+	res.StatusMsg = "发布成功"
+	return nil
+
 }
 
 func (v *VideoSrv) PublishList(ctx context.Context, req *videoPb.PublishListRequest, res *videoPb.PublishListResponse) error {
-	//TODO implement me
-	panic("implement me")
+	token := req.Token
+	uid := int(req.UserId)
+
+	videos, err := dao.NewVideoDao(ctx).GetVideoListByUserId(uid)
+	if err != nil {
+		return err
+	}
+	for _, video := range videos {
+		Author, _ := dao.NewVideoDao(ctx).FindUser(video)
+		vid := int(video.ID)
+		FavoriteCount, _ := dao.NewVideoDao(ctx).GetFavoriteCount(vid)
+		CommentCount, _ := dao.NewVideoDao(ctx).GetCommentCount(vid)
+		IsFavorite, _ := dao.NewVideoDao(ctx).GetIsFavorite(vid, req.Token)
+		FollowCount, _ := dao.NewVideoDao(ctx).GetFollowCount(uid)
+		FollowerCount, _ := dao.NewVideoDao(ctx).GetFollowerCount(uid)
+		WorkCount, _ := dao.NewVideoDao(ctx).GetWorkCount(uid)
+		UserFavoriteCount, _ := dao.NewVideoDao(ctx).GetUserFavoriteCount(uid)
+		TotalFavorited, _ := dao.NewVideoDao(ctx).GetTotalFavorited(uid)
+		IsFollow, _ := dao.NewVideoDao(ctx).GetIsFollowed(uid, token)
+		res.VideoList = append(res.VideoList, &videoPb.Video{
+			Id:            int64(video.ID),
+			PlayUrl:       video.PlayUrl,
+			CoverUrl:      video.CoverUrl,
+			Title:         video.Title,
+			FavoriteCount: FavoriteCount,
+			CommentCount:  CommentCount,
+			IsFavorite:    IsFavorite,
+			Author: &videoPb.User{
+				Id:              int64(uid),
+				Name:            Author.Username,
+				Avatar:          Author.Avatar,
+				BackgroundImage: Author.BackgroundImage,
+				Signature:       Author.Signature,
+				FollowCount:     FollowCount,
+				FollowerCount:   FollowerCount,
+				WorkCount:       WorkCount,
+				FavoriteCount:   UserFavoriteCount,
+				TotalFavorited:  TotalFavorited,
+				IsFollow:        IsFollow,
+			},
+		})
+	}
+	return nil
 }

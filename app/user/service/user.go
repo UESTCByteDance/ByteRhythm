@@ -7,7 +7,6 @@ import (
 	"ByteRhythm/model"
 	"ByteRhythm/util"
 	"context"
-	"fmt"
 	"sync"
 )
 
@@ -27,13 +26,13 @@ func GetUserSrv() *UserSrv {
 
 func (u *UserSrv) Login(ctx context.Context, req *userPb.UserRequest, res *userPb.UserResponse) (err error) {
 	user, err := dao.NewUserDao(ctx).FindUserByUserName(req.Username)
-	if user.Id == 0 || util.Md5(req.Password) != user.Password {
+	if user.ID == 0 || util.Md5(req.Password) != user.Password {
 		res.StatusCode = 1
 		res.StatusMsg = "用户名或密码错误"
 		return nil
 	}
 	token := util.GenerateToken(user, 0)
-	uid := int64(user.Id)
+	uid := int64(user.ID)
 	res.StatusCode = 0
 	res.StatusMsg = "登录成功"
 	res.UserId = uid
@@ -49,7 +48,7 @@ func (u *UserSrv) Register(ctx context.Context, req *userPb.UserRequest, res *us
 		res.StatusMsg = "用户名或密码不能超过32位"
 		return nil
 	}
-	if user, _ := dao.NewUserDao(ctx).FindUserByUserName(username); user.Id != 0 {
+	if user, _ := dao.NewUserDao(ctx).FindUserByUserName(username); user.ID != 0 {
 		res.StatusCode = 1
 		res.StatusMsg = "用户名已存在"
 		return nil
@@ -82,18 +81,10 @@ func (u *UserSrv) Register(ctx context.Context, req *userPb.UserRequest, res *us
 
 func (u *UserSrv) UserInfo(ctx context.Context, req *userPb.UserInfoRequest, res *userPb.UserInfoResponse) error {
 	token := req.Token
-	uid := req.UserId
-	if token != "" {
-		if err := util.ValidateToken(token); err != nil {
-			fmt.Println(err)
-			res.StatusCode = 1
-			res.StatusMsg = "token验证失败"
-			return nil
-		}
-	}
+	uid := int(req.UserId)
 
 	user, _ := dao.NewUserDao(ctx).FindUserById(uid)
-	if user.Id == 0 {
+	if user.ID == 0 {
 		res.StatusCode = 1
 		res.StatusMsg = "获取用户信息失败"
 		return nil
@@ -110,7 +101,7 @@ func (u *UserSrv) UserInfo(ctx context.Context, req *userPb.UserInfoRequest, res
 	TotalFavorited, _ := dao.NewUserDao(ctx).GetTotalFavorited(uid)
 	IsFollow, _ := dao.NewUserDao(ctx).GetIsFollowed(uid, token)
 	res.User = &userPb.User{
-		Id:              int64(user.Id),
+		Id:              int64(user.ID),
 		Name:            user.Username,
 		Avatar:          user.Avatar,
 		BackgroundImage: user.BackgroundImage,

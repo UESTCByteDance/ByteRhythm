@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/beego/beego/v2/core/logs"
-	"github.com/beego/beego/v2/server/web/context"
 	"github.com/dgrijalva/jwt-go"
 )
 
@@ -104,19 +103,6 @@ func GenerateToken(user *model.User, expiredSeconds int) (tokenString string) {
 
 }
 
-var FilterToken = func(ctx *context.Context) {
-	//获取token字段的值，token在url中传递
-	if token := ctx.Input.Query("token"); token != "" {
-		if err := ValidateToken(token); err != nil {
-			ctx.Output.JSON(map[string]interface{}{
-				"status_code": 1,
-				"status_msg":  "token验证失败",
-			}, false, false)
-			return
-		}
-	}
-}
-
 func GetUsernameFromToken(tokenString string) (string, error) {
 	token, err := jwt.ParseWithClaims(
 		tokenString,
@@ -174,5 +160,5 @@ func GetUserIdFromToken(tokenString string) (int, error) {
 		return -1, fmt.Errorf("invalid token")
 	}
 
-	return claims.User.Id, nil
+	return int(claims.User.ID), nil
 }

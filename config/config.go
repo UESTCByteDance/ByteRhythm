@@ -7,21 +7,29 @@ import (
 )
 
 var (
-	DBHost              string
-	DBPort              string
-	DBUser              string
-	DBPassWord          string
-	DBName              string
-	Charset             string
-	Avatar              string
-	Background          string
-	Signature           string
-	EtcdHost            string
-	EtcdPort            string
-	HttpHost            string
-	HttpPort            string
-	UserServiceAddress  string
-	VideoServiceAddress string
+	DBHost                 string
+	DBPort                 string
+	DBUser                 string
+	DBPassWord             string
+	DBName                 string
+	Charset                string
+	Avatar                 string
+	Background             string
+	Signature              string
+	EtcdHost               string
+	EtcdPort               string
+	HttpHost               string
+	HttpPort               string
+	UserServiceAddress     string
+	VideoServiceAddress    string
+	MessageServiceAddress  string
+	CommentServiceAddress  string
+	RelationServiceAddress string
+	FavoriteServiceAddress string
+	Bucket                 string
+	AccessKey              string
+	SecretKey              string
+	Domain                 string
 )
 
 func Init() {
@@ -34,33 +42,46 @@ func Init() {
 	LoadEtcd(file)
 	LoadGin(file)
 	LoadService(file)
+	LoadQiNiuYun(file)
 }
 
 func LoadMySQL(file *ini.File) {
-	DBHost = file.Section("mysql").Key("DBHost").String()
-	DBPort = file.Section("mysql").Key("DBPort").String()
-	DBUser = file.Section("mysql").Key("DBUser").String()
-	DBPassWord = file.Section("mysql").Key("DBPassWord").String()
-	DBName = file.Section("mysql").Key("DBName").String()
-	Charset = file.Section("mysql").Key("Charset").String()
+	DBHost = file.Section("MySQL").Key("DBHost").String()
+	DBPort = file.Section("MySQL").Key("DBPort").String()
+	DBUser = file.Section("MySQL").Key("DBUser").String()
+	DBPassWord = file.Section("MySQL").Key("DBPassWord").String()
+	DBName = file.Section("MySQL").Key("DBName").String()
+	Charset = file.Section("MySQL").Key("Charset").String()
 }
 
 func LoadUser(file *ini.File) {
-	Avatar = file.Section("user").Key("Avatar").String()
-	Background = file.Section("user").Key("Background").String()
-	Signature = file.Section("user").Key("Signature").String()
+	Avatar = file.Section("User").Key("Avatar").String()
+	Background = file.Section("User").Key("Background").String()
+	Signature = file.Section("User").Key("Signature").String()
 }
 
 func LoadEtcd(file *ini.File) {
-	EtcdHost = file.Section("etcd").Key("EtcdHost").String()
-	EtcdPort = file.Section("etcd").Key("EtcdPort").String()
+	EtcdHost = file.Section("Etcd").Key("EtcdHost").String()
+	EtcdPort = file.Section("Etcd").Key("EtcdPort").String()
 }
 
 func LoadGin(file *ini.File) {
-	HttpHost = file.Section("gin").Key("HttpHost").String()
-	HttpPort = file.Section("gin").Key("HttpPort").String()
+	HttpHost = file.Section("Gin").Key("HttpHost").String()
+	HttpPort = file.Section("Gin").Key("HttpPort").String()
 }
+
 func LoadService(file *ini.File) {
-	UserServiceAddress = file.Section("service").Key("UserServiceAddress").String()
-	VideoServiceAddress = file.Section("service").Key("VideoServiceAddress").String()
+	UserServiceAddress = file.Section("Service").Key("UserServiceAddress").String()
+	VideoServiceAddress = file.Section("Service").Key("VideoServiceAddress").String()
+	MessageServiceAddress = file.Section("Service").Key("MessageServiceAddress").String()
+	CommentServiceAddress = file.Section("Service").Key("CommentServiceAddress").String()
+	RelationServiceAddress = file.Section("Service").Key("RelationServiceAddress").String()
+	FavoriteServiceAddress = file.Section("Service").Key("FavoriteServiceAddress").String()
+}
+
+func LoadQiNiuYun(file *ini.File) {
+	Bucket = file.Section("QiNiuYun").Key("Bucket").String()
+	AccessKey = file.Section("QiNiuYun").Key("AccessKey").String()
+	SecretKey = file.Section("QiNiuYun").Key("SecretKey").String()
+	Domain = file.Section("QiNiuYun").Key("Domain").String()
 }

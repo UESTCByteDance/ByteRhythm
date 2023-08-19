@@ -53,7 +53,7 @@ func UserInfoHandler(ctx *gin.Context) {
 	var req userPb.UserInfoRequest
 	uid, _ := strconv.Atoi(ctx.Query("user_id"))
 	req.UserId = int64(uid)
-	req.Token = ctx.GetString("token")
+	req.Token = ctx.Query("token")
 	res, err := rpc.UserInfo(ctx, &req)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{

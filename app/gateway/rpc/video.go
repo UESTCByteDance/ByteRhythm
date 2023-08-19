@@ -24,7 +24,6 @@ func Publish(ctx context.Context, req *videoPb.PublishRequest) (res *videoPb.Pub
 		return
 	}
 	return
-
 }
 
 func PublishList(ctx context.Context, req *videoPb.PublishListRequest) (res *videoPb.PublishListResponse, err error) {

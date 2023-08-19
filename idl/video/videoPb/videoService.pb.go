@@ -404,8 +404,8 @@ type PublishRequest struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	// @inject_tag: json:"user_id" form:"user_id"
-	Token string `protobuf:"bytes,1,opt,name=token,proto3" json:"user_id" form:"user_id"` // 用户鉴权token
+	// @inject_tag: json:"token" form:"token"
+	Token string `protobuf:"bytes,1,opt,name=token,proto3" json:"token" form:"token"` // 用户鉴权token
 	// @inject_tag: json:"data" form:"data"
 	Data []byte `protobuf:"bytes,2,opt,name=data,proto3" json:"data" form:"data"` // 视频数据
 	// @inject_tag: json:"title" form:"title"
