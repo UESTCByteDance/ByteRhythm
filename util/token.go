@@ -5,7 +5,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/beego/beego/v2/core/logs"
+	"log"
+
 	"github.com/dgrijalva/jwt-go"
 )
 
@@ -63,14 +64,14 @@ func ValidateToken(tokenString string) error {
 			return []byte(KEY), nil
 		})
 	if err != nil {
-		logs.Error("validate tokenString failed !!!", err)
+		log.Println("validate tokenString failed !!!", err)
 		return err
 	}
 	if claims, ok := token.Claims.(*MyCustomClaims); ok && token.Valid {
 		//fmt.Printf("%v %v", claims.User, claims.StandardClaims.ExpiresAt)
-		fmt.Println("token will be expired at ", time.Unix(claims.StandardClaims.ExpiresAt, 0))
+		log.Println("token will be expired at ", time.Unix(claims.StandardClaims.ExpiresAt, 0))
 	} else {
-		fmt.Println("validate tokenString failed !!!", err)
+		log.Println("validate tokenString failed !!!", err)
 		return err
 	}
 	return nil

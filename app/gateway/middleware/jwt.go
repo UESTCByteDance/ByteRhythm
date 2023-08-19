@@ -2,20 +2,29 @@ package middleware
 
 import (
 	"ByteRhythm/util"
-	"github.com/gin-gonic/gin"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
+
+type Request struct {
+	Token string `json:"token" form:"token" binding:"required"`
+}
 
 func JWT() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		token := c.Query("token")
-		if token != "" {
-			if err := util.ValidateToken(token); err != nil {
-				c.JSON(http.StatusForbidden, gin.H{
-					"status_code": 1,
-					"status_msg":  "token验证失败",
-				})
-				c.Abort()
+		if c.Request.URL.Path != "/douyin/user/register" && c.Request.URL.Path != "/douyin/user/login" {
+			var request Request
+			c.ShouldBind(&request)
+			token := request.Token
+			if token != "" {
+				if err := util.ValidateToken(token); err != nil {
+					c.JSON(http.StatusForbidden, gin.H{
+						"status_code": 1,
+						"status_msg":  "token验证失败，请重新登录",
+					})
+					c.Abort()
+				}
 			}
 		}
 		c.Next()

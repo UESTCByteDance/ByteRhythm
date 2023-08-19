@@ -3,20 +3,19 @@ package router
 import (
 	"ByteRhythm/app/gateway/http"
 	"ByteRhythm/app/gateway/middleware"
+
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
 func NewRouter() *gin.Engine {
 	r := gin.Default()
-	//允许跨域请求
-	r.Use(middleware.Cors())
+	r.Use(cors.Default())
+	r.Use(middleware.JWT())
 
 	v1 := r.Group("/douyin")
 	{
 		v1.GET("/feed", http.FeedHandler)
-
-		//jwt鉴权
-		r.Use(middleware.JWT())
 
 		v2 := v1.Group("/user")
 		{
