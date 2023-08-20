@@ -6,6 +6,7 @@ import (
 	"ByteRhythm/model"
 	"ByteRhythm/util"
 	"context"
+	"os"
 	"sync"
 	"time"
 )
@@ -83,10 +84,22 @@ func (v *VideoSrv) Publish(ctx context.Context, req *videoPb.PublishRequest, res
 		PublishResponseData(res, 1, "发布失败")
 		return err
 	}
+	imgPath := util.VideoGetNetImgCount(1, VideoUrl)
+	if imgPath == "" {
+		PublishResponseData(res, 1, "发布失败")
+		return nil
+
+	}
+	coverUrl := util.UploadJPG(imgPath, VideoUrl)
+	if coverUrl == "" {
+		PublishResponseData(res, 1, "发布失败")
+		return nil
+	}
+	os.Remove(imgPath)
 	video := model.Video{
 		AuthorID: uid,
 		PlayUrl:  VideoUrl,
-		CoverUrl: "http://rz2n87yck.hn-bkt.clouddn.com/cover_21c95d84-9960-4dd1-a59e-54b7f6ea804d.jpg",
+		CoverUrl: coverUrl,
 		Title:    title,
 	}
 	if err := dao.NewVideoDao(ctx).CreateVideo(&video); err != nil {

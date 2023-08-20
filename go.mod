@@ -6,6 +6,7 @@ require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gin-contrib/cors v1.4.0
 	github.com/gin-gonic/gin v1.9.1
+	github.com/giorgisio/goav v0.1.0
 	github.com/google/uuid v1.3.0
 	github.com/qiniu/go-sdk/v7 v7.17.0
 	go-micro.dev/v4 v4.10.2

@@ -5,6 +5,8 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"strings"
+
 	"github.com/qiniu/go-sdk/v7/auth/qbox"
 	"github.com/qiniu/go-sdk/v7/storage"
 )
@@ -32,4 +34,35 @@ func UploadVideo(data []byte) (VideoUrl string, err error) {
 	}
 
 	return fmt.Sprintf("%s/%s", config.Domain, ret.Key), nil
+}
+
+func UploadJPG(imgPath string, videoUrl string) string {
+	config.Init()
+
+	videoName := strings.Split(strings.Replace(videoUrl, config.Domain+"/", "", -1), ".")[0]
+	key := fmt.Sprintf("%s.%s", videoName+"_cover", "jpg")
+
+	putPolicy := storage.PutPolicy{
+		Scope: config.Bucket,
+	}
+	mac := qbox.NewMac(config.AccessKey, config.SecretKey)
+	upToken := putPolicy.UploadToken(mac)
+	cfg := storage.Config{}
+
+	// 构建表单上传的对象
+	formUploader := storage.NewFormUploader(&cfg)
+	ret := storage.PutRet{}
+
+	// 可选配置
+	putExtra := storage.PutExtra{
+		Params: map[string]string{
+			"x:name": "github logo",
+		},
+	}
+	err := formUploader.PutFile(context.Background(), &ret, upToken, key, imgPath, &putExtra)
+	if err != nil {
+		fmt.Println(err)
+		return ""
+	}
+	return fmt.Sprintf("%s/%s", config.Domain, ret.Key)
 }
