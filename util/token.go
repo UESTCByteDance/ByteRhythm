@@ -69,7 +69,7 @@ func ValidateToken(tokenString string) error {
 	}
 	if claims, ok := token.Claims.(*MyCustomClaims); ok && token.Valid {
 		//fmt.Printf("%v %v", claims.User, claims.StandardClaims.ExpiresAt)
-		log.Println("token will be expired at ", time.Unix(claims.StandardClaims.ExpiresAt, 0))
+		fmt.Println("token will be expired at ", time.Unix(claims.StandardClaims.ExpiresAt, 0))
 	} else {
 		log.Println("validate tokenString failed !!!", err)
 		return err

@@ -39,7 +39,7 @@ func (v *VideoSrv) Feed(ctx context.Context, req *videoPb.FeedRequest, res *vide
 		vid := int(video.ID)
 		FavoriteCount, _ := dao.NewVideoDao(ctx).GetFavoriteCount(vid)
 		CommentCount, _ := dao.NewVideoDao(ctx).GetCommentCount(vid)
-		IsFavorite, _ := dao.NewVideoDao(ctx).GetIsFavorite(vid, req.Token)
+		IsFavorite, _ := dao.NewVideoDao(ctx).GetIsFavorite(vid, token)
 		FollowCount, _ := dao.NewVideoDao(ctx).GetFollowCount(AuthorID)
 		FollowerCount, _ := dao.NewVideoDao(ctx).GetFollowerCount(AuthorID)
 		WorkCount, _ := dao.NewVideoDao(ctx).GetWorkCount(AuthorID)
@@ -80,8 +80,7 @@ func (v *VideoSrv) Publish(ctx context.Context, req *videoPb.PublishRequest, res
 	uid, _ := util.GetUserIdFromToken(token)
 	VideoUrl, err := util.UploadVideo(data)
 	if err != nil {
-		res.StatusCode = 1
-		res.StatusMsg = "视频上传失败"
+		PublishResponseData(res, 1, "发布失败")
 		return err
 	}
 	video := model.Video{
@@ -91,12 +90,10 @@ func (v *VideoSrv) Publish(ctx context.Context, req *videoPb.PublishRequest, res
 		Title:    title,
 	}
 	if err := dao.NewVideoDao(ctx).CreateVideo(&video); err != nil {
-		res.StatusCode = 1
-		res.StatusMsg = "发布失败"
+		PublishResponseData(res, 1, "发布失败")
 		return err
 	}
-	res.StatusCode = 0
-	res.StatusMsg = "发布成功"
+	PublishResponseData(res, 0, "发布成功")
 	return nil
 
 }
@@ -114,7 +111,7 @@ func (v *VideoSrv) PublishList(ctx context.Context, req *videoPb.PublishListRequ
 		vid := int(video.ID)
 		FavoriteCount, _ := dao.NewVideoDao(ctx).GetFavoriteCount(vid)
 		CommentCount, _ := dao.NewVideoDao(ctx).GetCommentCount(vid)
-		IsFavorite, _ := dao.NewVideoDao(ctx).GetIsFavorite(vid, req.Token)
+		IsFavorite, _ := dao.NewVideoDao(ctx).GetIsFavorite(vid, token)
 		FollowCount, _ := dao.NewVideoDao(ctx).GetFollowCount(uid)
 		FollowerCount, _ := dao.NewVideoDao(ctx).GetFollowerCount(uid)
 		WorkCount, _ := dao.NewVideoDao(ctx).GetWorkCount(uid)
@@ -145,4 +142,9 @@ func (v *VideoSrv) PublishList(ctx context.Context, req *videoPb.PublishListRequ
 		})
 	}
 	return nil
+}
+
+func PublishResponseData(res *videoPb.PublishResponse, StatusCode int32, StatusMsg string) {
+	res.StatusCode = StatusCode
+	res.StatusMsg = StatusMsg
 }

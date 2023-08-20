@@ -44,13 +44,11 @@ func (u *UserSrv) Register(ctx context.Context, req *userPb.UserRequest, res *us
 	username := req.Username
 	password := req.Password
 	if len(username) > 32 || len(password) > 32 {
-		res.StatusCode = 1
-		res.StatusMsg = "用户名或密码不能超过32位"
+		UserResponseData(res, 1, "用户名或密码不能超过32位")
 		return nil
 	}
 	if user, _ := dao.NewUserDao(ctx).FindUserByUserName(username); user.ID != 0 {
-		res.StatusCode = 1
-		res.StatusMsg = "用户名已存在"
+		UserResponseData(res, 1, "用户名已存在")
 		return nil
 	}
 
@@ -66,15 +64,11 @@ func (u *UserSrv) Register(ctx context.Context, req *userPb.UserRequest, res *us
 		Signature:       signature,
 	}
 	if id, err := dao.NewUserDao(ctx).CreateUser(&user); err != nil {
-		res.StatusCode = 1
-		res.StatusMsg = "注册失败"
+		UserResponseData(res, 1, "注册失败")
 		return err
 	} else {
 		token := util.GenerateToken(&user, 0)
-		res.StatusCode = 0
-		res.StatusMsg = "注册成功"
-		res.UserId = id
-		res.Token = token
+		UserResponseData(res, 0, "注册成功", id, token)
 		return nil
 	}
 }
@@ -85,14 +79,9 @@ func (u *UserSrv) UserInfo(ctx context.Context, req *userPb.UserInfoRequest, res
 
 	user, _ := dao.NewUserDao(ctx).FindUserById(uid)
 	if user.ID == 0 {
-		res.StatusCode = 1
-		res.StatusMsg = "获取用户信息失败"
+		UserInfoResponseData(res, 1, "用户不存在")
 		return nil
 	}
-
-	//返回User
-	res.StatusCode = 0
-	res.StatusMsg = "获取用户信息成功"
 
 	FollowCount, _ := dao.NewUserDao(ctx).GetFollowCount(uid)
 	FollowerCount, _ := dao.NewUserDao(ctx).GetFollowerCount(uid)
@@ -100,7 +89,7 @@ func (u *UserSrv) UserInfo(ctx context.Context, req *userPb.UserInfoRequest, res
 	FavoriteCount, _ := dao.NewUserDao(ctx).GetFavoriteCount(uid)
 	TotalFavorited, _ := dao.NewUserDao(ctx).GetTotalFavorited(uid)
 	IsFollow, _ := dao.NewUserDao(ctx).GetIsFollowed(uid, token)
-	res.User = &userPb.User{
+	User := &userPb.User{
 		Id:              int64(user.ID),
 		Name:            user.Username,
 		Avatar:          user.Avatar,
@@ -113,6 +102,23 @@ func (u *UserSrv) UserInfo(ctx context.Context, req *userPb.UserInfoRequest, res
 		TotalFavorited:  TotalFavorited,
 		IsFollow:        IsFollow,
 	}
+	UserInfoResponseData(res, 0, "获取用户信息成功", User)
 	return nil
+}
 
+func UserResponseData(res *userPb.UserResponse, StatusCode int32, StatusMsg string, params ...interface{}) {
+	res.StatusCode = StatusCode
+	res.StatusMsg = StatusMsg
+	if len(params) != 0 {
+		res.UserId = params[0].(int64)
+		res.Token = params[1].(string)
+	}
+}
+
+func UserInfoResponseData(res *userPb.UserInfoResponse, StatusCode int32, StatusMsg string, params ...interface{}) {
+	res.StatusCode = StatusCode
+	res.StatusMsg = StatusMsg
+	if len(params) != 0 {
+		res.User = params[0].(*userPb.User)
+	}
 }

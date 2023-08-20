@@ -8,7 +8,6 @@ require (
 	github.com/gin-gonic/gin v1.9.1
 	github.com/google/uuid v1.3.0
 	github.com/qiniu/go-sdk/v7 v7.17.0
-	github.com/rs/cors v1.9.0
 	go-micro.dev/v4 v4.10.2
 	google.golang.org/protobuf v1.30.0
 	gopkg.in/ini.v1 v1.67.0

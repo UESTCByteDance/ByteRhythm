@@ -3,6 +3,7 @@ package http
 import (
 	"ByteRhythm/app/gateway/rpc"
 	"ByteRhythm/idl/user/userPb"
+	"ByteRhythm/util"
 	"net/http"
 	"strconv"
 
@@ -15,10 +16,7 @@ func RegisterHandler(ctx *gin.Context) {
 	req.Password = ctx.Query("password")
 	res, err := rpc.Register(ctx, &req)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"status_code": 1,
-			"status_msg":  err.Error(),
-		})
+		ctx.JSON(http.StatusInternalServerError, util.FailRequest(err.Error()))
 		return
 	}
 	ctx.JSON(http.StatusOK, gin.H{
@@ -35,10 +33,7 @@ func LoginHandler(ctx *gin.Context) {
 	req.Password = ctx.Query("password")
 	res, err := rpc.Login(ctx, &req)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"status_code": 1,
-			"status_msg":  err.Error(),
-		})
+		ctx.JSON(http.StatusInternalServerError, util.FailRequest(err.Error()))
 		return
 	}
 	ctx.JSON(http.StatusOK, gin.H{
@@ -56,10 +51,7 @@ func UserInfoHandler(ctx *gin.Context) {
 	req.Token = ctx.Query("token")
 	res, err := rpc.UserInfo(ctx, &req)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"status_code": 1,
-			"status_msg":  err.Error(),
-		})
+		ctx.JSON(http.StatusInternalServerError, util.FailRequest(err.Error()))
 		return
 	}
 	ctx.JSON(http.StatusOK, gin.H{

@@ -8,8 +8,6 @@ import (
 func Login(ctx context.Context, req *userPb.UserRequest) (res *userPb.UserResponse, err error) {
 	res, err = UserService.Login(ctx, req)
 	if err != nil {
-		res.StatusCode = 1
-		res.StatusMsg = err.Error()
 		return
 	}
 	return
@@ -18,8 +16,6 @@ func Login(ctx context.Context, req *userPb.UserRequest) (res *userPb.UserRespon
 func Register(ctx context.Context, req *userPb.UserRequest) (res *userPb.UserResponse, err error) {
 	res, err = UserService.Register(ctx, req)
 	if err != nil {
-		res.StatusCode = 1
-		res.StatusMsg = err.Error()
 		return
 	}
 	return
@@ -28,8 +24,6 @@ func Register(ctx context.Context, req *userPb.UserRequest) (res *userPb.UserRes
 func UserInfo(ctx context.Context, req *userPb.UserInfoRequest) (res *userPb.UserInfoResponse, err error) {
 	res, err = UserService.UserInfo(ctx, req)
 	if err != nil {
-		res.StatusCode = 1
-		res.StatusMsg = err.Error()
 		return
 	}
 	return

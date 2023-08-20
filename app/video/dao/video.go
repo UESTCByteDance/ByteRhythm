@@ -4,8 +4,9 @@ import (
 	"ByteRhythm/model"
 	"ByteRhythm/util"
 	"context"
-	"gorm.io/gorm"
 	"time"
+
+	"gorm.io/gorm"
 )
 
 type VideoDao struct {

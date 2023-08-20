@@ -3,11 +3,13 @@ package http
 import (
 	"ByteRhythm/app/gateway/rpc"
 	"ByteRhythm/idl/video/videoPb"
+	"ByteRhythm/util"
 	"bytes"
-	"github.com/gin-gonic/gin"
 	"io"
 	"net/http"
 	"strconv"
+
+	"github.com/gin-gonic/gin"
 )
 
 func FeedHandler(ctx *gin.Context) {
@@ -17,10 +19,7 @@ func FeedHandler(ctx *gin.Context) {
 	req.Token = ctx.Query("token")
 	res, err := rpc.Feed(ctx, &req)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"status_code": 1,
-			"status_msg":  err.Error(),
-		})
+		ctx.JSON(http.StatusInternalServerError, util.FailRequest(err.Error()))
 		return
 	}
 	ctx.JSON(http.StatusOK, gin.H{
@@ -37,37 +36,25 @@ func PublishHandler(ctx *gin.Context) {
 	//将获得的文件转为[]byte类型
 	data, err := ctx.FormFile("data")
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"status_code": 1,
-			"status_msg":  err.Error(),
-		})
+		ctx.JSON(http.StatusInternalServerError, util.FailRequest(err.Error()))
 	}
 	file, err := data.Open()
 	defer file.Close()
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"status_code": 1,
-			"status_msg":  err.Error(),
-		})
+		ctx.JSON(http.StatusInternalServerError, util.FailRequest(err.Error()))
 	}
 	// 使用缓冲区逐块读取文件内容并写入 req.Data
 	var buffer bytes.Buffer
 	_, err = io.Copy(&buffer, file)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"status_code": 1,
-			"status_msg":  err.Error(),
-		})
+		ctx.JSON(http.StatusInternalServerError, util.FailRequest(err.Error()))
 		return
 	}
 	req.Data = buffer.Bytes()
 
 	res, err := rpc.Publish(ctx, &req)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"status_code": 1,
-			"status_msg":  err.Error(),
-		})
+		ctx.JSON(http.StatusInternalServerError, util.FailRequest(err.Error()))
 		return
 	}
 	ctx.JSON(http.StatusOK, gin.H{
@@ -83,10 +70,7 @@ func PublishListHandler(ctx *gin.Context) {
 	req.Token = ctx.Query("token")
 	res, err := rpc.PublishList(ctx, &req)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"status_code": 1,
-			"status_msg":  err.Error(),
-		})
+		ctx.JSON(http.StatusInternalServerError, util.FailRequest(err.Error()))
 		return
 	}
 	ctx.JSON(http.StatusOK, gin.H{

@@ -19,11 +19,10 @@ func JWT() gin.HandlerFunc {
 			token := request.Token
 			if token != "" {
 				if err := util.ValidateToken(token); err != nil {
-					c.JSON(http.StatusForbidden, gin.H{
-						"status_code": 1,
-						"status_msg":  "token验证失败，请重新登录",
-					})
-					c.Abort()
+					if c.Request.URL.Path != "/douyin/feed" {
+						c.JSON(http.StatusForbidden, util.FailRequest("token验证失败，请重新登录"))
+						c.Abort()
+					}
 				}
 			}
 		}
