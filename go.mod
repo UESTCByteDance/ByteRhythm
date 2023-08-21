@@ -5,6 +5,7 @@ go 1.20
 replace google.golang.org/grpc => google.golang.org/grpc v1.29.0
 
 require (
+	github.com/afex/hystrix-go v0.0.0-20180502004556-fa1af6a1f4f5
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gin-contrib/cors v1.4.0
 	github.com/gin-gonic/gin v1.9.1

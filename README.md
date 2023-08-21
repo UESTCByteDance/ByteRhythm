@@ -41,7 +41,16 @@ export CGO_LDFLAGS="-L$FFMPEG_ROOT/lib/ -lavcodec -lavformat -lavutil -lswscale 
 export CGO_CFLAGS="-I$FFMPEG_ROOT/include"
 export LD_LIBRARY_PATH=$HOME/ffmpeg/lib
 ```
-5.多个终端运行项目（在根目录执行命令）
+5.启动etcd
+
+如果未安装，前往官方网站:<https://github.com/etcd-io/etcd/releases/tag/v3.5.9>下载适合你系统的安装包，解压后找到etcd文件，在对应终端执行：
+
+```bash
+./etcd
+```
+如果权限不够，可以使用`chmod +x etcd`赋予可执行权限再执行`./etcd`。
+
+6.多个终端运行项目（在根目录执行命令）
 ```bash
 go run app/gateway/cmd/main.go
 go run app/user/cmd/main.go

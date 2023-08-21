@@ -132,7 +132,7 @@ func (v *VideoDao) GetIsFollowed(uid int, token string) (isFollowed bool, err er
 }
 
 func (v *VideoDao) GetVideoListByUserId(uid int) (videos []*model.Video, err error) {
-	err = v.Model(&model.Video{}).Where("author_id = ?", uid).Find(&videos).Error
+	err = v.Model(&model.Video{}).Where("author_id = ?", uid).Order("created_at desc").Limit(30).Find(&videos).Error
 	if err != nil {
 		return
 	}
