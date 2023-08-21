@@ -35,42 +35,8 @@ func (v *VideoSrv) Feed(ctx context.Context, req *videoPb.FeedRequest, res *vide
 		return err
 	}
 	for _, video := range videos {
-		AuthorID := video.AuthorID
-		Author, _ := dao.NewVideoDao(ctx).FindUser(video)
-		vid := int(video.ID)
-		FavoriteCount, _ := dao.NewVideoDao(ctx).GetFavoriteCount(vid)
-		CommentCount, _ := dao.NewVideoDao(ctx).GetCommentCount(vid)
-		IsFavorite, _ := dao.NewVideoDao(ctx).GetIsFavorite(vid, token)
-		FollowCount, _ := dao.NewVideoDao(ctx).GetFollowCount(AuthorID)
-		FollowerCount, _ := dao.NewVideoDao(ctx).GetFollowerCount(AuthorID)
-		WorkCount, _ := dao.NewVideoDao(ctx).GetWorkCount(AuthorID)
-		UserFavoriteCount, _ := dao.NewVideoDao(ctx).GetUserFavoriteCount(AuthorID)
-		TotalFavorited, _ := dao.NewVideoDao(ctx).GetTotalFavorited(AuthorID)
-		IsFollow, _ := dao.NewVideoDao(ctx).GetIsFollowed(AuthorID, token)
-		res.VideoList = append(res.VideoList, &videoPb.Video{
-			Id:            int64(vid),
-			PlayUrl:       video.PlayUrl,
-			CoverUrl:      video.CoverUrl,
-			Title:         video.Title,
-			FavoriteCount: FavoriteCount,
-			CommentCount:  CommentCount,
-			IsFavorite:    IsFavorite,
-			Author: &videoPb.User{
-				Id:              int64(AuthorID),
-				Name:            Author.Username,
-				Avatar:          Author.Avatar,
-				BackgroundImage: Author.BackgroundImage,
-				Signature:       Author.Signature,
-				FollowCount:     FollowCount,
-				FollowerCount:   FollowerCount,
-				WorkCount:       WorkCount,
-				FavoriteCount:   UserFavoriteCount,
-				TotalFavorited:  TotalFavorited,
-				IsFollow:        IsFollow,
-			},
-		})
+		res.VideoList = append(res.VideoList, BuildVideoPbModel(ctx, video, token))
 	}
-
 	return nil
 }
 
@@ -120,39 +86,7 @@ func (v *VideoSrv) PublishList(ctx context.Context, req *videoPb.PublishListRequ
 		return err
 	}
 	for _, video := range videos {
-		Author, _ := dao.NewVideoDao(ctx).FindUser(video)
-		vid := int(video.ID)
-		FavoriteCount, _ := dao.NewVideoDao(ctx).GetFavoriteCount(vid)
-		CommentCount, _ := dao.NewVideoDao(ctx).GetCommentCount(vid)
-		IsFavorite, _ := dao.NewVideoDao(ctx).GetIsFavorite(vid, token)
-		FollowCount, _ := dao.NewVideoDao(ctx).GetFollowCount(uid)
-		FollowerCount, _ := dao.NewVideoDao(ctx).GetFollowerCount(uid)
-		WorkCount, _ := dao.NewVideoDao(ctx).GetWorkCount(uid)
-		UserFavoriteCount, _ := dao.NewVideoDao(ctx).GetUserFavoriteCount(uid)
-		TotalFavorited, _ := dao.NewVideoDao(ctx).GetTotalFavorited(uid)
-		IsFollow, _ := dao.NewVideoDao(ctx).GetIsFollowed(uid, token)
-		res.VideoList = append(res.VideoList, &videoPb.Video{
-			Id:            int64(video.ID),
-			PlayUrl:       video.PlayUrl,
-			CoverUrl:      video.CoverUrl,
-			Title:         video.Title,
-			FavoriteCount: FavoriteCount,
-			CommentCount:  CommentCount,
-			IsFavorite:    IsFavorite,
-			Author: &videoPb.User{
-				Id:              int64(uid),
-				Name:            Author.Username,
-				Avatar:          Author.Avatar,
-				BackgroundImage: Author.BackgroundImage,
-				Signature:       Author.Signature,
-				FollowCount:     FollowCount,
-				FollowerCount:   FollowerCount,
-				WorkCount:       WorkCount,
-				FavoriteCount:   UserFavoriteCount,
-				TotalFavorited:  TotalFavorited,
-				IsFollow:        IsFollow,
-			},
-		})
+		res.VideoList = append(res.VideoList, BuildVideoPbModel(ctx, video, token))
 	}
 	return nil
 }
@@ -160,4 +94,45 @@ func (v *VideoSrv) PublishList(ctx context.Context, req *videoPb.PublishListRequ
 func PublishResponseData(res *videoPb.PublishResponse, StatusCode int32, StatusMsg string) {
 	res.StatusCode = StatusCode
 	res.StatusMsg = StatusMsg
+}
+
+func BuildVideoPbModel(ctx context.Context, video *model.Video, token string) *videoPb.Video {
+	Author, _ := dao.NewVideoDao(ctx).FindUser(video)
+	vid := int(video.ID)
+	FavoriteCount, _ := dao.NewVideoDao(ctx).GetFavoriteCount(vid)
+	CommentCount, _ := dao.NewVideoDao(ctx).GetCommentCount(vid)
+	IsFavorite, _ := dao.NewVideoDao(ctx).GetIsFavorite(vid, token)
+	return &videoPb.Video{
+		Id:            int64(vid),
+		PlayUrl:       video.PlayUrl,
+		CoverUrl:      video.CoverUrl,
+		Title:         video.Title,
+		FavoriteCount: FavoriteCount,
+		CommentCount:  CommentCount,
+		IsFavorite:    IsFavorite,
+		Author:        BuildUserPbModel(ctx, Author, token),
+	}
+}
+
+func BuildUserPbModel(ctx context.Context, user *model.User, token string) *videoPb.User {
+	uid := int(user.ID)
+	FollowCount, _ := dao.NewVideoDao(ctx).GetFollowCount(uid)
+	FollowerCount, _ := dao.NewVideoDao(ctx).GetFollowerCount(uid)
+	WorkCount, _ := dao.NewVideoDao(ctx).GetWorkCount(uid)
+	FavoriteCount, _ := dao.NewVideoDao(ctx).GetFavoriteCount(uid)
+	TotalFavorited, _ := dao.NewVideoDao(ctx).GetTotalFavorited(uid)
+	IsFollow, _ := dao.NewVideoDao(ctx).GetIsFollowed(uid, token)
+	return &videoPb.User{
+		Id:              int64(uid),
+		Name:            user.Username,
+		Avatar:          user.Avatar,
+		BackgroundImage: user.BackgroundImage,
+		Signature:       user.Signature,
+		FollowCount:     FollowCount,
+		FollowerCount:   FollowerCount,
+		WorkCount:       WorkCount,
+		FavoriteCount:   FavoriteCount,
+		TotalFavorited:  TotalFavorited,
+		IsFollow:        IsFollow,
+	}
 }
