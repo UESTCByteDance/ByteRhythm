@@ -62,12 +62,7 @@ func (v *VideoSrv) Publish(ctx context.Context, req *videoPb.PublishRequest, res
 		return nil
 	}
 	os.Remove(imgPath)
-	video := model.Video{
-		AuthorID: uid,
-		PlayUrl:  VideoUrl,
-		CoverUrl: coverUrl,
-		Title:    title,
-	}
+	video := BuildVideoModel(uid, VideoUrl, coverUrl, title)
 	if err := dao.NewVideoDao(ctx).CreateVideo(&video); err != nil {
 		PublishResponseData(res, 1, "发布失败")
 		return err
@@ -134,5 +129,14 @@ func BuildUserPbModel(ctx context.Context, user *model.User, token string) *vide
 		FavoriteCount:   FavoriteCount,
 		TotalFavorited:  TotalFavorited,
 		IsFollow:        IsFollow,
+	}
+}
+
+func BuildVideoModel(uid int, VideoUrl string, coverUrl string, title string) model.Video {
+	return model.Video{
+		AuthorID: uid,
+		PlayUrl:  VideoUrl,
+		CoverUrl: coverUrl,
+		Title:    title,
 	}
 }

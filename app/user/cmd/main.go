@@ -7,6 +7,7 @@ import (
 	"ByteRhythm/idl/user/userPb"
 	"fmt"
 
+	"github.com/go-micro/plugins/v4/registry/etcd"
 	"go-micro.dev/v4"
 	"go-micro.dev/v4/registry"
 )
@@ -15,8 +16,8 @@ func main() {
 	config.Init()
 	dao.InitMySQL()
 
-	// etcd注册件
-	etcdReg := registry.NewRegistry(
+	//etcd注册件
+	etcdReg := etcd.NewRegistry(
 		registry.Addrs(fmt.Sprintf("%s:%s", config.EtcdHost, config.EtcdPort)),
 	)
 
