@@ -49,8 +49,17 @@ export LD_LIBRARY_PATH=$HOME/ffmpeg/lib
 ./etcd
 ```
 如果权限不够，可以使用`chmod +x etcd`赋予可执行权限再执行`./etcd`。
+可以安装`etcdkeeper`进入UI界面进行查看。
 
-6.多个终端运行项目（在根目录执行命令）
+6.启动Jaeger
+如果未安装，前往官方网站：<https://www.jaegertracing.io/download/>下载适合你系统的安装包，解压后进入，在对应终端执行：
+```bash
+./jaeger-all-in-one --collector.zipkin.host-port=:9411
+```
+如果权限不够，可以使用`chmod +x jaeger-all-in-one`赋予可执行权限再执行`./jaeger-all-in-one --collector.zipkin.host-port=:9411`。
+可以访问：<http://localhost:16686>进入UI界面。
+
+7.多个终端运行项目（在根目录执行命令）
 ```bash
 go run app/gateway/cmd/main.go
 go run app/user/cmd/main.go
