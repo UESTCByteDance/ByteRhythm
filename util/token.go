@@ -3,9 +3,8 @@ package util
 import (
 	"ByteRhythm/model"
 	"fmt"
-	"time"
-
 	"log"
+	"time"
 
 	"github.com/dgrijalva/jwt-go"
 )

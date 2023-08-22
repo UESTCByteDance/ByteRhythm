@@ -21,7 +21,7 @@ func main() {
 
 	// 得到一个微服务实例
 	webService := web.NewService(
-		web.Name("httpService"), // 微服务名字
+		web.Name("HttpService"), // 微服务名字
 		web.Address(fmt.Sprintf("%s:%s", config.HttpHost, config.HttpPort)),
 		web.Registry(etcdReg),           // etcd注册件
 		web.Handler(router.NewRouter()), // 路由

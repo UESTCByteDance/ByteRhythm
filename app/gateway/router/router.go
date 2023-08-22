@@ -3,16 +3,28 @@ package router
 import (
 	"ByteRhythm/app/gateway/http"
 	"ByteRhythm/app/gateway/middleware"
+	"ByteRhythm/app/gateway/wrapper"
+	"ByteRhythm/config"
+	"fmt"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"go-micro.dev/v4/logger"
 )
 
 func NewRouter() *gin.Engine {
+	config.Init()
 	r := gin.Default()
-	r.Use(cors.Default())
-	r.Use(middleware.JWT())
-
+	jaeger, closer, err := wrapper.NewJaegerTracer("HttpService", fmt.Sprintf("%s:%s", config.JaegerHost, config.JaegerPort))
+	defer closer.Close()
+	if err != nil {
+		logger.Info("HttpService init jaeger failed, err:", err)
+	}
+	r.Use(
+		middleware.JWT(),
+		cors.Default(),
+		middleware.Jaeger(jaeger),
+	)
 	v1 := r.Group("/douyin")
 	{
 		v1.GET("/feed", http.FeedHandler)

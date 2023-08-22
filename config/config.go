@@ -18,6 +18,8 @@ var (
 	Signature              string
 	EtcdHost               string
 	EtcdPort               string
+	JaegerHost             string
+	JaegerPort             string
 	HttpHost               string
 	HttpPort               string
 	UserServiceAddress     string
@@ -40,6 +42,7 @@ func Init() {
 	LoadMySQL(file)
 	LoadUser(file)
 	LoadEtcd(file)
+	LoadJaeger(file)
 	LoadGin(file)
 	LoadService(file)
 	LoadQiNiuYun(file)
@@ -63,6 +66,11 @@ func LoadUser(file *ini.File) {
 func LoadEtcd(file *ini.File) {
 	EtcdHost = file.Section("Etcd").Key("EtcdHost").String()
 	EtcdPort = file.Section("Etcd").Key("EtcdPort").String()
+}
+
+func LoadJaeger(file *ini.File) {
+	JaegerHost = file.Section("Jaeger").Key("JaegerHost").String()
+	JaegerPort = file.Section("Jaeger").Key("JaegerPort").String()
 }
 
 func LoadGin(file *ini.File) {
