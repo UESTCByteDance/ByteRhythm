@@ -2,10 +2,12 @@ package service
 
 import (
 	"ByteRhythm/app/video/dao"
+	"ByteRhythm/app/video/mq"
 	"ByteRhythm/idl/video/videoPb"
 	"ByteRhythm/model"
 	"ByteRhythm/util"
 	"context"
+	"encoding/json"
 	"os"
 	"sync"
 	"time"
@@ -41,35 +43,15 @@ func (v *VideoSrv) Feed(ctx context.Context, req *videoPb.FeedRequest, res *vide
 }
 
 func (v *VideoSrv) Publish(ctx context.Context, req *videoPb.PublishRequest, res *videoPb.PublishResponse) error {
-	token := req.Token
-	data := req.Data
-	title := req.Title
-	uid, _ := util.GetUserIdFromToken(token)
-	VideoUrl, err := util.UploadVideo(data)
+	//加入消息队列
+	body, _ := json.Marshal(&req)
+	err := mq.SendMessage2MQ(body)
 	if err != nil {
-		PublishResponseData(res, 1, "发布失败")
-		return err
-	}
-	imgPath := util.VideoGetNetImgCount(1, VideoUrl)
-	if imgPath == "" {
-		PublishResponseData(res, 1, "发布失败")
-		return nil
-
-	}
-	coverUrl := util.UploadJPG(imgPath, VideoUrl)
-	if coverUrl == "" {
-		PublishResponseData(res, 1, "发布失败")
-		return nil
-	}
-	os.Remove(imgPath)
-	video := BuildVideoModel(uid, VideoUrl, coverUrl, title)
-	if err := dao.NewVideoDao(ctx).CreateVideo(&video); err != nil {
 		PublishResponseData(res, 1, "发布失败")
 		return err
 	}
 	PublishResponseData(res, 0, "发布成功")
 	return nil
-
 }
 
 func (v *VideoSrv) PublishList(ctx context.Context, req *videoPb.PublishListRequest, res *videoPb.PublishListResponse) error {
@@ -139,4 +121,20 @@ func BuildVideoModel(uid int, VideoUrl string, coverUrl string, title string) mo
 		CoverUrl: coverUrl,
 		Title:    title,
 	}
+}
+
+func VideoMQ2MySQL(ctx context.Context, req *videoPb.PublishRequest) error {
+	token := req.Token
+	data := req.Data
+	title := req.Title
+	uid, _ := util.GetUserIdFromToken(token)
+	VideoUrl, _ := util.UploadVideo(data)
+	imgPath := util.VideoGetNetImgCount(1, VideoUrl)
+	coverUrl := util.UploadJPG(imgPath, VideoUrl)
+	os.Remove(imgPath)
+	video := BuildVideoModel(uid, VideoUrl, coverUrl, title)
+	if err := dao.NewVideoDao(ctx).CreateVideo(&video); err != nil {
+		return err
+	}
+	return nil
 }

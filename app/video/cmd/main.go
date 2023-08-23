@@ -3,9 +3,12 @@ package main
 import (
 	"ByteRhythm/app/gateway/wrapper"
 	"ByteRhythm/app/video/dao"
+	"ByteRhythm/app/video/mq"
+	"ByteRhythm/app/video/script"
 	"ByteRhythm/app/video/service"
 	"ByteRhythm/config"
 	"ByteRhythm/idl/video/videoPb"
+	"context"
 	"fmt"
 	"os"
 
@@ -20,13 +23,15 @@ import (
 func main() {
 	config.Init()
 	dao.InitMySQL()
+	mq.InitRabbitMQ()
+	loadingScript()
 	// etcd注册件
 	etcdReg := etcd.NewRegistry(
 		registry.Addrs(fmt.Sprintf("%s:%s", config.EtcdHost, config.EtcdPort)),
 	)
 
 	// 链路追踪
-	tracer, closer, err := wrapper.NewJaegerTracer("VideoService", fmt.Sprintf("%s:%s", config.JaegerHost, config.JaegerPort))
+	tracer, closer, err := wrapper.InitJaeger("VideoService", fmt.Sprintf("%s:%s", config.JaegerHost, config.JaegerPort))
 	if err != nil {
 		fmt.Printf("new tracer err: %+v\n", err)
 		os.Exit(-1)
@@ -41,7 +46,6 @@ func main() {
 		micro.WrapClient(roundrobin.NewClientWrapper()),          // 负载均衡
 		micro.WrapHandler(opentracing.NewHandlerWrapper(tracer)), // 链路追踪
 		micro.WrapClient(opentracing.NewClientWrapper(tracer)),   // 链路追踪
-
 	)
 
 	// 结构命令行参数，初始化
@@ -50,4 +54,9 @@ func main() {
 	_ = videoPb.RegisterVideoServiceHandler(microService.Server(), service.GetVideoSrv())
 	// 启动微服务
 	_ = microService.Run()
+}
+
+func loadingScript() {
+	ctx := context.Background()
+	go script.VideoCreateSync(ctx)
 }

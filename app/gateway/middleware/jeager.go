@@ -1,9 +1,10 @@
 package middleware
 
 import (
+	"log"
+
 	"github.com/gin-gonic/gin"
 	"github.com/opentracing/opentracing-go"
-	"go-micro.dev/v4/logger"
 	"go-micro.dev/v4/metadata"
 )
 
@@ -15,7 +16,7 @@ func Jaeger(tracer opentracing.Tracer) gin.HandlerFunc {
 		defer parentSpan.Finish()
 		injectErr := tracer.Inject(parentSpan.Context(), opentracing.TextMap, opentracing.TextMapCarrier(md))
 		if injectErr != nil {
-			logger.Fatalf("%s: Couldn't inject metadata", injectErr)
+			log.Fatalf("%s: Couldn't inject metadata", injectErr)
 		}
 		newCtx := metadata.NewContext(ctx.Request.Context(), md)
 		ctx.Request = ctx.Request.WithContext(newCtx)

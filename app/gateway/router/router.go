@@ -15,7 +15,7 @@ import (
 func NewRouter() *gin.Engine {
 	config.Init()
 	r := gin.Default()
-	jaeger, closer, err := wrapper.NewJaegerTracer("HttpService", fmt.Sprintf("%s:%s", config.JaegerHost, config.JaegerPort))
+	jaeger, closer, err := wrapper.InitJaeger("HttpService", fmt.Sprintf("%s:%s", config.JaegerHost, config.JaegerPort))
 	defer closer.Close()
 	if err != nil {
 		logger.Info("HttpService init jaeger failed, err:", err)

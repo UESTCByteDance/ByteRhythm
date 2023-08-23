@@ -32,6 +32,11 @@ var (
 	AccessKey              string
 	SecretKey              string
 	Domain                 string
+	RabbitMQ               string
+	RabbitMQHost           string
+	RabbitMQPort           string
+	RabbitMQUser           string
+	RabbitMQPassWord       string
 )
 
 func Init() {
@@ -46,6 +51,7 @@ func Init() {
 	LoadGin(file)
 	LoadService(file)
 	LoadQiNiuYun(file)
+	LoadRabbitMQ(file)
 }
 
 func LoadMySQL(file *ini.File) {
@@ -92,4 +98,12 @@ func LoadQiNiuYun(file *ini.File) {
 	AccessKey = file.Section("QiNiuYun").Key("AccessKey").String()
 	SecretKey = file.Section("QiNiuYun").Key("SecretKey").String()
 	Domain = file.Section("QiNiuYun").Key("Domain").String()
+}
+
+func LoadRabbitMQ(file *ini.File) {
+	RabbitMQ = file.Section("RabbitMQ").Key("RabbitMQ").String()
+	RabbitMQHost = file.Section("RabbitMQ").Key("RabbitMQHost").String()
+	RabbitMQPort = file.Section("RabbitMQ").Key("RabbitMQPort").String()
+	RabbitMQUser = file.Section("RabbitMQ").Key("RabbitMQUser").String()
+	RabbitMQPassWord = file.Section("RabbitMQ").Key("RabbitMQPassWord").String()
 }

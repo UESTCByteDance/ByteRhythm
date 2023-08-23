@@ -97,7 +97,7 @@ func GenerateToken(user *model.User, expiredSeconds int) (tokenString string) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenStr, err := token.SignedString(mySigningKey)
 	if err != nil {
-		fmt.Println("generate json web token failed !! error :", err)
+		log.Println("generate json web token failed !! error :", err)
 	}
 	return tokenStr
 

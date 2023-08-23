@@ -12,7 +12,7 @@ import (
 
 var Tracer opentracing.Tracer
 
-func NewJaegerTracer(serviceName string, jaegerHostPort string) (opentracing.Tracer, io.Closer, error) {
+func InitJaeger(serviceName string, jaegerHostPort string) (opentracing.Tracer, io.Closer, error) {
 	cfg := config.Configuration{
 		ServiceName: serviceName,
 		Sampler: &config.SamplerConfig{

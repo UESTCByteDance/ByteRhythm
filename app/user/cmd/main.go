@@ -26,13 +26,12 @@ func main() {
 		registry.Addrs(fmt.Sprintf("%s:%s", config.EtcdHost, config.EtcdPort)),
 	)
 	// 链路追踪
-	tracer, closer, err := wrapper.NewJaegerTracer("UserService", fmt.Sprintf("%s:%s", config.JaegerHost, config.JaegerPort))
+	tracer, closer, err := wrapper.InitJaeger("UserService", fmt.Sprintf("%s:%s", config.JaegerHost, config.JaegerPort))
 	if err != nil {
 		fmt.Printf("new tracer err: %+v\n", err)
 		os.Exit(-1)
 	}
 	defer closer.Close()
-
 	// 得到一个微服务实例
 	microService := micro.NewService(
 		micro.Name("UserService"), // 微服务名字
