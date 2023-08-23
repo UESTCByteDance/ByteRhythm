@@ -18,6 +18,8 @@ var (
 	Signature              string
 	EtcdHost               string
 	EtcdPort               string
+	RedisHost              string
+	RedisPort              string
 	JaegerHost             string
 	JaegerPort             string
 	HttpHost               string
@@ -52,6 +54,7 @@ func Init() {
 	LoadService(file)
 	LoadQiNiuYun(file)
 	LoadRabbitMQ(file)
+	LoadRedis(file)
 }
 
 func LoadMySQL(file *ini.File) {
@@ -106,4 +109,9 @@ func LoadRabbitMQ(file *ini.File) {
 	RabbitMQPort = file.Section("RabbitMQ").Key("RabbitMQPort").String()
 	RabbitMQUser = file.Section("RabbitMQ").Key("RabbitMQUser").String()
 	RabbitMQPassWord = file.Section("RabbitMQ").Key("RabbitMQPassWord").String()
+}
+
+func LoadRedis(file *ini.File) {
+	RedisHost = file.Section("Redis").Key("RedisHost").String()
+	RedisPort = file.Section("Redis").Key("RedisPort").String()
 }
