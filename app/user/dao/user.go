@@ -94,12 +94,12 @@ func (u *UserDao) GetTotalFavorited(uid int) (count int64, err error) {
 
 func (u *UserDao) GetIsFollowed(uid int, token string) (isFollowed bool, err error) {
 
-	baseId, err := util.GetUserIdFromToken(token)
+	baseID, err := util.GetUserIdFromToken(token)
 	if err != nil {
 		return
 	}
 	var follow model.Follow
-	err = u.Model(&model.Follow{}).Where("user_id = ?", baseId).Where("followed_user_id = ?", uid).Limit(1).Find(&follow).Error
+	err = u.Model(&model.Follow{}).Where("user_id = ?", uid).Where("followed_user_id = ?", baseID).Limit(1).Find(&follow).Error
 	if err != nil {
 		return
 	}

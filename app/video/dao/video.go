@@ -119,7 +119,7 @@ func (v *VideoDao) GetIsFollowed(uid int, token string) (isFollowed bool, err er
 		return
 	}
 	var follow model.Follow
-	err = v.Model(&model.Follow{}).Where("user_id = ?", baseID).Where("followed_user_id = ?", uid).Limit(1).Find(&follow).Error
+	err = v.Model(&model.Follow{}).Where("user_id = ?", uid).Where("followed_user_id = ?", baseID).Limit(1).Find(&follow).Error
 	if err != nil {
 		return
 	}
