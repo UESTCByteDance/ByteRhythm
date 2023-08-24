@@ -42,20 +42,6 @@ func NewRouter() *gin.Engine {
 			v2.GET("/list/", http.PublishListHandler)
 		}
 
-		v2 = v1.Group("/relation")
-		{
-			v2.POST("/action/", http.ActionRelationHandler)
-			v2.GET("/follow/list/", http.ListFollowRelationHandler)
-			v2.GET("/follower/list/", http.ListFollowerRelationHandler)
-			v2.GET("/friend/list/", http.ListFriendRelationHandler)
-		}
-
-		v2 = v1.Group("/message")
-		{
-			v2.POST("/action/", http.ActionMessageHandler)
-			v2.GET("/chat/", http.ChatMessageHandler)
-		}
-
 	}
 	return r
 

@@ -1,0 +1,58 @@
+syntax = "proto3";
+package messageService;
+option go_package = "./messagePb";
+
+message Message {
+  // @inject_tag: json:"id" form:"id"
+  int64 id = 1; // 消息id
+  // @inject_tag: json:"to_user_id" form:"to_user_id"
+  int64 to_user_id = 2; // 该消息接收者的id
+  // @inject_tag: json:"from_user_id" form:"from_user_id"
+  int64 from_user_id =3; // 该消息发送者的id
+  // @inject_tag: json:"content" form:"content"
+  string content = 4; // 消息内容
+  // @inject_tag: json:"create_time" form:"create_time"
+  string create_time = 5; // 消息创建时间
+}
+
+message MessageChatRequest {
+  // @inject_tag: json:"token" form:"token"
+  string token = 1; // 用户鉴权token
+  // @inject_tag: json:"to_user_id" form:"to_user_id"
+  int64 to_user_id = 2; // 对方用户id
+  // @inject_tag: json:"pre_msg_time" form:"pre_msg_time"
+  int64 pre_msg_time=3;//上次最新消息的时间（新增字段-apk更新中）
+}
+
+message MessageChatResponse {
+  // @inject_tag: json:"status_code" form:"status_code"
+  int32 status_code = 1; // 状态码，0-成功，其他值-失败
+  // @inject_tag: json:"status_msg" form:"status_msg"
+  string status_msg = 2; // 返回状态描述
+  // @inject_tag: json:"message_list" form:"message_list"
+  repeated Message message_list = 3; // 消息列表
+}
+
+message MessageActionRequest {
+  // @inject_tag: json:"token" form:"token"
+  string token = 1; // 用户鉴权token
+  // @inject_tag: json:"to_user_id" form:"to_user_id"
+  int64 to_user_id = 2; // 对方用户id
+  // @inject_tag: json:"action_type" form:"action_type"
+  int32 action_type = 3; // 1-发送消息
+  // @inject_tag: json:"content" form:"content"
+  string content = 4; // 消息内容
+}
+
+message MessageActionResponse {
+  // @inject_tag: json:"status_code" form:"status_code"
+  int32 status_code = 1; // 状态码，0-成功，其他值-失败
+  // @inject_tag: json:"status_msg" form:"status_msg"
+  string status_msg = 2; // 返回状态描述
+}
+
+service MessageService {
+  rpc ChatMessage(MessageChatRequest) returns (MessageChatResponse) {}
+  rpc ActionMessage(MessageActionRequest) returns (MessageActionResponse) {}
+}
+

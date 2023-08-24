@@ -14,7 +14,6 @@ require (
 	github.com/go-micro/plugins/v4/wrapper/ratelimiter/uber v1.2.0
 	github.com/go-micro/plugins/v4/wrapper/select/roundrobin v1.2.0
 	github.com/go-micro/plugins/v4/wrapper/trace/opentracing v1.2.0
-	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/google/uuid v1.2.0
 	github.com/opentracing/opentracing-go v1.2.0
 	github.com/qiniu/go-sdk/v7 v7.17.0
