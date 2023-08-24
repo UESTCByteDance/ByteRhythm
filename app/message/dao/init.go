@@ -3,8 +3,9 @@ package dao
 import (
 	"context"
 	"fmt"
-	"github.com/go-redis/redis"
 	"time"
+
+	"github.com/redis/go-redis/v9"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/mysql"
