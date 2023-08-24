@@ -1,0 +1,64 @@
+syntax = "proto3";
+package userService;
+option go_package = "./userPb";
+
+message User {
+  // @inject_tag: json:"id" form:"id"
+  int64 id = 1; // 用户id
+  // @inject_tag: json:"name" form:"name"
+  string name = 2; // 用户名称
+  // @inject_tag: json:"follow_count" form:"follow_count"
+  int64 follow_count = 3; // 关注总数
+  // @inject_tag: json:"follower_count" form:"follower_count"
+  int64 follower_count = 4; // 粉丝总数
+  // @inject_tag: json:"is_follow" form:"is_follow"
+  bool is_follow = 5; // true-已关注，false-未关注
+  // @inject_tag: json:"avatar" form:"avatar"
+  string avatar = 6; //用户头像
+  // @inject_tag: json:"background_image" form:"background_image"
+  string background_image = 7; //用户个人页顶部大图
+  // @inject_tag: json:"signature" form:"signature"
+  string signature = 8; //个人简介
+  // @inject_tag: json:"total_favorited" form:"total_favorited"
+  int64 total_favorited = 9; //获赞数量
+  // @inject_tag: json:"work_count" form:"work_count"
+  int64 work_count = 10; //作品数量
+  // @inject_tag: json:"favorite_count" form:"favorite_count"
+  int64 favorite_count = 11; //点赞数量
+}
+
+message UserRequest {
+  // @inject_tag: json:"username" form:"username"
+  string username = 1; // 注册用户名，最长32个字符
+  // @inject_tag: json:"password" form:"password"
+  string password = 2; // 密码，最长32个字符
+}
+
+message UserResponse {
+  // @inject_tag: json:"status_code" form:"status_code"
+  int32 status_code = 1; // 状态码，0-成功，其他值-失败
+  // @inject_tag: json:"status_msg" form:"status_msg"
+  string status_msg = 2; // 返回状态描述
+  // @inject_tag: json:"user_id" form:"user_id"
+  int64 user_id = 3; // 用户id
+  // @inject_tag: json:"token" form:"token"
+  string token = 4; // 用户鉴权token
+}
+
+message UserInfoRequest {
+  int64 user_id = 1; // 用户id
+  string token = 2; // 用户鉴权token
+}
+
+message UserInfoResponse {
+  int32 status_code = 1; // 状态码，0-成功，其他值-失败
+  string status_msg = 2; // 返回状态描述
+  User user = 3; // 用户信息
+}
+
+service UserService {
+  rpc Register(UserRequest) returns (UserResponse) {}
+  rpc Login(UserRequest) returns (UserResponse) {}
+  rpc UserInfo(UserInfoRequest) returns (UserInfoResponse) {}
+}
+
