@@ -164,32 +164,6 @@ func (m MessageSrv) ActionMessage(ctx context.Context, req *messagePb.MessageAct
 	}
 }
 
-//func (m MessageSrv) ActionMessage(ctx context.Context, req *messagePb.MessageActionRequest, res *messagePb.MessageActionResponse) error {
-//	token := req.Token
-//	fromUserId, err := util.GetUserIdFromToken(token)
-//	if err != nil {
-//		return nil
-//	}
-//
-//	actionType := req.ActionType
-//	if actionType == 1 {
-//		toUserId := req.ToUserId
-//		content := req.Content
-//		message := BuildMessageModel(fromUserId, int(toUserId), content)
-//		if _, err := dao.NewMessageDao(ctx).CreateMessage(&message); err != nil {
-//			MessageActionResponseData(res, 1, "发送消息失败！")
-//			return err
-//		} else {
-//			MessageActionResponseData(res, 0, "发送消息成功！")
-//			return nil
-//		}
-//
-//	} else {
-//		MessageActionResponseData(res, 1, "非发送消息操作！")
-//		return nil
-//	}
-//}
-
 func MessageChatResponseData(res *messagePb.MessageChatResponse, StatusCode int32, StatusMsg string, params ...interface{}) {
 	res.StatusCode = StatusCode
 	res.StatusMsg = StatusMsg
