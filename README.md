@@ -90,20 +90,18 @@ RabbitMQPassWord = guest
 
 ## 8.配置Redis
 
-打开终端，依次执行下列命令(逐条执行）：
+如果未安装，打开终端，依次执行下列命令(逐条执行）：
 
 ```bash
 sudo apt update
-sudo apt install build-essential tcl
-wget http://download.redis.io/redis-stable.tar.gz
-tar xzf redis-stable.tar.gz
-cd redis-stable
-make
-sudo make install
-redis-server
+sudo apt install redis-server
 ```
-
-现在 Redis 服务已经成功安装并运行在本地机器上。
+按需修改配置：
+```ini
+RedisHost = 127.0.0.1
+RedisPort = 6379
+```
+确保Redis能在本地运行。
 
 ## 9.多个终端运行项目（在根目录执行命令）
 ```bash
