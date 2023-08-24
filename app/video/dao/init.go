@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/go-redis/redis"
+
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -15,6 +17,8 @@ import (
 )
 
 var db *gorm.DB
+
+var RedisClient *redis.Client
 
 func InitMySQL() {
 	host := config.DBHost
@@ -30,6 +34,16 @@ func InitMySQL() {
 	}
 }
 
+func InitRedis() {
+	// 初始化 Redis 客户端
+	host := config.RedisHost
+	port := config.RedisPort
+	RedisClient = redis.NewClient(&redis.Options{
+		Addr:     host + ":" + port, // Redis 服务器地址
+		Password: "",                // Redis 访问密码（如果有的话）
+		DB:       0,                 // Redis 数据库索引
+	})
+}
 func Database(connString string) error {
 	var ormLogger logger.Interface
 	if gin.Mode() == "debug" {

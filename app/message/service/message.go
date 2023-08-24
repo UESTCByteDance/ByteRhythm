@@ -8,10 +8,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/go-redis/redis"
 	"strconv"
 	"sync"
 	"time"
+
+	"github.com/go-redis/redis/v8"
 )
 
 type MessageSrv struct {
@@ -46,10 +47,10 @@ func (m MessageSrv) ChatMessage(ctx context.Context, req *messagePb.MessageChatR
 	redisClient := dao.RedisClient
 
 	// 构建 Redis 键
-	redisKey := "chat_messages:" + strconv.Itoa(int(fromUserId)) + ":" + strconv.Itoa(int(toUserId))
+	redisKey := "chat_messages:" + strconv.Itoa(fromUserId) + ":" + strconv.Itoa(int(toUserId))
 
 	// 尝试从 Redis 缓存中获取数据
-	redisResult, err := redisClient.Get(redisKey).Result()
+	redisResult, err := redisClient.Get(ctx, redisKey).Result()
 	if err != nil && err != redis.Nil {
 		MessageChatResponseData(res, 1, "获取聊天记录失败！")
 		return err
@@ -79,13 +80,13 @@ func (m MessageSrv) ChatMessage(ctx context.Context, req *messagePb.MessageChatR
 	}
 
 	// 将结果存入 Redis 缓存
-	jsonBytes, err := json.Marshal(res.MessageList)
+	jsonBytes, err := json.Marshal(&res.MessageList)
 	if err != nil {
 		MessageChatResponseData(res, 1, "获取聊天记录失败！")
 		return err
 	}
 
-	err = redisClient.Set(redisKey, string(jsonBytes), time.Hour).Err()
+	err = redisClient.Set(ctx, redisKey, string(jsonBytes), time.Hour).Err()
 	if err != nil {
 		MessageChatResponseData(res, 1, "获取聊天记录失败！")
 		return err
@@ -116,7 +117,7 @@ func (m MessageSrv) ActionMessage(ctx context.Context, req *messagePb.MessageAct
 		redisKey := fmt.Sprintf("chat_messages:%d:%d", fromUserID, toUserID)
 
 		// 尝试从 Redis 缓存中获取数据
-		redisResult, err := redisClient.Get(redisKey).Result()
+		redisResult, err := redisClient.Get(ctx, redisKey).Result()
 		if err != nil && err != redis.Nil {
 			MessageActionResponseData(res, 1, "操作失败！")
 			return err
@@ -138,13 +139,13 @@ func (m MessageSrv) ActionMessage(ctx context.Context, req *messagePb.MessageAct
 		}
 
 		// 将结果存入 Redis 缓存
-		jsonBytes, err := json.Marshal(messageList)
+		jsonBytes, err := json.Marshal(&messageList)
 		if err != nil {
 			MessageActionResponseData(res, 1, "操作失败！")
 			return err
 		}
 
-		err = redisClient.Set(redisKey, string(jsonBytes), time.Hour).Err()
+		err = redisClient.Set(ctx, redisKey, string(jsonBytes), time.Hour).Err()
 		if err != nil {
 			MessageActionResponseData(res, 1, "操作失败！")
 			return err

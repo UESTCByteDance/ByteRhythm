@@ -15,14 +15,15 @@ require (
 	github.com/go-micro/plugins/v4/wrapper/select/roundrobin v1.2.0
 	github.com/go-micro/plugins/v4/wrapper/trace/opentracing v1.2.0
 	github.com/go-redis/redis v6.15.9+incompatible
+	github.com/go-redis/redis/v8 v8.11.5
 	github.com/google/uuid v1.2.0
 	github.com/opentracing/opentracing-go v1.2.0
 	github.com/qiniu/go-sdk/v7 v7.17.0
-	github.com/redis/go-redis/v9 v9.1.0
 	github.com/streadway/amqp v1.1.0
 	github.com/uber/jaeger-client-go v2.30.0+incompatible
 	go-micro.dev/v4 v4.9.0
 	google.golang.org/protobuf v1.30.0
+	gopkg.in/ini.v1 v1.62.0
 	gorm.io/driver/mysql v1.5.1
 	gorm.io/gorm v1.25.4
 )
@@ -35,7 +36,7 @@ require (
 	github.com/andres-erbsen/clock v0.0.0-20160526145045-9e14626cd129 // indirect
 	github.com/bitly/go-simplejson v0.5.0 // indirect
 	github.com/bytedance/sonic v1.9.1 // indirect
-	github.com/cespare/xxhash/v2 v2.2.0 // indirect
+	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/chenzhuoyu/base64x v0.0.0-20221115062448-fe3a3abad311 // indirect
 	github.com/coreos/go-semver v0.3.0 // indirect
 	github.com/coreos/go-systemd/v22 v22.3.2 // indirect

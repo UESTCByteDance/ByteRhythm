@@ -15,7 +15,7 @@ func NewMessageDao(ctx context.Context) *MessageDao {
 	if ctx == nil {
 		ctx = context.Background()
 	}
-	return &MessageDao{db.WithContext(ctx)}
+	return &MessageDao{NewDBClient(ctx)}
 }
 
 func (m *MessageDao) CreateMessage(message *model.Message) (id int64, err error) {
