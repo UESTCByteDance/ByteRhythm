@@ -23,6 +23,7 @@ import (
 func main() {
 	config.Init()
 	dao.InitMySQL()
+	dao.InitRedis()
 	mq.InitRabbitMQ()
 	loadingScript()
 	// etcd注册件

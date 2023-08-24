@@ -20,9 +20,14 @@ func NewVideoDao(ctx context.Context) *VideoDao {
 	return &VideoDao{NewDBClient(ctx)}
 }
 
-func (v *VideoDao) GetVideoListByLatestTime(latestTime time.Time) (videos []*model.Video, err error) {
-	//获取视频发布时间小于等于latestTime的视频,并按照发布时间降序排列
-	err = v.Model(&model.Video{}).Where("created_at <= ?", latestTime).Order("created_at desc").Limit(30).Find(&videos).Error
+func (v *VideoDao) GetVideoListByLatestTime(latestTime time.Time, vidExistArray []int, limit int) (videos []*model.Video, err error) {
+	if limit != 30 {
+		err = v.Model(&model.Video{}).Where("created_at <= ?", latestTime).Not("id", vidExistArray).Order("created_at desc").Limit(limit).Find(&videos).Error
+		if err != nil {
+			return
+		}
+	}
+	err = v.Model(&model.Video{}).Where("created_at <= ?", latestTime).Order("created_at desc").Limit(limit).Find(&videos).Error
 	if err != nil {
 		return
 	}

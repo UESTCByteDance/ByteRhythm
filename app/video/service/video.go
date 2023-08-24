@@ -8,9 +8,12 @@ import (
 	"ByteRhythm/util"
 	"context"
 	"encoding/json"
+	"fmt"
 	"os"
 	"sync"
 	"time"
+
+	"github.com/go-redis/redis/v8"
 )
 
 type VideoSrv struct {
@@ -32,13 +35,62 @@ func (v *VideoSrv) Feed(ctx context.Context, req *videoPb.FeedRequest, res *vide
 	latestTime := time.Unix(latestTimeStamp, 0)
 	token := req.Token
 
-	videos, err := dao.NewVideoDao(ctx).GetVideoListByLatestTime(latestTime)
+	// 使用Keys命令获取所有键
+	keys, err := dao.RedisClient.Keys(ctx, "*").Result()
 	if err != nil {
+		FeedResponseData(res, 1, "获取视频流失败")
 		return err
 	}
-	for _, video := range videos {
-		res.VideoList = append(res.VideoList, BuildVideoPbModel(ctx, video, token))
+	keys = util.SortKeys(keys)
+	var videoList []*videoPb.Video
+
+	//从缓存取对应的视频
+	for _, key := range keys {
+		// 尝试从 Redis 缓存中获取数据
+		redisResult, err := dao.RedisClient.Get(ctx, key).Result()
+		if err != nil && err != redis.Nil {
+			FeedResponseData(res, 1, "获取视频流失败")
+			return err
+		}
+		var video videoPb.Video
+		err = json.Unmarshal([]byte(redisResult), &video)
+		if err != nil {
+			FeedResponseData(res, 1, "获取视频流失败")
+			return err
+		}
+		if token == "" {
+			video.IsFavorite = false
+			video.Author.IsFollow = false
+		} else {
+			video.IsFavorite, _ = dao.NewVideoDao(ctx).GetIsFavorite(int(video.Id), token)
+			video.Author.IsFollow, _ = dao.NewVideoDao(ctx).GetIsFollowed(int(video.Author.Id), token)
+		}
+		videoList = append(videoList, &video)
 	}
+	if len(keys) == 30 {
+		FeedResponseData(res, 0, "获取视频流成功", videoList, latestTimeStamp)
+		return nil
+	}
+
+	//从数据库取对应的视频
+	videos, err := dao.NewVideoDao(ctx).GetVideoListByLatestTime(latestTime, util.StringArray2IntArray(keys), 30-len(keys))
+	if err != nil {
+		FeedResponseData(res, 1, "获取失败")
+		return err
+	}
+	var nextTime int64
+	if len(videos) != 0 {
+		nextTime = videos[len(videos)-1].CreatedAt.Unix()
+	}
+	for _, video := range videos {
+		videoPbModel := BuildVideoPbModel(ctx, video, token)
+		videoList = append(videoList, videoPbModel)
+		//将视频存入缓存
+		videoJson, _ := json.Marshal(&videoPbModel)
+		dao.RedisClient.Set(ctx, fmt.Sprintf("%d", video.ID), videoJson, time.Hour)
+	}
+	FeedResponseData(res, 0, "获取视频流成功", videoList, nextTime)
+
 	return nil
 }
 
@@ -60,19 +112,36 @@ func (v *VideoSrv) PublishList(ctx context.Context, req *videoPb.PublishListRequ
 
 	videos, err := dao.NewVideoDao(ctx).GetVideoListByUserId(uid)
 	if err != nil {
+		PublishListResponseData(res, 1, "获取失败")
 		return err
 	}
+	var videoList []*videoPb.Video
 	for _, video := range videos {
-		res.VideoList = append(res.VideoList, BuildVideoPbModel(ctx, video, token))
+		videoList = append(videoList, BuildVideoPbModel(ctx, video, token))
 	}
+	PublishListResponseData(res, 0, "获取成功", videoList)
 	return nil
 }
 
+func FeedResponseData(res *videoPb.FeedResponse, StatusCode int32, StatusMsg string, params ...interface{}) {
+	res.StatusCode = StatusCode
+	res.StatusMsg = StatusMsg
+	if len(params) != 0 {
+		res.VideoList = params[0].([]*videoPb.Video)
+		res.NextTime = params[1].(int64)
+	}
+}
 func PublishResponseData(res *videoPb.PublishResponse, StatusCode int32, StatusMsg string) {
 	res.StatusCode = StatusCode
 	res.StatusMsg = StatusMsg
 }
-
+func PublishListResponseData(res *videoPb.PublishListResponse, StatusCode int32, StatusMsg string, params ...interface{}) {
+	res.StatusCode = StatusCode
+	res.StatusMsg = StatusMsg
+	if len(params) != 0 {
+		res.VideoList = params[0].([]*videoPb.Video)
+	}
+}
 func BuildVideoPbModel(ctx context.Context, video *model.Video, token string) *videoPb.Video {
 	Author, _ := dao.NewVideoDao(ctx).FindUser(video)
 	vid := int(video.ID)
@@ -123,7 +192,7 @@ func BuildVideoModel(uid int, VideoUrl string, coverUrl string, title string) mo
 	}
 }
 
-func VideoMQ2MySQL(ctx context.Context, req *videoPb.PublishRequest) error {
+func VideoMQ2DB(ctx context.Context, req *videoPb.PublishRequest) error {
 	token := req.Token
 	data := req.Data
 	title := req.Title
@@ -133,8 +202,14 @@ func VideoMQ2MySQL(ctx context.Context, req *videoPb.PublishRequest) error {
 	coverUrl := util.UploadJPG(imgPath, VideoUrl)
 	os.Remove(imgPath)
 	video := BuildVideoModel(uid, VideoUrl, coverUrl, title)
+	//将视频存入数据库
 	if err := dao.NewVideoDao(ctx).CreateVideo(&video); err != nil {
 		return err
 	}
+	//将视频存入缓存
+	var videoCache *videoPb.Video
+	videoCache = BuildVideoPbModel(ctx, &video, token)
+	videoJson, _ := json.Marshal(&videoCache)
+	dao.RedisClient.Set(ctx, fmt.Sprintf("%d", video.ID), videoJson, time.Hour)
 	return nil
 }

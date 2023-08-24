@@ -1,19 +1,17 @@
 package dao
 
 import (
+	"ByteRhythm/config"
 	"context"
 	"fmt"
 	"time"
 
-	"github.com/go-redis/redis"
-
 	"github.com/gin-gonic/gin"
+	"github.com/go-redis/redis/v8"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 	"gorm.io/gorm/schema"
-
-	"ByteRhythm/config"
 )
 
 var db *gorm.DB
@@ -41,7 +39,7 @@ func InitRedis() {
 	RedisClient = redis.NewClient(&redis.Options{
 		Addr:     host + ":" + port, // Redis 服务器地址
 		Password: "",                // Redis 访问密码（如果有的话）
-		DB:       0,                 // Redis 数据库索引
+		DB:       1,                 // Redis 数据库索引
 	})
 }
 func Database(connString string) error {

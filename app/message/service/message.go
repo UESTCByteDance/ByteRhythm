@@ -43,14 +43,11 @@ func (m MessageSrv) ChatMessage(ctx context.Context, req *messagePb.MessageChatR
 		return nil
 	}
 
-	// 初始化 Redis 客户端
-	redisClient := dao.RedisClient
-
 	// 构建 Redis 键
 	redisKey := "chat_messages:" + strconv.Itoa(fromUserId) + ":" + strconv.Itoa(int(toUserId))
 
 	// 尝试从 Redis 缓存中获取数据
-	redisResult, err := redisClient.Get(ctx, redisKey).Result()
+	redisResult, err := dao.RedisClient.Get(ctx, redisKey).Result()
 	if err != nil && err != redis.Nil {
 		MessageChatResponseData(res, 1, "获取聊天记录失败！")
 		return err
@@ -86,7 +83,7 @@ func (m MessageSrv) ChatMessage(ctx context.Context, req *messagePb.MessageChatR
 		return err
 	}
 
-	err = redisClient.Set(ctx, redisKey, string(jsonBytes), time.Hour).Err()
+	err = dao.RedisClient.Set(ctx, redisKey, string(jsonBytes), time.Hour).Err()
 	if err != nil {
 		MessageChatResponseData(res, 1, "获取聊天记录失败！")
 		return err
@@ -110,14 +107,11 @@ func (m MessageSrv) ActionMessage(ctx context.Context, req *messagePb.MessageAct
 
 		message := BuildMessageModel(fromUserID, int(toUserID), content)
 
-		// 初始化 Redis 客户端
-		redisClient := dao.RedisClient
-
 		// 构建 Redis 键
 		redisKey := fmt.Sprintf("chat_messages:%d:%d", fromUserID, toUserID)
 
 		// 尝试从 Redis 缓存中获取数据
-		redisResult, err := redisClient.Get(ctx, redisKey).Result()
+		redisResult, err := dao.RedisClient.Get(ctx, redisKey).Result()
 		if err != nil && err != redis.Nil {
 			MessageActionResponseData(res, 1, "操作失败！")
 			return err
@@ -145,7 +139,7 @@ func (m MessageSrv) ActionMessage(ctx context.Context, req *messagePb.MessageAct
 			return err
 		}
 
-		err = redisClient.Set(ctx, redisKey, string(jsonBytes), time.Hour).Err()
+		err = dao.RedisClient.Set(ctx, redisKey, string(jsonBytes), time.Hour).Err()
 		if err != nil {
 			MessageActionResponseData(res, 1, "操作失败！")
 			return err

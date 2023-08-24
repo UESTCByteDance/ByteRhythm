@@ -34,7 +34,7 @@ func (s *SyncVideo) SyncVideoCreate(ctx context.Context) error {
 			if err != nil {
 				return
 			}
-			err = service.VideoMQ2MySQL(ctx, req)
+			err = service.VideoMQ2DB(ctx, req)
 			if err != nil {
 				return
 			}
