@@ -2,10 +2,10 @@ package service
 
 import (
 	"ByteRhythm/app/video/dao"
-	"ByteRhythm/app/video/mq"
 	"ByteRhythm/consts"
 	"ByteRhythm/idl/video/videoPb"
 	"ByteRhythm/model"
+	"ByteRhythm/mq"
 	"ByteRhythm/util"
 	"context"
 	"encoding/json"

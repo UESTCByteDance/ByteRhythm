@@ -3,11 +3,11 @@ package main
 import (
 	"ByteRhythm/app/gateway/wrapper"
 	"ByteRhythm/app/video/dao"
-	"ByteRhythm/app/video/mq"
 	"ByteRhythm/app/video/script"
 	"ByteRhythm/app/video/service"
 	"ByteRhythm/config"
 	"ByteRhythm/idl/video/videoPb"
+	"ByteRhythm/mq"
 	"context"
 	"fmt"
 	"os"

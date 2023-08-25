@@ -1,10 +1,10 @@
 package script
 
 import (
-	"ByteRhythm/app/video/mq"
 	"ByteRhythm/app/video/service"
 	"ByteRhythm/consts"
 	"ByteRhythm/idl/video/videoPb"
+	"ByteRhythm/mq"
 	"context"
 	"encoding/json"
 )
