@@ -1,6 +1,8 @@
 package rpc
 
 import (
+	"ByteRhythm/idl/comment/commentPb"
+	"ByteRhythm/idl/favorite/favoritePb"
 	"ByteRhythm/idl/message/messagePb"
 	"ByteRhythm/idl/relation/relationPb"
 	"ByteRhythm/idl/user/userPb"
@@ -14,6 +16,8 @@ var (
 	VideoService    videoPb.VideoService
 	MessageService  messagePb.MessageService
 	RelationService relationPb.RelationService
+	CommentService  commentPb.CommentService
+	FavoriteService favoritePb.FavoriteService
 )
 
 func InitRPC() {
@@ -32,4 +36,12 @@ func InitRPC() {
 	RelationMicroService := micro.NewService(micro.Name("RelationService.client"))
 	relationService := relationPb.NewRelationService("RelationService", RelationMicroService.Client())
 	RelationService = relationService
+
+	CommentMicroService := micro.NewService(micro.Name("CommentService.client"))
+	commentService := commentPb.NewCommentService("CommentService", CommentMicroService.Client())
+	CommentService = commentService
+
+	FavoriteMicroService := micro.NewService(micro.Name("FavoriteService.client"))
+	favoriteService := favoritePb.NewFavoriteService("FavoriteService", FavoriteMicroService.Client())
+	FavoriteService = favoriteService
 }

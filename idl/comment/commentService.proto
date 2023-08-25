@@ -1,0 +1,82 @@
+syntax = "proto3";
+package commentService;
+option go_package = "./commentPb";
+
+message Comment {
+  // @inject_tag: json:"id" form:"id"
+  int64 id = 1; // 视频评论id
+  // @inject_tag: json:"user" form:"user"
+  User user = 2; // 评论用户信息
+  // @inject_tag: json:"content" form:"content"
+  string content = 3; // 评论内容
+  // @inject_tag: json:"create_date" form:"create_date"
+  string create_date = 4; // 评论发布日期，格式 mm-dd
+}
+
+message User {
+  // @inject_tag: json:"id" form:"id"
+  int64 id = 1; // 用户id
+  // @inject_tag: json:"name" form:"name"
+  string name = 2; // 用户名称
+  // @inject_tag: json:"follow_count" form:"follow_count"
+  int64 follow_count = 3; // 关注总数
+  // @inject_tag: json:"follower_count" form:"follower_count"
+  int64 follower_count = 4; // 粉丝总数
+  // @inject_tag: json:"is_follow" form:"is_follow"
+  bool is_follow = 5; // true-已关注，false-未关注
+  // @inject_tag: json:"avatar" form:"avatar"
+  string avatar = 6; //用户头像
+  // @inject_tag: json:"background_image" form:"background_image"
+  string background_image = 7; //用户个人页顶部大图
+  // @inject_tag: json:"signature" form:"signature"
+  string signature = 8; //个人简介
+  // @inject_tag: json:"total_favorited" form:"total_favorited"
+  int64 total_favorited = 9; //获赞数量
+  // @inject_tag: json:"work_count" form:"work_count"
+  int64 work_count = 10; //作品数量
+  // @inject_tag: json:"favorite_count" form:"favorite_count"
+  int64 favorite_count = 11; //点赞数量
+}
+
+message CommentActionRequest {
+  // @inject_tag: json:"token" form:"token"
+  string token = 1; // 用户鉴权token
+  // @inject_tag: json:"video_id" form:"video_id"
+  int64 video_id = 2; // 视频id
+  // @inject_tag: json:"action_type" form:"action_type"
+  int32 action_type = 3; // 1-发布评论，2-删除评论
+  // @inject_tag: json:"comment_text" form:"comment_text"
+  string comment_text = 4; // 用户填写的评论内容，在action_type=1的时候使用
+  // @inject_tag: json:"comment_id" form:"comment_id"
+  int64 comment_id = 5; // 要删除的评论id，在action_type=2的时候使用
+}
+
+message CommentActionResponse {
+  // @inject_tag: json:"status_code" form:"status_code"
+  int32 status_code = 1; // 状态码，0-成功，其他值-失败
+  // @inject_tag: json:"status_msg" form:"status_msg"
+  string status_msg = 2; // 返回状态描述
+  // @inject_tag: json:"comment" form:"comment"
+  Comment comment = 3; // 评论成功返回评论内容，不需要重新拉取整个列表
+}
+
+message CommentListRequest {
+  // @inject_tag: json:"token" form:"token"
+  string token = 1; // 用户鉴权token
+  // @inject_tag: json:"video_id" form:"video_id"
+  int64 video_id = 2; // 视频id
+}
+
+message CommentListResponse {
+  // @inject_tag: json:"status_code" form:"status_code"
+  int32 status_code = 1; // 状态码，0-成功，其他值-失败
+  // @inject_tag: json:"status_msg" form:"status_msg"
+  string status_msg = 2; // 返回状态描述
+  // @inject_tag: json:"comment_list" form:"comment_list"
+  repeated Comment comment_list = 3; // 评论列表
+}
+
+service CommentService {
+  rpc CommentAction(CommentActionRequest) returns (CommentActionResponse) {}
+  rpc CommentList(CommentListRequest) returns (CommentListResponse) {}
+}

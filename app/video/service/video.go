@@ -96,6 +96,7 @@ func (v *VideoSrv) Feed(ctx context.Context, req *videoPb.FeedRequest, res *vide
 
 func (v *VideoSrv) Publish(ctx context.Context, req *videoPb.PublishRequest, res *videoPb.PublishResponse) error {
 	//加入消息队列
+
 	body, _ := json.Marshal(&req)
 	err := mq.SendMessage2MQ(body)
 	if err != nil {
