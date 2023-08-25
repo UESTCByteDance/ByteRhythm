@@ -44,7 +44,12 @@ func (m MessageSrv) ChatMessage(ctx context.Context, req *messagePb.MessageChatR
 	}
 
 	// 构建 Redis 键
-	redisKey := "chat_messages:" + strconv.Itoa(fromUserId) + ":" + strconv.Itoa(int(toUserId))
+	var redisKey string
+	if strconv.Itoa(fromUserId) < strconv.Itoa(int(toUserId)) {
+		redisKey = "chat_messages:" + strconv.Itoa(fromUserId) + ":" + strconv.Itoa(int(toUserId))
+	} else {
+		redisKey = "chat_messages:" + strconv.Itoa(int(toUserId)) + ":" + strconv.Itoa(fromUserId)
+	}
 
 	// 尝试从 Redis 缓存中获取数据
 	redisResult, err := dao.RedisClient.Get(ctx, redisKey).Result()
@@ -108,7 +113,12 @@ func (m MessageSrv) ActionMessage(ctx context.Context, req *messagePb.MessageAct
 		message := BuildMessageModel(fromUserID, int(toUserID), content)
 
 		// 构建 Redis 键
-		redisKey := fmt.Sprintf("chat_messages:%d:%d", fromUserID, toUserID)
+		var redisKey string
+		if strconv.Itoa(fromUserID) < strconv.Itoa(int(toUserID)) {
+			redisKey = "chat_messages:" + strconv.Itoa(fromUserID) + ":" + strconv.Itoa(int(toUserID))
+		} else {
+			redisKey = "chat_messages:" + strconv.Itoa(int(toUserID)) + ":" + strconv.Itoa(fromUserID)
+		}
 
 		// 尝试从 Redis 缓存中获取数据
 		redisResult, err := dao.RedisClient.Get(ctx, redisKey).Result()
