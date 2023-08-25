@@ -3,6 +3,7 @@ package service
 import (
 	"ByteRhythm/app/video/dao"
 	"ByteRhythm/app/video/mq"
+	"ByteRhythm/consts"
 	"ByteRhythm/idl/video/videoPb"
 	"ByteRhythm/model"
 	"ByteRhythm/util"
@@ -52,20 +53,22 @@ func (v *VideoSrv) Feed(ctx context.Context, req *videoPb.FeedRequest, res *vide
 			FeedResponseData(res, 1, "获取视频流失败")
 			return err
 		}
-		var video videoPb.Video
-		err = json.Unmarshal([]byte(redisResult), &video)
-		if err != nil {
-			FeedResponseData(res, 1, "获取视频流失败")
-			return err
+		if err != redis.Nil {
+			var video videoPb.Video
+			err = json.Unmarshal([]byte(redisResult), &video)
+			if err != nil {
+				FeedResponseData(res, 1, "获取视频流失败")
+				return err
+			}
+			if token == "" {
+				video.IsFavorite = false
+				video.Author.IsFollow = false
+			} else {
+				video.IsFavorite, _ = dao.NewVideoDao(ctx).GetIsFavorite(int(video.Id), token)
+				video.Author.IsFollow, _ = dao.NewVideoDao(ctx).GetIsFollowed(int(video.Author.Id), token)
+			}
+			videoList = append(videoList, &video)
 		}
-		if token == "" {
-			video.IsFavorite = false
-			video.Author.IsFollow = false
-		} else {
-			video.IsFavorite, _ = dao.NewVideoDao(ctx).GetIsFavorite(int(video.Id), token)
-			video.Author.IsFollow, _ = dao.NewVideoDao(ctx).GetIsFollowed(int(video.Author.Id), token)
-		}
-		videoList = append(videoList, &video)
 	}
 	if len(keys) == 30 {
 		FeedResponseData(res, 0, "获取视频流成功", videoList, latestTimeStamp)
@@ -85,9 +88,12 @@ func (v *VideoSrv) Feed(ctx context.Context, req *videoPb.FeedRequest, res *vide
 	for _, video := range videos {
 		videoPbModel := BuildVideoPbModel(ctx, video, token)
 		videoList = append(videoList, videoPbModel)
-		//将视频存入缓存
-		videoJson, _ := json.Marshal(&videoPbModel)
-		dao.RedisClient.Set(ctx, fmt.Sprintf("%d", video.ID), videoJson, time.Hour)
+		//将视频存入缓存，加入消息队列
+		body, _ := json.Marshal(&videoPbModel)
+		err := mq.SendMessage2MQ(body, consts.Video2RedisQueue)
+		if err != nil {
+			return err
+		}
 	}
 	FeedResponseData(res, 0, "获取视频流成功", videoList, nextTime)
 
@@ -97,7 +103,7 @@ func (v *VideoSrv) Feed(ctx context.Context, req *videoPb.FeedRequest, res *vide
 func (v *VideoSrv) Publish(ctx context.Context, req *videoPb.PublishRequest, res *videoPb.PublishResponse) error {
 	//加入消息队列
 	body, _ := json.Marshal(&req)
-	err := mq.SendMessage2MQ(body)
+	err := mq.SendMessage2MQ(body, consts.CreateVideoQueue)
 	if err != nil {
 		PublishResponseData(res, 1, "发布失败")
 		return err
@@ -211,5 +217,11 @@ func VideoMQ2DB(ctx context.Context, req *videoPb.PublishRequest) error {
 	videoCache = BuildVideoPbModel(ctx, &video, token)
 	videoJson, _ := json.Marshal(&videoCache)
 	dao.RedisClient.Set(ctx, fmt.Sprintf("%d", video.ID), videoJson, time.Hour)
+	return nil
+}
+
+func VideoMQ2Redis(ctx context.Context, req *videoPb.Video) error {
+	videoJson, _ := json.Marshal(&req)
+	dao.RedisClient.Set(ctx, fmt.Sprintf("%d", req.Id), videoJson, time.Hour)
 	return nil
 }

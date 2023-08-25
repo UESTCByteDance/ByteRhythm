@@ -60,4 +60,5 @@ func main() {
 func loadingScript() {
 	ctx := context.Background()
 	go script.VideoCreateSync(ctx)
+	go script.Video2RedisSync(ctx)
 }
