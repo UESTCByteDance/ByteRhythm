@@ -124,6 +124,7 @@ func (v *VideoSrv) PublishList(ctx context.Context, req *videoPb.PublishListRequ
 		return err
 	}
 	keys = util.SortKeys(keys)
+	var trueKeys []string
 	var videoList []*videoPb.Video
 	//从缓存取对应的视频
 	for _, key := range keys {
@@ -139,10 +140,13 @@ func (v *VideoSrv) PublishList(ctx context.Context, req *videoPb.PublishListRequ
 				PublishListResponseData(res, 1, "获取视频流失败")
 				return err
 			}
-			videoList = append(videoList, &video)
+			if video.Author.Id == int64(uid) {
+				videoList = append(videoList, &video)
+				trueKeys = append(trueKeys, key)
+			}
 		}
 	}
-	videos, err := dao.NewVideoDao(ctx).GetVideoListByUserId(uid, util.StringArray2IntArray(keys))
+	videos, err := dao.NewVideoDao(ctx).GetVideoListByUserId(uid, util.StringArray2IntArray(trueKeys))
 	if err != nil {
 		PublishListResponseData(res, 1, "获取失败")
 		return err
@@ -246,7 +250,7 @@ func VideoMQ2DB(ctx context.Context, req *videoPb.PublishRequest) error {
 	var videoCache *videoPb.Video
 	videoCache = BuildVideoPbModel(ctx, &video, token)
 	videoJson, _ := json.Marshal(&videoCache)
-	dao.RedisClient.Set(ctx, fmt.Sprintf("%d:%d", video.Author.ID, video.ID), videoJson, time.Hour)
+	dao.RedisClient.Set(ctx, fmt.Sprintf("%d:%d", uid, video.ID), videoJson, time.Hour)
 	return nil
 }
 
