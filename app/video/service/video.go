@@ -20,6 +20,11 @@ import (
 type VideoSrv struct {
 }
 
+type VideoData struct {
+	Id           int
+	VideoPbModel *videoPb.Video
+}
+
 var VideoSrvIns *VideoSrv
 var VideoSrvOnce sync.Once
 
@@ -35,9 +40,10 @@ func (v *VideoSrv) Feed(ctx context.Context, req *videoPb.FeedRequest, res *vide
 	latestTimeStamp := time.Now().Unix()
 	latestTime := time.Unix(latestTimeStamp, 0)
 	token := req.Token
-
+	uid, _ := util.GetUserIdFromToken(token)
+	pattern := fmt.Sprintf("%d:*", uid)
 	// 使用Keys命令获取所有键
-	keys, err := dao.RedisClient.Keys(ctx, "*").Result()
+	keys, err := dao.RedisClient.Keys(ctx, pattern).Result()
 	if err != nil {
 		FeedResponseData(res, 1, "获取视频流失败")
 		return err
@@ -59,13 +65,6 @@ func (v *VideoSrv) Feed(ctx context.Context, req *videoPb.FeedRequest, res *vide
 			if err != nil {
 				FeedResponseData(res, 1, "获取视频流失败")
 				return err
-			}
-			if token == "" {
-				video.IsFavorite = false
-				video.Author.IsFollow = false
-			} else {
-				video.IsFavorite, _ = dao.NewVideoDao(ctx).GetIsFavorite(int(video.Id), token)
-				video.Author.IsFollow, _ = dao.NewVideoDao(ctx).GetIsFollowed(int(video.Author.Id), token)
 			}
 			videoList = append(videoList, &video)
 		}
@@ -89,7 +88,8 @@ func (v *VideoSrv) Feed(ctx context.Context, req *videoPb.FeedRequest, res *vide
 		videoPbModel := BuildVideoPbModel(ctx, video, token)
 		videoList = append(videoList, videoPbModel)
 		//将视频存入缓存，加入消息队列
-		body, _ := json.Marshal(&videoPbModel)
+		videoData := VideoData{uid, videoPbModel}
+		body, _ := json.Marshal(&videoData)
 		err := mq.SendMessage2MQ(body, consts.Video2RedisQueue)
 		if err != nil {
 			return err
@@ -115,13 +115,43 @@ func (v *VideoSrv) Publish(ctx context.Context, req *videoPb.PublishRequest, res
 func (v *VideoSrv) PublishList(ctx context.Context, req *videoPb.PublishListRequest, res *videoPb.PublishListResponse) error {
 	token := req.Token
 	uid := int(req.UserId)
-
-	videos, err := dao.NewVideoDao(ctx).GetVideoListByUserId(uid)
+	//先从缓存取
+	pattern := fmt.Sprintf("%d:*", uid)
+	// 使用Keys命令获取所有键
+	keys, err := dao.RedisClient.Keys(ctx, pattern).Result()
 	if err != nil {
 		PublishListResponseData(res, 1, "获取失败")
 		return err
 	}
+	keys = util.SortKeys(keys)
 	var videoList []*videoPb.Video
+	//从缓存取对应的视频
+	for _, key := range keys {
+		redisResult, err := dao.RedisClient.Get(ctx, key).Result()
+		if err != nil && err != redis.Nil {
+			PublishListResponseData(res, 1, "获取视频流失败")
+			return err
+		}
+		if err != redis.Nil {
+			var video videoPb.Video
+			err = json.Unmarshal([]byte(redisResult), &video)
+			if err != nil {
+				PublishListResponseData(res, 1, "获取视频流失败")
+				return err
+			}
+			videoList = append(videoList, &video)
+		}
+	}
+	videos, err := dao.NewVideoDao(ctx).GetVideoListByUserId(uid, util.StringArray2IntArray(keys))
+	if err != nil {
+		PublishListResponseData(res, 1, "获取失败")
+		return err
+	}
+	if len(videos) == 0 {
+		PublishListResponseData(res, 0, "获取成功", videoList)
+		return nil
+	}
+	//var videoList []*videoPb.Video
 	for _, video := range videos {
 		videoList = append(videoList, BuildVideoPbModel(ctx, video, token))
 	}
@@ -216,12 +246,14 @@ func VideoMQ2DB(ctx context.Context, req *videoPb.PublishRequest) error {
 	var videoCache *videoPb.Video
 	videoCache = BuildVideoPbModel(ctx, &video, token)
 	videoJson, _ := json.Marshal(&videoCache)
-	dao.RedisClient.Set(ctx, fmt.Sprintf("%d", video.ID), videoJson, time.Hour)
+	dao.RedisClient.Set(ctx, fmt.Sprintf("%d:%d", video.Author.ID, video.ID), videoJson, time.Hour)
 	return nil
 }
 
-func VideoMQ2Redis(ctx context.Context, req *videoPb.Video) error {
-	videoJson, _ := json.Marshal(&req)
-	dao.RedisClient.Set(ctx, fmt.Sprintf("%d", req.Id), videoJson, time.Hour)
+func VideoMQ2Redis(ctx context.Context, req *VideoData) error {
+	uid := req.Id
+	data := req.VideoPbModel
+	videoJson, _ := json.Marshal(&data)
+	dao.RedisClient.Set(ctx, fmt.Sprintf("%d:%d", uid, data.Id), videoJson, time.Hour)
 	return nil
 }

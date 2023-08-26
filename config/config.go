@@ -115,11 +115,11 @@ func LoadQiNiuYun(file *ini.File) {
 }
 
 func LoadRabbitMQ(file *ini.File) {
-	RabbitMQ = file.Section("mq").Key("mq").String()
-	RabbitMQHost = file.Section("mq").Key("RabbitMQHost").String()
-	RabbitMQPort = file.Section("mq").Key("RabbitMQPort").String()
-	RabbitMQUser = file.Section("mq").Key("RabbitMQUser").String()
-	RabbitMQPassWord = file.Section("mq").Key("RabbitMQPassWord").String()
+	RabbitMQ = file.Section("RabbitMQ").Key("RabbitMQ").String()
+	RabbitMQHost = file.Section("RabbitMQ").Key("RabbitMQHost").String()
+	RabbitMQPort = file.Section("RabbitMQ").Key("RabbitMQPort").String()
+	RabbitMQUser = file.Section("RabbitMQ").Key("RabbitMQUser").String()
+	RabbitMQPassWord = file.Section("RabbitMQ").Key("RabbitMQPassWord").String()
 	wg.Done()
 }
 

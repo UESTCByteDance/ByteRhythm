@@ -62,7 +62,7 @@ func (s *SyncVideo) SyncVideo2Redis(ctx context.Context, queueName string) error
 	go func() {
 		for d := range msg {
 			// 落库
-			var req *videoPb.Video
+			var req *service.VideoData
 			err = json.Unmarshal(d.Body, &req)
 			if err != nil {
 				return
