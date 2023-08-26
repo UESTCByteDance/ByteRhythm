@@ -18,6 +18,7 @@ import (
 var db *gorm.DB
 
 var RedisClient *redis.Client
+var RedisNo1Client *redis.Client
 
 func InitRedis() {
 	// 初始化 Redis 客户端
@@ -27,6 +28,12 @@ func InitRedis() {
 		Addr:     host + ":" + port, // Redis 服务器地址
 		Password: "",                // Redis 访问密码（如果有的话）
 		DB:       2,                 // Redis 数据库索引
+	})
+
+	RedisNo1Client = redis.NewClient(&redis.Options{
+		Addr:     host + ":" + port, // Redis 服务器地址
+		Password: "",                // Redis 访问密码（如果有的话）
+		DB:       1,                 // Redis 数据库索引
 	})
 }
 

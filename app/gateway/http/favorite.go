@@ -2,8 +2,10 @@ package http
 
 import (
 	"ByteRhythm/app/gateway/rpc"
+	"ByteRhythm/app/gateway/wrapper"
 	"ByteRhythm/idl/favorite/favoritePb"
 	"ByteRhythm/util"
+	"github.com/afex/hystrix-go/hystrix"
 	"net/http"
 	"strconv"
 
@@ -18,7 +20,18 @@ func FavoriteActionHandler(ctx *gin.Context) {
 	ActionType, _ := strconv.Atoi(ctx.Query("action_type"))
 	req.ActionType = int32(ActionType)
 
-	res, err := rpc.FavoriteAction(ctx, &req)
+	var res *favoritePb.FavoriteActionResponse
+
+	hystrix.ConfigureCommand("FavoriteAction", wrapper.FavoriteActionFuseConfig)
+	err := hystrix.Do("FavoriteAction", func() (err error) {
+		res, err = rpc.FavoriteAction(ctx, &req)
+		if err != nil {
+			return err
+		}
+		return err
+	}, func(err error) error {
+		return err
+	})
 
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, util.FailRequest(err.Error()))
@@ -37,7 +50,18 @@ func FavoriteListHandler(ctx *gin.Context) {
 	req.UserId = int64(uid)
 	req.Token = ctx.Query("token")
 
-	res, err := rpc.FavoriteList(ctx, &req)
+	var res *favoritePb.FavoriteListResponse
+
+	hystrix.ConfigureCommand("FavoriteList", wrapper.FavoriteListFuseConfig)
+	err := hystrix.Do("FavoriteList", func() (err error) {
+		res, err = rpc.FavoriteList(ctx, &req)
+		if err != nil {
+			return err
+		}
+		return err
+	}, func(err error) error {
+		return err
+	})
 
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, util.FailRequest(err.Error()))

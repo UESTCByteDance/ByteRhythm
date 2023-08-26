@@ -36,7 +36,7 @@ func (c *CommentDao) DeleteComment(comment *model.Comment) (err error) {
 }
 
 func (c *CommentDao) GetCommentListByVideoId(vid int64) (comments []*model.Comment, err error) {
-	err = c.Model(&model.Comment{}).Where("video_id = ?", vid).Order("created_at DESC").Find(&comments).Error
+	err = c.Model(&model.Comment{}).Where("video_id = ?", vid).Order("id desc").Find(&comments).Error
 	if err != nil {
 		return
 	}

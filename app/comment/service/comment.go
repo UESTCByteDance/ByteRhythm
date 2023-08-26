@@ -72,7 +72,14 @@ func (c CommentSrv) CommentAction(ctx context.Context, req *commentPb.CommentAct
 				CommentActionResponseData(res, 1, "操作失败")
 				return err
 			}
-			commentList = append(commentList, &Comment)
+			// 创建一个新的切片，长度比原来多1
+			newCommentList := make([]*commentPb.Comment, len(commentList)+1)
+
+			// 将元素插入到新切片的头部
+			newCommentList[0] = &Comment
+
+			// 将原切片的元素复制到新切片中
+			copy(newCommentList[1:], commentList)
 
 			// 将结果存入 Redis 缓存
 			jsonBytes, err := json.Marshal(&commentList)
@@ -114,7 +121,6 @@ func (c CommentSrv) CommentAction(ctx context.Context, req *commentPb.CommentAct
 }
 
 func (c CommentSrv) CommentList(ctx context.Context, req *commentPb.CommentListRequest, res *commentPb.CommentListResponse) error {
-	token := req.Token
 	videoId := req.VideoId
 
 	// 构建redis键
@@ -147,7 +153,7 @@ func (c CommentSrv) CommentList(ctx context.Context, req *commentPb.CommentListR
 	}
 
 	for _, comment := range comments {
-		res.CommentList = append(res.CommentList, BuildCommentPbModel(ctx, comment, token))
+		res.CommentList = append(res.CommentList, BuildCommentPbModel(ctx, comment))
 	}
 
 	// 将结果存入 Redis 缓存
@@ -206,7 +212,7 @@ func BuildUserPbModel(ctx context.Context, user *model.User, token string) *comm
 	}
 }
 
-func BuildCommentPbModel(ctx context.Context, comment *model.Comment, token string) *commentPb.Comment {
+func BuildCommentPbModel(ctx context.Context, comment *model.Comment) *commentPb.Comment {
 	name, _ := dao.NewCommentDao(ctx).GetUsernameByUid(int64(comment.UserID))
 	avatar, _ := dao.NewCommentDao(ctx).GetAvatarByUid(int64(comment.UserID))
 

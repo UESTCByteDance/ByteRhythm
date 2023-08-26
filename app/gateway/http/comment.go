@@ -2,8 +2,10 @@ package http
 
 import (
 	"ByteRhythm/app/gateway/rpc"
+	"ByteRhythm/app/gateway/wrapper"
 	"ByteRhythm/idl/comment/commentPb"
 	"ByteRhythm/util"
+	"github.com/afex/hystrix-go/hystrix"
 	"net/http"
 	"strconv"
 
@@ -20,7 +22,20 @@ func CommentActionHandler(ctx *gin.Context) {
 	CommentId, _ := strconv.Atoi(ctx.Query("comment_id"))
 	req.CommentText = ctx.Query("comment_text")
 	req.CommentId = int64(CommentId)
-	res, err := rpc.CommentAction(ctx, &req)
+
+	var res *commentPb.CommentActionResponse
+
+	hystrix.ConfigureCommand("CommentAction", wrapper.CommentActionFuseConfig)
+	err := hystrix.Do("CommentAction", func() (err error) {
+		res, err = rpc.CommentAction(ctx, &req)
+		if err != nil {
+			return err
+		}
+		return err
+	}, func(err error) error {
+		return err
+	})
+
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, util.FailRequest(err.Error()))
 		return
@@ -37,7 +52,20 @@ func CommentListHandler(ctx *gin.Context) {
 	req.Token = ctx.Query("token")
 	vid, _ := strconv.Atoi(ctx.Query("video_id"))
 	req.VideoId = int64(vid)
-	res, err := rpc.CommentList(ctx, &req)
+
+	var res *commentPb.CommentListResponse
+
+	hystrix.ConfigureCommand("CommentList", wrapper.CommentListFuseConfig)
+	err := hystrix.Do("CommentList", func() (err error) {
+		res, err = rpc.CommentList(ctx, &req)
+		if err != nil {
+			return err
+		}
+		return err
+	}, func(err error) error {
+		return err
+	})
+
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, util.FailRequest(err.Error()))
 		return
