@@ -3,6 +3,7 @@ package dao
 import (
 	"context"
 	"fmt"
+	"github.com/go-redis/redis/v8"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -15,6 +16,7 @@ import (
 )
 
 var db *gorm.DB
+var RedisClient *redis.Client
 
 func InitMySQL() {
 	host := config.DBHost
@@ -28,6 +30,17 @@ func InitMySQL() {
 	if err != nil {
 		fmt.Println(err)
 	}
+}
+
+func InitRedis() {
+	// 初始化 Redis 客户端
+	host := config.RedisHost
+	port := config.RedisPort
+	RedisClient = redis.NewClient(&redis.Options{
+		Addr:     host + ":" + port, // Redis 服务器地址
+		Password: "",                // Redis 访问密码（如果有的话）
+		DB:       1,                 // Redis 数据库索引
+	})
 }
 
 func Database(connString string) error {

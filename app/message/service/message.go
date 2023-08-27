@@ -110,6 +110,12 @@ func (m MessageSrv) ActionMessage(ctx context.Context, req *messagePb.MessageAct
 		content := req.Content
 
 		message := BuildMessageModel(fromUserID, int(toUserID), content)
+		id, err := dao.NewMessageDao(ctx).CreateMessage(&message)
+		if err != nil {
+			MessageActionResponseData(res, 1, "发送消息失败！")
+			return err
+		}
+		message.ID = uint(id)
 
 		// 构建 Redis 键
 		var redisKey string
@@ -151,11 +157,6 @@ func (m MessageSrv) ActionMessage(ctx context.Context, req *messagePb.MessageAct
 		err = dao.RedisClient.Set(ctx, redisKey, string(jsonBytes), time.Hour).Err()
 		if err != nil {
 			MessageActionResponseData(res, 1, "操作失败！")
-			return err
-		}
-
-		if _, err := dao.NewMessageDao(ctx).CreateMessage(&message); err != nil {
-			MessageActionResponseData(res, 1, "发送消息失败！")
 			return err
 		}
 
