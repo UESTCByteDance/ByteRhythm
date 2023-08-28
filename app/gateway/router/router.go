@@ -56,6 +56,18 @@ func NewRouter() *gin.Engine {
 			v2.GET("/chat/", http.ChatMessageHandler)
 		}
 
+		v2 = v1.Group("/comment")
+		{
+			v2.POST("/action/", http.CommentActionHandler)
+			v2.GET("/list/", http.CommentListHandler)
+		}
+
+		v2 = v1.Group("/favorite")
+		{
+			v2.POST("/action/", http.FavoriteActionHandler)
+			v2.GET("/list/", http.FavoriteListHandler)
+		}
+
 	}
 	return r
 
