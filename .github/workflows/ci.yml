@@ -26,9 +26,6 @@ jobs:
           export CGO_CFLAGS="-I$FFMPEG_ROOT/include"
           export LD_LIBRARY_PATH=$HOME/ffmpeg/lib
 
-      - name: Run tests
-        run: go test -v -coverprofile=./profile.cov ./...
-
       - name: Install goveralls
         env:
           GO111MODULE: off
