@@ -2,12 +2,12 @@ package main
 
 import (
 	"ByteRhythm/app/favorite/dao"
-	"ByteRhythm/app/favorite/mq"
 	"ByteRhythm/app/favorite/script"
 	"ByteRhythm/app/favorite/service"
 	"ByteRhythm/app/gateway/wrapper"
 	"ByteRhythm/config"
 	"ByteRhythm/idl/favorite/favoritePb"
+	"ByteRhythm/mq"
 	"context"
 	"fmt"
 	"github.com/go-micro/plugins/v4/registry/etcd"

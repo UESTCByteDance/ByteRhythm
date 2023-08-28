@@ -1,9 +1,9 @@
 package script
 
 import (
-	"ByteRhythm/app/favorite/mq"
 	"ByteRhythm/app/favorite/service"
 	"ByteRhythm/idl/favorite/favoritePb"
+	"ByteRhythm/mq"
 	"context"
 	"encoding/json"
 )

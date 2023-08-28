@@ -3,10 +3,12 @@ package service
 import (
 	"ByteRhythm/app/comment/dao"
 	"ByteRhythm/idl/comment/commentPb"
+	"ByteRhythm/idl/favorite/favoritePb"
 	"ByteRhythm/model"
 	"ByteRhythm/util"
 	"context"
 	"encoding/json"
+	"fmt"
 	"github.com/go-redis/redis/v8"
 	"strconv"
 	"sync"
@@ -39,15 +41,6 @@ func (c CommentSrv) CommentAction(ctx context.Context, req *commentPb.CommentAct
 
 	// 发布评论
 	if actionType == 1 {
-		// 构建 Redis 键
-		key := strconv.Itoa(int(videoId))
-
-		// 尝试从 Redis 缓存中获取数据
-		redisResult, err := dao.RedisClient.Get(ctx, key).Result()
-		if err != nil && err != redis.Nil {
-			CommentActionResponseData(res, 1, "操作失败")
-			return err
-		}
 
 		//构建model
 		comment := model.Comment{
@@ -63,48 +56,51 @@ func (c CommentSrv) CommentAction(ctx context.Context, req *commentPb.CommentAct
 			CreateDate: time.Now().Format("01-02 15:04"),
 		}
 
-		var commentList []*commentPb.Comment
-		// 如果缓存中存在数据，则解码并合并到 commentList 中
-		if redisResult != "" {
-			// 解码 Redis 结果
-			err = json.Unmarshal([]byte(redisResult), &commentList)
-			if err != nil {
-				CommentActionResponseData(res, 1, "操作失败")
-				return err
-			}
-			// 创建一个新的切片，长度比原来多1
-			newCommentList := make([]*commentPb.Comment, len(commentList)+1)
-
-			// 将元素插入到新切片的头部
-			newCommentList[0] = &Comment
-
-			// 将原切片的元素复制到新切片中
-			copy(newCommentList[1:], commentList)
-
-			// 将结果存入 Redis 缓存
-			jsonBytes, err := json.Marshal(&commentList)
-			if err != nil {
-				CommentActionResponseData(res, 1, "操作失败")
-				return err
-			}
-
-			err = dao.RedisClient.Set(ctx, key, string(jsonBytes), time.Hour).Err()
-			if err != nil {
-				CommentActionResponseData(res, 1, "操作失败")
-				return err
-			}
-		}
-
 		// 数据库创建comment
 		if err := dao.NewCommentDao(ctx).CreateComment(&comment); err != nil {
 			return err
 		}
+
+		//修改 redis 1号数据库
+		key := fmt.Sprintf("%d:%d", user.ID, videoId)
+		redisResult, err := dao.RedisNo1Client.Get(ctx, key).Result()
+		if err != nil && err != redis.Nil {
+			CommentActionResponseData(res, 1, "操作失败")
+			return err
+		}
+
+		if err != redis.Nil { // 在redis中找到了视频信息
+			var video favoritePb.Video
+			err = json.Unmarshal([]byte(redisResult), &video)
+			if err != nil {
+				CommentActionResponseData(res, 1, "操作失败")
+				return err
+			}
+
+			video.CommentCount += 1
+
+			videoJson, _ := json.Marshal(&video)
+			dao.RedisNo1Client.Set(ctx, key, videoJson, time.Hour)
+		}
+
+		// 构建 Redis 键
+		key = strconv.Itoa(int(videoId))
+
+		// 尝试 删除 Redis 2号数据库 的记录
+		err = dao.RedisNo2Client.Del(ctx, key).Err()
+		if err != nil && err != redis.Nil {
+			CommentActionResponseData(res, 1, "操作失败")
+			return err
+		}
+
 		CommentActionResponseData(res, 0, "评论成功", &Comment)
 
 		return nil
 	}
 
 	// 删除评论
+
+	//修改mysql数据库
 	comment := model.Comment{
 		ID:      uint(commentId),
 		UserID:  int(user.ID), // uint to int
@@ -112,6 +108,38 @@ func (c CommentSrv) CommentAction(ctx context.Context, req *commentPb.CommentAct
 		Content: commentText,
 	}
 	if err := dao.NewCommentDao(ctx).DeleteComment(&comment); err != nil {
+		return err
+	}
+
+	//修改 redis 1号数据库
+	key := fmt.Sprintf("%d:%d", user.ID, videoId)
+	redisResult, err := dao.RedisNo1Client.Get(ctx, key).Result()
+	if err != nil && err != redis.Nil {
+		CommentActionResponseData(res, 1, "操作失败")
+		return err
+	}
+
+	if err != redis.Nil { // 在redis中找到了视频信息
+		var video favoritePb.Video
+		err = json.Unmarshal([]byte(redisResult), &video)
+		if err != nil {
+			CommentActionResponseData(res, 1, "操作失败")
+			return err
+		}
+
+		video.CommentCount -= 1
+
+		videoJson, _ := json.Marshal(&video)
+		dao.RedisNo1Client.Set(ctx, key, videoJson, time.Hour)
+	}
+
+	// 构建 Redis 键
+	key = strconv.Itoa(int(videoId))
+
+	// 尝试 删除 Redis 2号数据库 的记录
+	err = dao.RedisNo2Client.Del(ctx, key).Err()
+	if err != nil && err != redis.Nil {
+		CommentActionResponseData(res, 1, "操作失败")
 		return err
 	}
 
@@ -127,7 +155,7 @@ func (c CommentSrv) CommentList(ctx context.Context, req *commentPb.CommentListR
 	key := strconv.Itoa(int(videoId))
 
 	// 尝试从 Redis 缓存中获取数据
-	redisResult, err := dao.RedisClient.Get(ctx, key).Result()
+	redisResult, err := dao.RedisNo2Client.Get(ctx, key).Result()
 	if err != nil && err != redis.Nil {
 		CommentListResponseData(res, 1, "获取评论列表失败")
 		return err
@@ -163,7 +191,7 @@ func (c CommentSrv) CommentList(ctx context.Context, req *commentPb.CommentListR
 		return err
 	}
 
-	err = dao.RedisClient.Set(ctx, key, string(jsonBytes), time.Hour).Err()
+	err = dao.RedisNo2Client.Set(ctx, key, string(jsonBytes), time.Hour).Err()
 	if err != nil {
 		CommentListResponseData(res, 1, "评论列表存入redis失败")
 		return err

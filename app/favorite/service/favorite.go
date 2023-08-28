@@ -2,9 +2,10 @@ package service
 
 import (
 	"ByteRhythm/app/favorite/dao"
-	"ByteRhythm/app/favorite/mq"
+	"ByteRhythm/consts"
 	"ByteRhythm/idl/favorite/favoritePb"
 	"ByteRhythm/model"
+	"ByteRhythm/mq"
 	"ByteRhythm/util"
 	"context"
 	"encoding/json"
@@ -32,12 +33,14 @@ func GetFavoriteSrv() *FavoriteSrv {
 func (c FavoriteSrv) FavoriteAction(ctx context.Context, req *favoritePb.FavoriteActionRequest, res *favoritePb.FavoriteActionResponse) error {
 	actionType := req.ActionType
 	vid := req.VideoId
+	token := req.Token
+	uid, _ := util.GetUserIdFromToken(token)
 	body, _ := json.Marshal(&req)
 
 	// 点赞
 	if actionType == 1 {
 		//修改redis
-		key := fmt.Sprintf("%d", vid)
+		key := fmt.Sprintf("%d:%d", uid, vid)
 		redisResult, err := dao.RedisClient.Get(ctx, key).Result()
 		if err != nil && err != redis.Nil {
 			FavoriteActionResponseData(res, 1, "点赞失败")
@@ -53,13 +56,14 @@ func (c FavoriteSrv) FavoriteAction(ctx context.Context, req *favoritePb.Favorit
 			}
 
 			video.FavoriteCount += 1
+			video.IsFavorite = true
 
 			videoJson, _ := json.Marshal(&video)
 			dao.RedisClient.Set(ctx, key, videoJson, time.Hour)
 		}
 
 		// 加入消息队列
-		err = mq.CreateFavorite2MQ(body)
+		err = mq.SendMessage2MQ(body, consts.CreateFavorite2MQ)
 		if err != nil {
 			FavoriteActionResponseData(res, 1, "点赞失败")
 			return err
@@ -69,7 +73,7 @@ func (c FavoriteSrv) FavoriteAction(ctx context.Context, req *favoritePb.Favorit
 	// 取消点赞
 	if actionType == 2 {
 		//修改redis
-		key := fmt.Sprintf("%d", vid)
+		key := fmt.Sprintf("%d:%d", uid, vid)
 		redisResult, err := dao.RedisClient.Get(ctx, key).Result()
 		if err != nil && err != redis.Nil {
 			FavoriteActionResponseData(res, 1, "取消点赞失败")
@@ -85,13 +89,14 @@ func (c FavoriteSrv) FavoriteAction(ctx context.Context, req *favoritePb.Favorit
 			}
 
 			video.FavoriteCount -= 1
+			video.IsFavorite = false
 
 			videoJson, _ := json.Marshal(&video)
 			dao.RedisClient.Set(ctx, key, videoJson, time.Hour)
 		}
 
 		// 加入消息队列
-		err = mq.DeleteFavorite2MQ(body)
+		err = mq.SendMessage2MQ(body, consts.DeleteFavorite2MQ)
 		if err != nil {
 			FavoriteActionResponseData(res, 1, "取消点赞失败")
 			return err
