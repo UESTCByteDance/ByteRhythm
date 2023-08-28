@@ -27,7 +27,7 @@ func (m *MessageDao) CreateMessage(message *model.Message) (id int64, err error)
 }
 
 func (m *MessageDao) FindAllMessages(fromUserID int64, toUserID int64) (messages []*model.Message, err error) {
-	err = m.Model(&model.Message{}).Where("(from_user_id = ? AND to_user_id = ?) OR (from_user_id = ? AND to_user_id = ?)", fromUserID, toUserID, toUserID, fromUserID).Find(&messages).Error
+	err = m.Model(&model.Message{}).Where("(from_user_id = ? AND to_user_id = ?) OR (from_user_id = ? AND to_user_id = ?)", fromUserID, toUserID, toUserID, fromUserID).Order("id ASC").Find(&messages).Error
 	if err != nil {
 		return
 	}
