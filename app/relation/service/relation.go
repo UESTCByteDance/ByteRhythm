@@ -3,9 +3,13 @@ package service
 import (
 	"ByteRhythm/app/relation/dao"
 	"ByteRhythm/idl/relation/relationPb"
+	"ByteRhythm/idl/video/videoPb"
 	"ByteRhythm/model"
 	"ByteRhythm/util"
 	"context"
+	"encoding/json"
+	"fmt"
+	"github.com/go-redis/redis/v8"
 	"sync"
 	"time"
 )
@@ -49,6 +53,42 @@ func (r RelationSrv) ActionRelation(ctx context.Context, req *relationPb.Relatio
 		Relation := BuildRelationModel(int(toUserId), fromUserId)
 		if RowsAffected, err := dao.NewRelationDao(ctx).AddFollow(&Relation); err == nil {
 			if RowsAffected > 0 {
+				pattern := fmt.Sprintf("%d:*", fromUserId)
+				// 使用Keys命令获取所有键
+				keys, err := dao.RedisClient.Keys(ctx, pattern).Result()
+				if err != nil {
+					RelationActionResponseData(res, 1, "获取视频流失败")
+					return err
+				}
+				//从缓存取对应的视频
+				for _, key := range keys {
+					redisResult, err := dao.RedisClient.Get(ctx, key).Result()
+					if err != nil && err != redis.Nil {
+						RelationActionResponseData(res, 1, "获取视频流失败")
+						return err
+					}
+					if err != redis.Nil {
+						var video videoPb.Video
+						err = json.Unmarshal([]byte(redisResult), &video)
+						if err != nil {
+							RelationActionResponseData(res, 1, "解析视频流失败")
+							return err
+						}
+						if video.Author.Id == toUserId {
+							video.Author.IsFollow = true
+							updatedVideo, err := json.Marshal(&video)
+							if err != nil {
+								RelationActionResponseData(res, 1, "解析视频流失败")
+								return err
+							}
+							err = dao.RedisClient.Set(ctx, key, updatedVideo, time.Hour).Err()
+							if err != nil {
+								RelationActionResponseData(res, 1, "更新视频流失败")
+								return err
+							}
+						}
+					}
+				}
 				RelationActionResponseData(res, 0, "关注成功!")
 				return nil
 			} else {
@@ -64,6 +104,42 @@ func (r RelationSrv) ActionRelation(ctx context.Context, req *relationPb.Relatio
 		// 取消关注
 		Relation := BuildRelationModel(int(toUserId), fromUserId)
 		if _, err := dao.NewRelationDao(ctx).CancelFollow(&Relation); err == nil {
+			pattern := fmt.Sprintf("%d:*", fromUserId)
+			// 使用Keys命令获取所有键
+			keys, err := dao.RedisClient.Keys(ctx, pattern).Result()
+			if err != nil {
+				RelationActionResponseData(res, 1, "获取视频流失败")
+				return err
+			}
+			//从缓存取对应的视频
+			for _, key := range keys {
+				redisResult, err := dao.RedisClient.Get(ctx, key).Result()
+				if err != nil && err != redis.Nil {
+					RelationActionResponseData(res, 1, "获取视频流失败")
+					return err
+				}
+				if err != redis.Nil {
+					var video videoPb.Video
+					err = json.Unmarshal([]byte(redisResult), &video)
+					if err != nil {
+						RelationActionResponseData(res, 1, "解析视频流失败")
+						return err
+					}
+					if video.Author.Id == toUserId {
+						video.Author.IsFollow = false
+						updatedVideo, err := json.Marshal(&video)
+						if err != nil {
+							RelationActionResponseData(res, 1, "解析视频流失败")
+							return err
+						}
+						err = dao.RedisClient.Set(ctx, key, updatedVideo, time.Hour).Err()
+						if err != nil {
+							RelationActionResponseData(res, 1, "更新视频流失败")
+							return err
+						}
+					}
+				}
+			}
 			RelationActionResponseData(res, 0, "取消关注成功！")
 			return nil
 		}

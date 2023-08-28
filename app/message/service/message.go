@@ -7,7 +7,6 @@ import (
 	"ByteRhythm/util"
 	"context"
 	"encoding/json"
-	"fmt"
 	"strconv"
 	"sync"
 	"time"
@@ -44,7 +43,12 @@ func (m MessageSrv) ChatMessage(ctx context.Context, req *messagePb.MessageChatR
 	}
 
 	// 构建 Redis 键
-	redisKey := "chat_messages:" + strconv.Itoa(fromUserId) + ":" + strconv.Itoa(int(toUserId))
+	var redisKey string
+	if strconv.Itoa(fromUserId) < strconv.Itoa(int(toUserId)) {
+		redisKey = "chat_messages:" + strconv.Itoa(fromUserId) + ":" + strconv.Itoa(int(toUserId))
+	} else {
+		redisKey = "chat_messages:" + strconv.Itoa(int(toUserId)) + ":" + strconv.Itoa(fromUserId)
+	}
 
 	// 尝试从 Redis 缓存中获取数据
 	redisResult, err := dao.RedisClient.Get(ctx, redisKey).Result()
@@ -106,9 +110,20 @@ func (m MessageSrv) ActionMessage(ctx context.Context, req *messagePb.MessageAct
 		content := req.Content
 
 		message := BuildMessageModel(fromUserID, int(toUserID), content)
+		id, err := dao.NewMessageDao(ctx).CreateMessage(&message)
+		if err != nil {
+			MessageActionResponseData(res, 1, "发送消息失败！")
+			return err
+		}
+		message.ID = uint(id)
 
 		// 构建 Redis 键
-		redisKey := fmt.Sprintf("chat_messages:%d:%d", fromUserID, toUserID)
+		var redisKey string
+		if strconv.Itoa(fromUserID) < strconv.Itoa(int(toUserID)) {
+			redisKey = "chat_messages:" + strconv.Itoa(fromUserID) + ":" + strconv.Itoa(int(toUserID))
+		} else {
+			redisKey = "chat_messages:" + strconv.Itoa(int(toUserID)) + ":" + strconv.Itoa(fromUserID)
+		}
 
 		// 尝试从 Redis 缓存中获取数据
 		redisResult, err := dao.RedisClient.Get(ctx, redisKey).Result()
@@ -142,11 +157,6 @@ func (m MessageSrv) ActionMessage(ctx context.Context, req *messagePb.MessageAct
 		err = dao.RedisClient.Set(ctx, redisKey, string(jsonBytes), time.Hour).Err()
 		if err != nil {
 			MessageActionResponseData(res, 1, "操作失败！")
-			return err
-		}
-
-		if _, err := dao.NewMessageDao(ctx).CreateMessage(&message); err != nil {
-			MessageActionResponseData(res, 1, "发送消息失败！")
 			return err
 		}
 

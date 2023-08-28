@@ -2,11 +2,13 @@ package config
 
 import (
 	"fmt"
+	"sync"
 
 	"gopkg.in/ini.v1"
 )
 
 var (
+	wg                     sync.WaitGroup
 	DBHost                 string
 	DBPort                 string
 	DBUser                 string
@@ -46,15 +48,17 @@ func Init() {
 	if err != nil {
 		fmt.Printf("load config failed,err:%v\n", err)
 	}
-	LoadMySQL(file)
-	LoadUser(file)
-	LoadEtcd(file)
-	LoadJaeger(file)
-	LoadGin(file)
-	LoadService(file)
-	LoadQiNiuYun(file)
-	LoadRabbitMQ(file)
-	LoadRedis(file)
+	wg.Add(9)
+	go LoadMySQL(file)
+	go LoadUser(file)
+	go LoadEtcd(file)
+	go LoadJaeger(file)
+	go LoadGin(file)
+	go LoadService(file)
+	go LoadQiNiuYun(file)
+	go LoadRabbitMQ(file)
+	go LoadRedis(file)
+	wg.Wait()
 }
 
 func LoadMySQL(file *ini.File) {
@@ -64,27 +68,32 @@ func LoadMySQL(file *ini.File) {
 	DBPassWord = file.Section("MySQL").Key("DBPassWord").String()
 	DBName = file.Section("MySQL").Key("DBName").String()
 	Charset = file.Section("MySQL").Key("Charset").String()
+	wg.Done()
 }
 
 func LoadUser(file *ini.File) {
 	Avatar = file.Section("User").Key("Avatar").String()
 	Background = file.Section("User").Key("Background").String()
 	Signature = file.Section("User").Key("Signature").String()
+	wg.Done()
 }
 
 func LoadEtcd(file *ini.File) {
 	EtcdHost = file.Section("Etcd").Key("EtcdHost").String()
 	EtcdPort = file.Section("Etcd").Key("EtcdPort").String()
+	wg.Done()
 }
 
 func LoadJaeger(file *ini.File) {
 	JaegerHost = file.Section("Jaeger").Key("JaegerHost").String()
 	JaegerPort = file.Section("Jaeger").Key("JaegerPort").String()
+	wg.Done()
 }
 
 func LoadGin(file *ini.File) {
 	HttpHost = file.Section("Gin").Key("HttpHost").String()
 	HttpPort = file.Section("Gin").Key("HttpPort").String()
+	wg.Done()
 }
 
 func LoadService(file *ini.File) {
@@ -94,6 +103,7 @@ func LoadService(file *ini.File) {
 	CommentServiceAddress = file.Section("Service").Key("CommentServiceAddress").String()
 	RelationServiceAddress = file.Section("Service").Key("RelationServiceAddress").String()
 	FavoriteServiceAddress = file.Section("Service").Key("FavoriteServiceAddress").String()
+	wg.Done()
 }
 
 func LoadQiNiuYun(file *ini.File) {
@@ -101,6 +111,7 @@ func LoadQiNiuYun(file *ini.File) {
 	AccessKey = file.Section("QiNiuYun").Key("AccessKey").String()
 	SecretKey = file.Section("QiNiuYun").Key("SecretKey").String()
 	Domain = file.Section("QiNiuYun").Key("Domain").String()
+	wg.Done()
 }
 
 func LoadRabbitMQ(file *ini.File) {
@@ -109,9 +120,11 @@ func LoadRabbitMQ(file *ini.File) {
 	RabbitMQPort = file.Section("RabbitMQ").Key("RabbitMQPort").String()
 	RabbitMQUser = file.Section("RabbitMQ").Key("RabbitMQUser").String()
 	RabbitMQPassWord = file.Section("RabbitMQ").Key("RabbitMQPassWord").String()
+	wg.Done()
 }
 
 func LoadRedis(file *ini.File) {
 	RedisHost = file.Section("Redis").Key("RedisHost").String()
 	RedisPort = file.Section("Redis").Key("RedisPort").String()
+	wg.Done()
 }

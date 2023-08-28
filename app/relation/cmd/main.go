@@ -20,6 +20,7 @@ import (
 func main() {
 	config.Init()
 	dao.InitMySQL()
+	dao.InitRedis()
 
 	// etcd注册件
 	etcdReg := etcd.NewRegistry(
