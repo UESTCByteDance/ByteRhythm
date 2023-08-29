@@ -41,6 +41,7 @@ func (c FavoriteSrv) FavoriteAction(ctx context.Context, req *favoritePb.Favorit
 	if actionType == 1 {
 		// 不能重复点赞
 		isFavorite, _ := dao.NewFavoriteDao(ctx).GetIsFavoriteByUserIdAndVid(int64(uid), vid)
+
 		if isFavorite {
 			FavoriteActionResponseData(res, 1, "重复点赞")
 			return nil
