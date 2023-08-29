@@ -19,79 +19,79 @@ func NewFavoriteDao(ctx context.Context) *FavoriteDao {
 	return &FavoriteDao{NewDBClient(ctx)}
 }
 
-func (c *FavoriteDao) CreateFavorite(favorite *model.Favorite) (err error) {
-	err = c.Model(&model.Favorite{}).Create(&favorite).Error
+func (f *FavoriteDao) CreateFavorite(favorite *model.Favorite) (err error) {
+	err = f.Model(&model.Favorite{}).Create(&favorite).Error
 	if err != nil {
 		return
 	}
 	return nil
 }
 
-func (c *FavoriteDao) DeleteFavorite(favorite *model.Favorite) (err error) {
-	err = c.Model(&model.Favorite{}).Where(&favorite).Delete(&favorite).Error
+func (f *FavoriteDao) DeleteFavorite(favorite *model.Favorite) (err error) {
+	err = f.Model(&model.Favorite{}).Where(&favorite).Delete(&favorite).Error
 	if err != nil {
 		return
 	}
 	return nil
 }
 
-func (c *FavoriteDao) GetFavoriteListByUserId(uid int64) (favorites []*model.Favorite, err error) {
-	err = c.Model(&model.Favorite{}).Where("user_id = ?", uid).Find(&favorites).Error
+func (f *FavoriteDao) GetFavoriteListByUserId(uid int64) (favorites []*model.Favorite, err error) {
+	err = f.Model(&model.Favorite{}).Where("user_id = ?", uid).Find(&favorites).Error
 	if err != nil {
 		return
 	}
 	return
 }
 
-func (v *FavoriteDao) GetFollowCount(uid int) (count int64, err error) {
-	err = v.Model(&model.Follow{}).Where("followed_user_id = ?", uid).Count(&count).Error
+func (f *FavoriteDao) GetFollowCount(uid int) (count int64, err error) {
+	err = f.Model(&model.Follow{}).Where("followed_user_id = ?", uid).Count(&count).Error
 	if err != nil {
 		return
 	}
 	return
 }
 
-func (v *FavoriteDao) GetFollowerCount(uid int) (count int64, err error) {
-	err = v.Model(&model.Follow{}).Where("user_id = ?", uid).Count(&count).Error
+func (f *FavoriteDao) GetFollowerCount(uid int) (count int64, err error) {
+	err = f.Model(&model.Follow{}).Where("user_id = ?", uid).Count(&count).Error
 	if err != nil {
 		return
 	}
 	return
 }
 
-func (v *FavoriteDao) GetWorkCount(uid int) (count int64, err error) {
-	err = v.Model(&model.Video{}).Where("author_id = ?", uid).Count(&count).Error
+func (f *FavoriteDao) GetWorkCount(uid int) (count int64, err error) {
+	err = f.Model(&model.Video{}).Where("author_id = ?", uid).Count(&count).Error
 	if err != nil {
 		return
 	}
 	return
 }
 
-func (v *FavoriteDao) GetUserFavoriteCount(uid int) (count int64, err error) {
-	err = v.Model(&model.Favorite{}).Where("user_id = ?", uid).Count(&count).Error
+func (f *FavoriteDao) GetUserFavoriteCount(uid int) (count int64, err error) {
+	err = f.Model(&model.Favorite{}).Where("user_id = ?", uid).Count(&count).Error
 	if err != nil {
 		return
 	}
 	return
 }
 
-func (v *FavoriteDao) GetFavoriteCount(vid int) (count int64, err error) {
-	err = v.Model(&model.Favorite{}).Where("video_id = ?", vid).Count(&count).Error
+func (f *FavoriteDao) GetFavoriteCount(vid int) (count int64, err error) {
+	err = f.Model(&model.Favorite{}).Where("video_id = ?", vid).Count(&count).Error
 	if err != nil {
 		return
 	}
 	return
 }
 
-func (v *FavoriteDao) GetTotalFavorited(uid int) (count int64, err error) {
+func (f *FavoriteDao) GetTotalFavorited(uid int) (count int64, err error) {
 	var videos []*model.Video
-	err = v.Model(&model.Video{}).Where("author_id = ?", uid).Find(&videos).Error
+	err = f.Model(&model.Video{}).Where("author_id = ?", uid).Find(&videos).Error
 	if err != nil {
 		return
 	}
 	for _, video := range videos {
 		var favoriteCount int64
-		err = v.Model(&model.Favorite{}).Where("video_id = ?", video.ID).Count(&favoriteCount).Error
+		err = f.Model(&model.Favorite{}).Where("video_id = ?", video.ID).Count(&favoriteCount).Error
 		if err != nil {
 			return
 		}
@@ -100,14 +100,14 @@ func (v *FavoriteDao) GetTotalFavorited(uid int) (count int64, err error) {
 	return
 }
 
-func (v *FavoriteDao) GetIsFollowed(uid int, token string) (isFollowed bool, err error) {
+func (f *FavoriteDao) GetIsFollowed(uid int, token string) (isFollowed bool, err error) {
 
 	baseID, err := util.GetUserIdFromToken(token)
 	if err != nil {
 		return
 	}
 	var follow model.Follow
-	err = v.Model(&model.Follow{}).Where("user_id = ?", baseID).Where("followed_user_id = ?", uid).Limit(1).Find(&follow).Error
+	err = f.Model(&model.Follow{}).Where("user_id = ?", baseID).Where("followed_user_id = ?", uid).Limit(1).Find(&follow).Error
 	if err != nil {
 		return
 	}
@@ -119,16 +119,16 @@ func (v *FavoriteDao) GetIsFollowed(uid int, token string) (isFollowed bool, err
 	return
 }
 
-func (v *FavoriteDao) GetPlayUrlByVid(vid int) (playUrl string, err error) {
-	err = v.Model(&model.Video{}).Where("id = ?", vid).Select("play_url").First(&playUrl).Error
+func (f *FavoriteDao) GetPlayUrlByVid(vid int) (playUrl string, err error) {
+	err = f.Model(&model.Video{}).Where("id = ?", vid).Select("play_url").First(&playUrl).Error
 	if err != nil {
 		return
 	}
 	return
 }
 
-func (v *FavoriteDao) GetCoverUrlByVid(vid int) (playUrl string, err error) {
-	err = v.Model(&model.Video{}).Where("id = ?", vid).Select("cover_url").First(&playUrl).Error
+func (f *FavoriteDao) GetCoverUrlByVid(vid int) (playUrl string, err error) {
+	err = f.Model(&model.Video{}).Where("id = ?", vid).Select("cover_url").First(&playUrl).Error
 	if err != nil {
 		return
 	}
