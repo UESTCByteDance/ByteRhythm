@@ -33,11 +33,19 @@ func GetFavoriteSrv() *FavoriteSrv {
 func (c FavoriteSrv) FavoriteAction(ctx context.Context, req *favoritePb.FavoriteActionRequest, res *favoritePb.FavoriteActionResponse) error {
 	actionType := req.ActionType
 	vid := req.VideoId
+	uid, _ := util.GetUserIdFromToken(req.Token)
 
 	body, _ := json.Marshal(&req)
 
 	// 点赞
 	if actionType == 1 {
+		// 不能重复点赞
+		isFavorite, _ := dao.NewFavoriteDao(ctx).GetIsFavoriteByUserIdAndVid(int64(uid), vid)
+		if isFavorite {
+			FavoriteActionResponseData(res, 1, "重复点赞")
+			return nil
+		}
+
 		//修改redis
 		key := fmt.Sprintf("%d", vid)
 		redisResult, err := dao.RedisClient.Get(ctx, key).Result()

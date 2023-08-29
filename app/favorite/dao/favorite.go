@@ -43,6 +43,18 @@ func (f *FavoriteDao) GetFavoriteListByUserId(uid int64) (favorites []*model.Fav
 	return
 }
 
+func (f *FavoriteDao) GetIsFavoriteByUserIdAndVid(uid int64, vid int64) (isFavorite bool, err error) {
+	var count int64
+	err = f.Model(&model.Favorite{}).Where("user_id = ?", uid).Where("video_id = ?", vid).Count(&count).Error
+	if err != nil {
+		return false, err
+	}
+	if count > 0 {
+		return true, nil
+	}
+	return false, nil
+}
+
 func (f *FavoriteDao) GetFollowCount(uid int) (count int64, err error) {
 	err = f.Model(&model.Follow{}).Where("followed_user_id = ?", uid).Count(&count).Error
 	if err != nil {
