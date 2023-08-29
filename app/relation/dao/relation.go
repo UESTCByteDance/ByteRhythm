@@ -116,14 +116,14 @@ func (r *RelationDao) GetTotalFavorited(uid int) (count int64, err error) {
 	return
 }
 
-func (u *RelationDao) GetIsFollowed(uid int, token string) (isFollowed bool, err error) {
+func (r *RelationDao) GetIsFollowed(uid int, token string) (isFollowed bool, err error) {
 
 	baseId, err := util.GetUserIdFromToken(token)
 	if err != nil {
 		return
 	}
 	var follow model.Follow
-	err = u.Model(&model.Follow{}).Where("user_id = ?", uid).Where("followed_user_id = ?", baseId).Limit(1).Find(&follow).Error
+	err = r.Model(&model.Follow{}).Where("user_id = ?", uid).Where("followed_user_id = ?", baseId).Limit(1).Find(&follow).Error
 	if err != nil {
 		return
 	}

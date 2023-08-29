@@ -7,7 +7,7 @@ import (
 
 func migration() {
 	err := db.Set(`gorm:table_options`, "charset=utf8mb4").
-		AutoMigrate(&model.User{}, &model.Follow{}, &model.Video{}, &model.Favorite{}, &model.Comment{}, &model.Message{})
+		AutoMigrate(&model.Follow{}, &model.Video{}, &model.Favorite{}, &model.Comment{})
 	if err != nil {
 		log.Fatal(err)
 	}

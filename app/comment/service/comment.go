@@ -62,7 +62,7 @@ func (c CommentSrv) CommentAction(ctx context.Context, req *commentPb.CommentAct
 		}
 
 		//修改 redis 1号数据库
-		key := fmt.Sprintf("%d:%d", user.ID, videoId)
+		key := fmt.Sprintf("%d", videoId)
 		redisResult, err := dao.RedisNo1Client.Get(ctx, key).Result()
 		if err != nil && err != redis.Nil {
 			CommentActionResponseData(res, 1, "操作失败")
@@ -112,7 +112,7 @@ func (c CommentSrv) CommentAction(ctx context.Context, req *commentPb.CommentAct
 	}
 
 	//修改 redis 1号数据库
-	key := fmt.Sprintf("%d:%d", user.ID, videoId)
+	key := fmt.Sprintf("%d", videoId)
 	redisResult, err := dao.RedisNo1Client.Get(ctx, key).Result()
 	if err != nil && err != redis.Nil {
 		CommentActionResponseData(res, 1, "操作失败")

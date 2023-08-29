@@ -33,14 +33,13 @@ func GetFavoriteSrv() *FavoriteSrv {
 func (c FavoriteSrv) FavoriteAction(ctx context.Context, req *favoritePb.FavoriteActionRequest, res *favoritePb.FavoriteActionResponse) error {
 	actionType := req.ActionType
 	vid := req.VideoId
-	token := req.Token
-	uid, _ := util.GetUserIdFromToken(token)
+
 	body, _ := json.Marshal(&req)
 
 	// 点赞
 	if actionType == 1 {
 		//修改redis
-		key := fmt.Sprintf("%d:%d", uid, vid)
+		key := fmt.Sprintf("%d", vid)
 		redisResult, err := dao.RedisClient.Get(ctx, key).Result()
 		if err != nil && err != redis.Nil {
 			FavoriteActionResponseData(res, 1, "点赞失败")
@@ -56,7 +55,6 @@ func (c FavoriteSrv) FavoriteAction(ctx context.Context, req *favoritePb.Favorit
 			}
 
 			video.FavoriteCount += 1
-			video.IsFavorite = true
 
 			videoJson, _ := json.Marshal(&video)
 			dao.RedisClient.Set(ctx, key, videoJson, time.Hour)
@@ -73,7 +71,7 @@ func (c FavoriteSrv) FavoriteAction(ctx context.Context, req *favoritePb.Favorit
 	// 取消点赞
 	if actionType == 2 {
 		//修改redis
-		key := fmt.Sprintf("%d:%d", uid, vid)
+		key := fmt.Sprintf("%d", vid)
 		redisResult, err := dao.RedisClient.Get(ctx, key).Result()
 		if err != nil && err != redis.Nil {
 			FavoriteActionResponseData(res, 1, "取消点赞失败")
@@ -89,7 +87,6 @@ func (c FavoriteSrv) FavoriteAction(ctx context.Context, req *favoritePb.Favorit
 			}
 
 			video.FavoriteCount -= 1
-			video.IsFavorite = false
 
 			videoJson, _ := json.Marshal(&video)
 			dao.RedisClient.Set(ctx, key, videoJson, time.Hour)
