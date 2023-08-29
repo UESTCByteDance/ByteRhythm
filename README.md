@@ -156,5 +156,9 @@ RedisPort = 6379
 go run app/gateway/cmd/main.go
 go run app/user/cmd/main.go
 go run app/video/cmd/main.go
+go run app/favorite/cmd/main.go
+go run app/comment/cmd/main.go
+go run app/relation/cmd/main.go
+go run app/message/cmd/main.go
 ```
 
