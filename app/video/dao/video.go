@@ -22,13 +22,12 @@ func NewVideoDao(ctx context.Context) *VideoDao {
 
 func (v *VideoDao) GetVideoListByLatestTime(latestTime time.Time, vidExistArray []int, limit int) (videos []*model.Video, err error) {
 	if limit != 30 {
-		err = v.Model(&model.Video{}).Where("created_at <= ?", latestTime).Not("id", vidExistArray).Order("id desc").Limit(limit).Find(&videos).Error
+		err = v.Model(&model.Video{}).Where("created_at <= ?", latestTime).Not("id", vidExistArray).Order("created_at desc").Limit(limit).Find(&videos).Error
 		if err != nil {
 			return
 		}
-		return
 	}
-	err = v.Model(&model.Video{}).Where("created_at <= ?", latestTime).Order("id desc").Limit(limit).Find(&videos).Error
+	err = v.Model(&model.Video{}).Where("created_at <= ?", latestTime).Order("created_at desc").Limit(limit).Find(&videos).Error
 	if err != nil {
 		return
 	}
@@ -137,15 +136,8 @@ func (v *VideoDao) GetIsFollowed(uid int, token string) (isFollowed bool, err er
 	return
 }
 
-func (v *VideoDao) GetVideoListByUserId(uid int, vidExistArray []int) (videos []*model.Video, err error) {
-	if len(vidExistArray) != 0 {
-		err = v.Model(&model.Video{}).Where("author_id = ?", uid).Not("id", vidExistArray).Order("id desc").Find(&videos).Error
-		if err != nil {
-			return
-		}
-		return
-	}
-	err = v.Model(&model.Video{}).Where("author_id = ?", uid).Order("id desc").Find(&videos).Error
+func (v *VideoDao) GetVideoListByUserId(uid int) (videos []*model.Video, err error) {
+	err = v.Model(&model.Video{}).Where("author_id = ?", uid).Order("created_at desc").Limit(30).Find(&videos).Error
 	if err != nil {
 		return
 	}
