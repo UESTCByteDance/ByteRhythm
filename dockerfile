@@ -1,5 +1,9 @@
 #第一阶段
-FROM golang:1.17 as builder
+FROM ubuntu:20.04 as builder
+## 设置时区
+RUN apt-get -y update && DEBIAN_FRONTEND="noninteractive" apt -y install tzdata
+ENV TZ=Asia/Shanghai
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 WORKDIR /workspace
 
@@ -7,19 +11,47 @@ COPY . .
 
 ENV GO111MODULE=on \
     GOPROXY=https://goproxy.cn,direct
+
+## 安装go1.20.7  
+RUN apt update && apt install -y wget      
+RUN wget https://go.dev/dl/go1.20.7.linux-amd64.tar.gz &&\
+    tar -C /usr/local -xzf go1.20.7.linux-amd64.tar.gz &&\
+    ## 软链接
+    ln -s /usr/local/go/bin/* /usr/bin/
+# 配置ffmpeg环境
+RUN apt-get  install -y autoconf automake build-essential libass-dev libfreetype6-dev libsdl1.2-dev libtheora-dev libtool libva-dev libvdpau-dev libvorbis-dev libxcb1-dev libxcb-shm0-dev libxcb-xfixes0-dev pkg-config texi2html zlib1g-dev
+RUN apt install -y libavdevice-dev libavfilter-dev libswscale-dev libavcodec-dev libavformat-dev libswresample-dev libavutil-dev
+RUN apt-get install -y yasm
+    # 设置环境变量
+ENV FFMPEG_ROOT=$HOME/ffmpeg \
+    CGO_LDFLAGS="-L$FFMPEG_ROOT/lib/ -lavcodec -lavformat -lavutil -lswscale -lswresample -lavdevice -lavfilter" \
+    CGO_CFLAGS="-I$FFMPEG_ROOT/include" \
+    LD_LIBRARY_PATH=$HOME/ffmpeg/lib
+
+
 RUN go mod download
 
-RUN go build ./app/gateway/cmd/main.go main.go -o gateway &&\
-    go build ./app/user/cmd/main.go main.go -o user &&\
-    go run ./app/video/cmd/main.go -o video
+RUN go build -o gateway ./app/gateway/cmd/main.go &&\
+    go build  -o user ./app/user/cmd/main.go &&\
+    go build -o video ./app/video/cmd/main.go 
 
 #第二阶段
 FROM ubuntu:20.04 AS production
+## 设置时区
+RUN apt-get -y update && DEBIAN_FRONTEND="noninteractive" apt -y install tzdata
+ENV TZ=Asia/Shanghai
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-## 安装go1.17.8
-RUN chmod -R 777 /app/tmp&& cd /app/tmp            
-RUN wget https://go.dev/dl/go1.17.8.linux-amd64.tar.gz &&\
-    tar -C /usr/local -xzf go1.17.8.linux-amd64.tar.gz &&\
+WORKDIR /workspace
+
+COPY . .
+
+ENV GO111MODULE=on \
+    GOPROXY=https://goproxy.cn,direct
+## 安装go 1.20.7
+RUN apt update && apt install -y wget  
+RUN wget https://go.dev/dl/go1.20.7.linux-amd64.tar.gz &&\
+    tar -C /usr/local -xzf go1.20.7.linux-amd64.tar.gz &&\
     ## 软链接
     ln -s /usr/local/go/bin/* /usr/bin/
 # 配置ffmpeg环境
@@ -36,14 +68,14 @@ RUN wget https://github.com/etcd-io/etcd/releases/download/v3.5.9/etcd-v3.5.9-li
 	tar -zxvf etcd-v3.5.9-linux-amd64.tar.gz &&\
 	cd etcd-v3.5.9-linux-amd64 &&\
     chmod +x etcd &&\
-	./etcd
+	nohup ./etcd &
 
 ## 安装&运行 Jaeger v3.5.9
-RUN wget -c https://github.com/jaegertracing/jaeger/releases/download/v1.48.0/jaeger-1.48.0-linux-amd64.tar.gz &&\
+RUN wget -c https://github.com/etcd-io/etcd/releases/download/v3.5.9/etcd-v3.5.9-linux-amd64.tar.gz &&\
     tar -zxvf jaeger-1.48.0-linux-amd64.tar.gz &&\
 	cd jaeger-1.48.0-linux-amd64 &&\
-    chmod a+x jaeger-* &&\
-    ./jaeger-all-in-one --collector.zipkin.host-port=:9411
+    chmod a+x jaeger-* &&\ 
+    nohup ./jaeger-all-in-one --collector.zipkin.host-port=:9411 &
 
 ## 安装&运行 RabbitMQ 
 ### 导入 RabbitMQ 的存储库密钥
@@ -64,7 +96,9 @@ RUN rabbitmqctl add_user  admin  admin  &&\
     rabbitmqctl status
 ## 安装&运行 Redis 
 RUN apt install redis-server &&systemctl status redis 
-
+## 安装&运行 mysql
+RUN apt install -y mysql-server &&systemctl start mysql 
+    
 
 WORKDIR /app
 COPY --from=builder /workspace/gateway .
