@@ -16,10 +16,10 @@ import (
 //点赞成功
 func TestFavoriteAction(t *testing.T) {
 	baseUrl :="http://192.168.30.128:4000/douyin/favorite/action?"
-	video_id := "9"
-	token := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTIsInVzZXJuYW1lIjoidGVzdDEiLCJwYXNzd29yZCI6ImUxMGFkYzM5NDliYTU5YWJiZTU2ZTA1N2YyMGY4ODNlIiwiYXZhdGFyIjoiaHR0cDovL3J6Mm44N3ljay5obi1ia3QuY2xvdWRkbi5jb20vYXZhdGFyLmpwZyIsImJhY2tncm91bmRfaW1hZ2UiOiJodHRwOi8vcnoybjg3eWNrLmhuLWJrdC5jbG91ZGRuLmNvbS9iYWNrZ3JvdW5kLnBuZyIsInNpZ25hdHVyZSI6IuWPiOadpeeci-aIkeeahOS4u-mhteWVpn4iLCJjcmVhdGVkX2F0IjoiMjAyMy0wOC0yOVQyMDoxOTozOC0wNzowMCIsImV4cCI6MTY5MzM3NDE2NCwiaWF0IjoxNjkzMzcwNTY0LCJpc3MiOiJ0ZXN0MSJ9.6VOX2tUA32meapWynWxzNepgXC4ZqBNHhqZ2DgA486U"
+	video_id := "1"
+	token := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJ0ZXN0MyIsInBhc3N3b3JkIjoiZTEwYWRjMzk0OWJhNTlhYmJlNTZlMDU3ZjIwZjg4M2UiLCJhdmF0YXIiOiJodHRwOi8vcnoybjg3eWNrLmhuLWJrdC5jbG91ZGRuLmNvbS9hdmF0YXIuanBnIiwiYmFja2dyb3VuZF9pbWFnZSI6Imh0dHA6Ly9yejJuODd5Y2suaG4tYmt0LmNsb3VkZG4uY29tL2JhY2tncm91bmQucG5nIiwic2lnbmF0dXJlIjoi5Y-I5p2l55yL5oiR55qE5Li76aG15ZWmfiIsImNyZWF0ZWRfYXQiOiIyMDIzLTA4LTI5VDIzOjI5OjA1LjY1Ni0wNzowMCIsImV4cCI6MTY5MzM4MDU0NSwiaWF0IjoxNjkzMzc2OTQ1LCJpc3MiOiJ0ZXN0MyJ9.hZxgHYARp_xs9hCylBav9YYwFqkhgGjuAafvxUHy4P0"
 	action_type := "1"
-	url := baseUrl  + "token=" + token + "&video_id" + video_id + "&action_type" + action_type
+	url := baseUrl  + "token=" + token + "&video_id=" + video_id + "&action_type=" + action_type
 
 	method := "POST"
 	client := &http.Client{}
@@ -45,10 +45,10 @@ func TestFavoriteAction(t *testing.T) {
 //重复点赞
 func TestDuplicateFavoriteAction(t *testing.T) {
 	baseUrl :="http://192.168.30.128:4000/douyin/favorite/action?"
-	video_id := "9"
-	token := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTIsInVzZXJuYW1lIjoidGVzdDEiLCJwYXNzd29yZCI6ImUxMGFkYzM5NDliYTU5YWJiZTU2ZTA1N2YyMGY4ODNlIiwiYXZhdGFyIjoiaHR0cDovL3J6Mm44N3ljay5obi1ia3QuY2xvdWRkbi5jb20vYXZhdGFyLmpwZyIsImJhY2tncm91bmRfaW1hZ2UiOiJodHRwOi8vcnoybjg3eWNrLmhuLWJrdC5jbG91ZGRuLmNvbS9iYWNrZ3JvdW5kLnBuZyIsInNpZ25hdHVyZSI6IuWPiOadpeeci-aIkeeahOS4u-mhteWVpn4iLCJjcmVhdGVkX2F0IjoiMjAyMy0wOC0yOVQyMDoxOTozOC0wNzowMCIsImV4cCI6MTY5MzM3NDE2NCwiaWF0IjoxNjkzMzcwNTY0LCJpc3MiOiJ0ZXN0MSJ9.6VOX2tUA32meapWynWxzNepgXC4ZqBNHhqZ2DgA486U"
+	video_id := "1"
+	token := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJ0ZXN0MyIsInBhc3N3b3JkIjoiZTEwYWRjMzk0OWJhNTlhYmJlNTZlMDU3ZjIwZjg4M2UiLCJhdmF0YXIiOiJodHRwOi8vcnoybjg3eWNrLmhuLWJrdC5jbG91ZGRuLmNvbS9hdmF0YXIuanBnIiwiYmFja2dyb3VuZF9pbWFnZSI6Imh0dHA6Ly9yejJuODd5Y2suaG4tYmt0LmNsb3VkZG4uY29tL2JhY2tncm91bmQucG5nIiwic2lnbmF0dXJlIjoi5Y-I5p2l55yL5oiR55qE5Li76aG15ZWmfiIsImNyZWF0ZWRfYXQiOiIyMDIzLTA4LTI5VDIzOjI5OjA1LjY1Ni0wNzowMCIsImV4cCI6MTY5MzM4MDU0NSwiaWF0IjoxNjkzMzc2OTQ1LCJpc3MiOiJ0ZXN0MyJ9.hZxgHYARp_xs9hCylBav9YYwFqkhgGjuAafvxUHy4P0"
 	action_type := "1"
-	url := baseUrl  + "token=" + token + "&video_id" + video_id + "&action_type" + action_type
+	url := baseUrl  + "token=" + token + "&video_id=" + video_id + "&action_type=" + action_type
 
 	method := "POST"
 	client := &http.Client{}
