@@ -26,6 +26,9 @@ func main() {
 	dao.InitRedis()
 	mq.InitRabbitMQ()
 	loadingScript()
+
+	defer dao.RedisClient.Close()
+
 	// etcd注册件
 	etcdReg := etcd.NewRegistry(
 		registry.Addrs(fmt.Sprintf("%s:%s", config.EtcdHost, config.EtcdPort)),

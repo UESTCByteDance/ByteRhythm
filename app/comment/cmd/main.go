@@ -5,6 +5,7 @@ import (
 	"ByteRhythm/app/comment/service"
 	"ByteRhythm/config"
 	"ByteRhythm/idl/comment/commentPb"
+
 	"github.com/go-micro/plugins/v4/registry/etcd"
 
 	"fmt"
@@ -17,6 +18,9 @@ func main() {
 	config.Init()
 	dao.InitMySQL()
 	dao.InitRedis()
+
+	defer dao.RedisNo1Client.Close()
+	defer dao.RedisNo2Client.Close()
 
 	// etcd注册件
 	etcdReg := etcd.NewRegistry(
