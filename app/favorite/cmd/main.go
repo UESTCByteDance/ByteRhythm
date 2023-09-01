@@ -10,11 +10,12 @@ import (
 	"ByteRhythm/mq"
 	"context"
 	"fmt"
+	"os"
+
 	"github.com/go-micro/plugins/v4/registry/etcd"
 	ratelimit "github.com/go-micro/plugins/v4/wrapper/ratelimiter/uber"
 	"github.com/go-micro/plugins/v4/wrapper/select/roundrobin"
 	"github.com/go-micro/plugins/v4/wrapper/trace/opentracing"
-	"os"
 
 	"go-micro.dev/v4"
 	"go-micro.dev/v4/registry"
@@ -26,6 +27,8 @@ func main() {
 	dao.InitRedis()
 	mq.InitRabbitMQ()
 	loadingScript()
+
+	defer dao.RedisClient.Close()
 
 	// etcd注册件
 	etcdReg := etcd.NewRegistry(
