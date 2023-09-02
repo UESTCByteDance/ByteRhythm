@@ -11,7 +11,7 @@ var ActionRelationFuseConfig = hystrix.CommandConfig{
 }
 
 var ListFollowRelationFuseConfig = hystrix.CommandConfig{
-	Timeout:                500,
+	Timeout:                1000,
 	RequestVolumeThreshold: 5000, // 熔断器请求阈值，默认20，意思是有20个请求才能进行错误百分比计算
 	ErrorPercentThreshold:  50,   // 错误百分比，当错误超过百分比时，直接进行降级处理，直至熔断器再次 开启，默认50%
 	SleepWindow:            5000, // 过多长时间，熔断器再次检测是否开启，单位毫秒ms（默认5秒）
@@ -19,7 +19,7 @@ var ListFollowRelationFuseConfig = hystrix.CommandConfig{
 }
 
 var ListFollowerRelationFuseConfig = hystrix.CommandConfig{
-	Timeout:                500,
+	Timeout:                1000,
 	RequestVolumeThreshold: 5000, // 熔断器请求阈值，默认20，意思是有20个请求才能进行错误百分比计算
 	ErrorPercentThreshold:  50,   // 错误百分比，当错误超过百分比时，直接进行降级处理，直至熔断器再次 开启，默认50%
 	SleepWindow:            5000, // 过多长时间，熔断器再次检测是否开启，单位毫秒ms（默认5秒）
@@ -27,7 +27,7 @@ var ListFollowerRelationFuseConfig = hystrix.CommandConfig{
 }
 
 var ListFriendRelationFuseConfig = hystrix.CommandConfig{
-	Timeout:                500,
+	Timeout:                1000,
 	RequestVolumeThreshold: 5000, // 熔断器请求阈值，默认20，意思是有20个请求才能进行错误百分比计算
 	ErrorPercentThreshold:  50,   // 错误百分比，当错误超过百分比时，直接进行降级处理，直至熔断器再次 开启，默认50%
 	SleepWindow:            5000, // 过多长时间，熔断器再次检测是否开启，单位毫秒ms（默认5秒）
