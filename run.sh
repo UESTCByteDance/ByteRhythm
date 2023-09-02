@@ -1,10 +1,10 @@
-./gateway
-./user
-./video
-./favorite
-./comment
-./relation
-./message
+./gateway &
+./user &
+./video &
+./favorite &
+./comment &
+./relation &
+./message &
 
 
 
