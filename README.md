@@ -28,6 +28,9 @@
     <span>
       <img src="https://img.shields.io/github/last-commit/UESTCByteDance/ByteRhythm" alt="last commit">
     </span>
+   <span>
+      <img src="https://komarev.com/ghpvc/?username=ByteRhythm&label=Views&color=0e75b6&style=flat" alt="访问量统计" />
+    </span>
 </div>
 
 # 使用说明
