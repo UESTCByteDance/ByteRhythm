@@ -22,6 +22,12 @@
     <a href="https://github.com/UESTCByteDance/ByteRhythm/releases/latest">
       <img src="https://img.shields.io/github/release/UESTCByteDance/ByteRhythm.svg" alt="Release">
     </a>
+    <span>
+      <img src="https://img.shields.io/github/languages/top/UESTCByteDance/ByteRhythm" alt="language">
+    </span>
+    <span>
+      <img src="https://img.shields.io/github/last-commit/UESTCByteDance/ByteRhythm" alt="last commit">
+    </span>
 </div>
 
 # 使用说明
