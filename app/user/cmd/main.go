@@ -37,7 +37,7 @@ func main() {
 		micro.Name("UserService"), // 微服务名字
 		micro.Address(config.UserServiceAddress),
 		micro.Registry(etcdReg),                                  // etcd注册件
-		micro.WrapHandler(ratelimit.NewHandlerWrapper(5000)),     //限流处理
+		micro.WrapHandler(ratelimit.NewHandlerWrapper(50000)),    //限流处理
 		micro.WrapClient(roundrobin.NewClientWrapper()),          // 负载均衡
 		micro.WrapHandler(opentracing.NewHandlerWrapper(tracer)), // 链路追踪
 		micro.WrapClient(opentracing.NewClientWrapper(tracer)),   // 链路追踪
