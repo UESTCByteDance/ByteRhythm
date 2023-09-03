@@ -193,6 +193,7 @@ go test -v
 ```
 注：测试文件的参数可能会需要根据实际情况更改。
 # docker 运行
+tips:由于服务器性能限制，因此将所有微服务放在同一个容器中，后续可用docker-compose部署为7个业务容器
 ## 1.拉取 mysql 镜像并运行
 ```sh
 docker run -d -p 3306:3306 --name tiktok-mysql -e MYSQL_ROOT_PASSWORD=123456 -e MYSQL_DATABASE=tiktok mysql/mysql-server:latest
