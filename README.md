@@ -1,5 +1,5 @@
 <h1 align="center" style="border-bottom: none;">ByteRhythm</h1>
-<h3 align="center">A repository for minimalist tiktok code.</h3>
+<h4 align="center">本项目利用 Golang 以及相关技术如 Gorm、MySQL、Redis、JWT、RabbitMQ、七牛云 等构建了基于 Gin 和 Go-micro的微服务应用，实现了视频处理、对象存储、限流、降级熔断、负载均衡等功能，并通过 Opentracing、Jaeger 等工具进行监控与追踪，Docker进行容器化部署，形成高可用高性能的分布式服务。</h4>
 <div class="labels" align="center">
     <a href="https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg">
       <img src="https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg" alt="semantic-release">
@@ -24,13 +24,9 @@
     </a>
 </div>
 
-
-注意：本项目的运行环境为`Ubuntu20.04`，原因是`ffmpeg`对`windows`不够友好,且不支持`Ubuntu20.04`更高的版本，`centos`
-暂时不清楚是否支持。
-
-如果Ubuntu上没有Golang开发环境，可参考这篇文章进行配置：<https://blog.csdn.net/m0_63230155/article/details/132246694?spm=1001.2014.3001.5502>
-
 # 使用说明
+
+如果不使用docker进行容器化部署，可以参考以下步骤进行本地部署。建议使用环境为`Ubuntu20.04`。
 
 ## 1.克隆到本地
 
@@ -150,15 +146,25 @@ RedisPort = 6379
 
 确保Redis能在本地运行。
 
-## 9.多个终端运行项目（在根目录执行命令）
+## 9.配置七牛云
+
+根据你的七牛云账户信息，修改以下配置：
+
+```ini
+Bucket = your bucket
+AccessKey = your access key
+SecretKey =  your secret key
+Domain = your domain
+```
+## 10.运行项目
 
 ```bash
-go run app/gateway/cmd/main.go
-go run app/user/cmd/main.go
-go run app/video/cmd/main.go
-go run app/favorite/cmd/main.go
-go run app/comment/cmd/main.go
-go run app/relation/cmd/main.go
-go run app/message/cmd/main.go
+//构建项目
+chmod +x build.sh
+./build.sh
+
+//运行项目                          
+chmod +x run.sh
+./run.sh                            
 ```
 
