@@ -1,5 +1,5 @@
 <h1 align="center" style="border-bottom: none;">ByteRhythm</h1>
-<h4 align="center">本项目利用 Golang 以及相关技术如 Gorm、MySQL、Redis、JWT、RabbitMQ、七牛云 等构建了基于 Gin 和 Go-micro的微服务应用，实现了视频处理、对象存储、限流、降级熔断、负载均衡等功能，并通过 Opentracing、Jaeger 等工具进行监控与追踪，Docker进行容器化部署，形成高可用高性能的分布式服务。</h4>
+<h4 align="center">本项目利用 Golang 以及相关技术如 Gorm、MySQL、Redis、JWT、RabbitMQ、Hystrix、七牛云 等构建了基于 Gin 和 Go-micro的微服务应用，实现了视频处理、对象存储、限流、降级熔断、负载均衡等功能，并通过 Opentracing、Jaeger 等工具进行监控与追踪，Docker进行容器化部署，形成高可用高性能的分布式服务。</h4>
 <div class="labels" align="center">
     <a href="https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg">
       <img src="https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg" alt="semantic-release">
@@ -34,6 +34,9 @@
 </div>
 
 # 使用说明
+本项目有v1、v2两个版本，可前往Releases：<https://github.com/UESTCByteDance/ByteRhythm/releases>下载使用，前者是传统的单体架构，用beego实现，后者是微服务架构，由gin+go-micro实现。
+
+下面介绍v2版的使用：
 
 如果不使用docker进行容器化部署，可以参考以下步骤进行本地部署。建议使用环境为`Ubuntu20.04`。
 
