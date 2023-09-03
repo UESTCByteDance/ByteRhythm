@@ -179,4 +179,12 @@ chmod +x build.sh
 chmod +x run.sh
 ./run.sh                            
 ```
-
+# docker 运行
+## 1.拉取 mysql 镜像并运行
+```sh
+docker run -d -p 3306:3306 --name tiktok-mysql -e MYSQL_ROOT_PASSWORD=123456 -e MYSQL_DATABASE=tiktok mysql/mysql-server:latest
+```
+## 2.拉取 byterhythm:v2.1 镜像并运行
+```sh
+docker run -it -p 8080-8086:8080-8086/tcp --name byterhythm david945/byterhythm:v2.1
+```

@@ -1,3 +1,4 @@
+#!/bin/bash
 go build -o gateway app/gateway/cmd/main.go
 go build -o user app/user/cmd/main.go
 go build -o video app/video/cmd/main.go
