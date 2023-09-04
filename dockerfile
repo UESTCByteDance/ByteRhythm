@@ -49,6 +49,7 @@ COPY ./*.sh  .
 COPY ./bin  ./bin
 COPY ./config ./config 
 # COPY . .
+RUN mkdir -p ./app/video/tmp/
 RUN apt install -y wget systemctl
 
 # 配置ffmpeg环境
@@ -98,12 +99,12 @@ COPY --from=builder /workspace/relation ./bin
 COPY --from=builder /workspace/favorite ./bin
 COPY --from=builder /workspace/comment ./bin
 COPY --from=builder /workspace/message ./bin
-EXPOSE 8081 8082 8083 8084 8085 8086
+EXPOSE 8080 16686
 
 # RUN chmod +x /app/run.sh 等效下面语句
 RUN cd /app &&chmod +x start.sh
 CMD ["/app/start.sh"]
 
 
-## docker build -t david945/byterhythm:v1.0 .
-## docker run -it -p 8080-8086:8080-8086/tcp --name byterhythm david945/byterhythm:v1.0
+## docker build -t david945/byterhythm:v2.1 .
+## docker run -it -p 8080:8080/tcp -p 16686:16686/tcp --name byterhythm david945/byterhythm:v2.1

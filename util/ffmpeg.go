@@ -291,7 +291,7 @@ func VideoGetNetImgCount(frameNum int, url string) string {
 // SaveFrameJpg SaveFrame writes a single frame to disk as a JPG file
 func SaveFrameJpg(frame *avutil.Frame, width, height int, movieUrl string) string {
 	// Open file
-	fileName := fmt.Sprintf("./app/video/tmp" + movieUrl + "_cover.jpg")
+	fileName := fmt.Sprintf("./app/video/tmp/" + movieUrl + "_cover.jpg")
 	file, err := os.Create(fileName)
 	if err != nil {
 		fmt.Println("Error Reading")
