@@ -33,19 +33,20 @@
     </span>
 </div>
 
+####  👀仓库地址：<https://github.com/UESTCByteDance/ByteRhythm>
 
 #### 📚文档地址：<https://uestcbytedance.github.io/>
 
-#### 🥽视频地址：<https://github.com/UESTCByteDance/UESTCByteDance.github.io/blob/main/tiktok.mp4>
+#### 🥽视频地址：[https://www.bilibili.com/video/BV1Y14y1k7gG](https://www.bilibili.com/video/BV1JF41167UL)
 
-#### 😁服务地址：<http://47.113.223.86:8080>
+
 
 # 使用说明
-本项目有v1、v2两个版本，可前往Releases：<https://github.com/UESTCByteDance/ByteRhythm/releases>下载使用，前者是传统的单体架构，用beego实现，后者是微服务架构，由gin+go-micro实现。
+本项目有v1、v2两个版本，可前往[Releases](<https://github.com/UESTCByteDance/ByteRhythm/releases>)下载使用，前者是传统的单体架构，用beego实现，后者是微服务架构，由gin+go-micro实现。
 
 下面介绍v2版的使用：
 
-如果不使用docker进行容器化部署，可以参考以下步骤进行本地部署。建议使用环境为`Ubuntu20.04`。
+如果不使用docker进行容器化部署(docker部署参照文末)，可以参考以下步骤进行本地部署。建议使用环境为`Ubuntu20.04`。
 
 ## 1.克隆到本地
 
@@ -192,15 +193,30 @@ cd test
 go test -v
 ```
 注：测试文件的参数可能会需要根据实际情况更改。
-# docker 运行
+
+## 12.docker 运行
 tips:由于服务器性能限制，因此将所有微服务放在同一个容器中，后续可用docker-compose部署为7个业务容器
-## 1.拉取 mysql 镜像并运行
+### (1)拉取 mysql 镜像并运行
 ```sh
 docker run -d -p 3306:3306 --name tiktok-mysql -e MYSQL_ROOT_PASSWORD=123456 -e MYSQL_DATABASE=tiktok mysql/mysql-server:latest
 ```
-## 2.拉取 byterhythm:v2.1 镜像并运行
+### (2)拉取 byterhythm:v2.1 镜像并运行
 ```sh
 docker run -it -p 8080:8080/tcp -p 16686:16686/tcp --name byterhythm david945/byterhythm:v2.1
 ```
+# 项目贡献者
+* [Palp1tate](https://github.com/uestc-wxy)
+
+* [youyou0805](https://github.com/youyou0805)
+
+* [Chiba-little-black-cat](https://github.com/Chiba-little-black-cat)
+
+* [DavidHGS](https://github.com/DavidHGS)
+
+* [tangyiheng](https://github.com/tangyiheng)
+
+* [woniu-huang](https://github.com/woniu-huang)
+
+* [janjiang005](https://github.com/janjiang005)
 
 
