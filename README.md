@@ -187,6 +187,7 @@ chmod +x build.sh
 chmod +x run.sh
 ./run.sh                            
 ```
+如果你是将项目克隆到Windows系统里，再转移到Ubuntu系统里，很可能会遇到Windows和Linux换行不兼容的问题，建议先执行命令`sed -i -e 's/\r$//' build.sh run.sh`，再执行上述命令。
 ## 11.运行测试
 ```bash
 cd test
