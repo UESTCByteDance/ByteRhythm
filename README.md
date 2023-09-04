@@ -37,7 +37,7 @@
 
 #### 📚文档地址：<https://uestcbytedance.github.io/>
 
-#### 🥽视频地址：<https://www.bilibili.com/video/BV1Y14y1k7gG>
+#### 🥽视频地址：[https://www.bilibili.com/video/BV1Y14y1k7gG](https://www.bilibili.com/video/BV1JF41167UL)
 
 
 
