@@ -46,7 +46,6 @@ COPY ./*.sh  .
 
 #本机目录不能使用绝对路径，因为它本身就是一个相对路径
 #只会复制本机的config目录下所有文件，而不会创建config目录，所以后面需要指定
-COPY ./bin  ./bin
 COPY ./config ./config 
 # COPY . .
 RUN mkdir -p ./app/video/tmp/
@@ -92,13 +91,13 @@ RUN apt-get install -y rabbitmq-server
 RUN apt install -y redis-server 
 
 
-COPY --from=builder /workspace/gateway ./bin
-COPY --from=builder /workspace/user ./bin
-COPY --from=builder /workspace/video ./bin
-COPY --from=builder /workspace/relation ./bin
-COPY --from=builder /workspace/favorite ./bin
-COPY --from=builder /workspace/comment ./bin
-COPY --from=builder /workspace/message ./bin
+COPY --from=builder /workspace/gateway .
+COPY --from=builder /workspace/user .
+COPY --from=builder /workspace/video .
+COPY --from=builder /workspace/relation .
+COPY --from=builder /workspace/favorite .
+COPY --from=builder /workspace/comment .
+COPY --from=builder /workspace/message .
 EXPOSE 8080 16686
 
 # RUN chmod +x /app/run.sh 等效下面语句
