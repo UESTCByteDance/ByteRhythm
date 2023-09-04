@@ -67,7 +67,7 @@ RUN wget https://github.com/etcd-io/etcd/releases/download/v3.5.9/etcd-v3.5.9-li
     tar -zxvf etcd-v3.5.9-linux-amd64.tar.gz &&\
     cd etcd-v3.5.9-linux-amd64 &&\
     chmod +x etcd  &&\
-    mv /etcd-v3.5.0-linux-amd64/etcd* /usr/local/bin/
+    mv ./etcd* /usr/local/bin/
 
 
 ## 安装 Jaeger v3.5.9
@@ -75,7 +75,7 @@ RUN wget -c https://github.com/jaegertracing/jaeger/releases/download/v1.48.0/ja
     tar -zxvf jaeger-1.48.0-linux-amd64.tar.gz &&\
 	cd jaeger-1.48.0-linux-amd64 &&\
     chmod a+x jaeger-* &&\ 
-    mv /jaeger-1.48.0-linux-amd64/jaeger-* /usr/local/bin/
+    mv ./jaeger-* /usr/local/bin/
     # nohup ./jaeger-all-in-one --collector.zipkin.host-port=:9411 &
 
 ## 安装 RabbitMQ 
