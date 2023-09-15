@@ -206,7 +206,7 @@ docker run -d -p 3306:3306 --name tiktok-mysql -e MYSQL_ROOT_PASSWORD=123456 -e 
 docker run -it -p 8080:8080/tcp -p 16686:16686/tcp --name byterhythm david945/byterhythm:v2.1
 ```
 # 项目贡献者
-* [Palp1tate](https://github.com/uestc-wxy)
+* [palp1tate](https://github.com/palp1tate)
 
 * [youyou0805](https://github.com/youyou0805)
 
