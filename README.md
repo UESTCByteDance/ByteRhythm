@@ -229,7 +229,7 @@ docker run -it -p 8080:8080/tcp -p 16686:16686/tcp --name byterhythm david945/by
 
 ![](https://cdn.jsdelivr.net/gh/palp1tate/ImgPicGo/img/dxmhj.png)
 
-## Stargazers over time
+# Stargazers over time
 [![Stargazers over time](https://starchart.cc/UESTCByteDance/ByteRhythm.svg?variant=light)](https://starchart.cc/UESTCByteDance/ByteRhythm)
 
 
